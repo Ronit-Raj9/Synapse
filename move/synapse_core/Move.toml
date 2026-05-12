@@ -1,0 +1,18 @@
+[package]
+name = "synapse_core"
+edition = "2024.beta"
+license = "Apache-2.0"
+authors = ["Synapse Core Team"]
+version = "0.1.0"
+
+[dependencies]
+# Sui framework, MoveStdlib, Bridge, and SuiSystem are auto-resolved by `sui move` (Sui CLI 1.50+).
+# DeepBookV3 is added on Phase 2 once the adapter module needs it.
+
+[addresses]
+synapse_core = "0x0"
+
+[dev-dependencies]
+
+[dev-addresses]
+synapse_core = "0x0"

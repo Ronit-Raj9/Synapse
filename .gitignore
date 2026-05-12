@@ -1,0 +1,48 @@
+# Move build artifacts
+move/**/build/
+move/**/.coverage_map.mvcov
+move/**/.trace
+
+# Node / TypeScript
+node_modules/
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+.turbo/
+
+# Env files (CRITICAL — never commit)
+.env
+.env.local
+.env.*.local
+.envrc
+
+# Sui local config
+.sui/
+sui_config/
+
+# Walrus local config
+.walrus/
+
+# Editor
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.DS_Store
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Local agent runtime data (never check in)
+runtime/
+agent-data/
+*.delegate-key

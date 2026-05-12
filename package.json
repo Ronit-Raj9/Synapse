@@ -1,0 +1,31 @@
+{
+  "name": "synapse-core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sovereign Agents on Walrus — the identity, policy, and coordination layer for autonomous AI agents on Sui",
+  "license": "Apache-2.0",
+  "workspaces": [
+    "sdk/packages/*",
+    "sdk/packages/adapters/*",
+    "web/*"
+  ],
+  "engines": {
+    "node": ">=20",
+    "npm": ">=10"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "move:build": "cd move/synapse_core && sui move build",
+    "move:test": "cd move/synapse_core && sui move test",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "prettier": "^3.4.0",
+    "typescript": "^5.7.0"
+  }
+}
