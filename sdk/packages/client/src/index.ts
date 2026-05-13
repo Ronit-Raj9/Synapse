@@ -1,13 +1,24 @@
 /**
  * @synapse-core/client — TypeScript client for Synapse Core on Sui.
  *
- * Phase 2 of the implementation plan. This file is the export root for:
- *   - `./agent`     — mint/fund/revoke/governance PTB builders
- *   - `./wallet`    — spend/withdraw/drain PTB builders
- *   - `./artifacts` — publish (Walrus upload + on-chain register), fetch, burn
- *   - `./zklogin`   — Google OAuth → ephemeral key → zkLogin proof flow
- *
- * Implementation lands per `docs/superpowers/plans/2026-05-12-synapse-core.md`.
+ * Public API surface:
+ *   - `types`         Sui type bindings + event shapes + error codes
+ *   - `config`        Per-network configuration (Walrus aggregators, MemWal relayer, …)
+ *   - `session-key`   Ephemeral Sui keypair generation for agents
+ *   - `zklogin`       Google OAuth → ephemeral key → zkLogin proof flow
+ *   - `agent`         PTB builders for `synapse_core::agent`
+ *   - `wallet`        PTB builders for `synapse_core::wallet`
+ *   - `artifacts`     Walrus upload + on-chain artifact registration
+ *   - `walrus`        Direct Walrus blob client wrapper
+ *   - `seal`          Seal encryption helpers for sensitive artifacts
  */
 
-export const SYNAPSE_PACKAGE_ID_PLACEHOLDER = '0x0';
+export * from './types.js';
+export * from './config.js';
+export * from './session-key.js';
+export * from './zklogin.js';
+export * from './agent.js';
+export * from './wallet.js';
+export * from './artifacts.js';
+export * from './walrus.js';
+export * from './seal.js';

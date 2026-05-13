@@ -1,3 +1,4 @@
+node_modules/
 # Move build artifacts
 move/**/build/
 move/**/.coverage_map.mvcov

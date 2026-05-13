@@ -15,8 +15,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@synapse-core/client": "^0.1.0",
-    "@mysten-incubation/memwal": "^0.5.0"
+    "@synapse-core/client": "*",
+    "@mysten-incubation/memwal": "^0.0.3",
+    "@mysten/sui": "^2.16.2"
   },
   "devDependencies": {
     "typescript": "^5.7.0"

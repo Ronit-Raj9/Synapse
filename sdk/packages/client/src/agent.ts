@@ -1,0 +1,206 @@
+/**
+ * PTB builders for `synapse_core::agent`.
+ *
+ * Every function in this module appends Move calls to a `Transaction` and
+ * (where relevant) returns `TransactionResult` handles so callers can chain
+ * results together inside a single PTB. Pure values use the typed pure
+ * builder from `@mysten/sui/transactions` for correct BCS encoding.
+ *
+ * Reference Move source: `move/synapse_core/sources/agent.move`.
+ */
+
+import type { Transaction, TransactionResult } from '@mysten/sui/transactions';
+import { target } from './config.js';
+import type { MintAgentInput } from './types.js';
+
+// ---------------------------------------------------------------------------
+// Mint flow
+// ---------------------------------------------------------------------------
+
+/**
+ * Append `synapse_core::agent::new(...)` to `tx`. Returns the hot-potato
+ * AgentIdentity handle that downstream calls (`fund`, `share`) consume.
+ */
+export function newAgent(
+  tx: Transaction,
+  packageId: string,
+  input: MintAgentInput,
+): TransactionResult {
+  return tx.moveCall({
+    target: target(packageId, 'agent', 'new'),
+    arguments: [
+      tx.pure.address(input.sessionAddr),
+      tx.pure.u64(input.expiryEpoch),
+      tx.pure.u64(input.spendPerEpoch),
+      tx.pure.vector('address', input.approvedPackages),
+      tx.pure.vector('u8', Array.from(input.memwalAccountId)),
+      tx.pure.vector('u8', Array.from(input.memwalDelegateKeyId)),
+      tx.pure.vector('u8', Array.from(input.memwalNamespace)),
+    ],
+  });
+}
+
+/**
+ * Append `synapse_core::agent::fund<T>(identity, coin)` to `tx`. `coin` must
+ * be a `Coin<T>` argument (from `tx.splitCoins`, `tx.gas`, or a prior call).
+ */
+export function fundAgent(
+  tx: Transaction,
+  packageId: string,
+  args: {
+    identity: TransactionResult | string;
+    coin: TransactionResult;
+    coinTypeTag: string;
+  },
+): TransactionResult {
+  const identityArg = typeof args.identity === 'string' ? tx.object(args.identity) : args.identity;
+  return tx.moveCall({
+    target: target(packageId, 'agent', 'fund'),
+    typeArguments: [args.coinTypeTag],
+    arguments: [identityArg, args.coin],
+  });
+}
+
+/**
+ * Append `synapse_core::agent::attach_messaging(identity, inbox, outbox)`.
+ */
+export function attachMessaging(
+  tx: Transaction,
+  packageId: string,
+  args: {
+    identity: TransactionResult | string;
+    inboxId: string;
+    outboxId: string;
+  },
+): TransactionResult {
+  const identityArg = typeof args.identity === 'string' ? tx.object(args.identity) : args.identity;
+  return tx.moveCall({
+    target: target(packageId, 'agent', 'attach_messaging'),
+    arguments: [identityArg, tx.pure.id(args.inboxId), tx.pure.id(args.outboxId)],
+  });
+}
+
+/**
+ * Append `synapse_core::agent::share(identity)`. Consumes the hot potato and
+ * makes the AgentIdentity a shared object. MUST be the last lifecycle call
+ * in the mint PTB.
+ */
+export function shareAgent(
+  tx: Transaction,
+  packageId: string,
+  identity: TransactionResult,
+): TransactionResult {
+  return tx.moveCall({
+    target: target(packageId, 'agent', 'share'),
+    arguments: [identity],
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Owner governance entry points
+// ---------------------------------------------------------------------------
+
+export function revokeAgent(
+  tx: Transaction,
+  packageId: string,
+  agentId: string,
+): TransactionResult {
+  return tx.moveCall({
+    target: target(packageId, 'agent', 'revoke'),
+    arguments: [tx.object(agentId)],
+  });
+}
+
+export function rotateSessionKey(
+  tx: Transaction,
+  packageId: string,
+  args: { agentId: string; newSessionAddr: string },
+): TransactionResult {
+  return tx.moveCall({
+    target: target(packageId, 'agent', 'rotate_session_key'),
+    arguments: [tx.object(args.agentId), tx.pure.address(args.newSessionAddr)],
+  });
+}
+
+export function extendExpiry(
+  tx: Transaction,
+  packageId: string,
+  args: { agentId: string; newExpiryEpoch: bigint },
+): TransactionResult {
+  return tx.moveCall({
+    target: target(packageId, 'agent', 'extend_expiry'),
+    arguments: [tx.object(args.agentId), tx.pure.u64(args.newExpiryEpoch)],
+  });
+}
+
+export function updateSpendPerEpoch(
+  tx: Transaction,
+  packageId: string,
+  args: { agentId: string; newSpendPerEpoch: bigint },
+): TransactionResult {
+  return tx.moveCall({
+    target: target(packageId, 'agent', 'update_spend_per_epoch'),
+    arguments: [tx.object(args.agentId), tx.pure.u64(args.newSpendPerEpoch)],
+  });
+}
+
+export function addApprovedPackage(
+  tx: Transaction,
+  packageId: string,
+  args: { agentId: string; pkg: string },
+): TransactionResult {
+  return tx.moveCall({
+    target: target(packageId, 'agent', 'add_approved_package'),
+    arguments: [tx.object(args.agentId), tx.pure.address(args.pkg)],
+  });
+}
+
+export function removeApprovedPackage(
+  tx: Transaction,
+  packageId: string,
+  args: { agentId: string; pkg: string },
+): TransactionResult {
+  return tx.moveCall({
+    target: target(packageId, 'agent', 'remove_approved_package'),
+    arguments: [tx.object(args.agentId), tx.pure.address(args.pkg)],
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Convenience: full mint PTB chained in one place
+// ---------------------------------------------------------------------------
+
+export interface BuildMintPTBArgs {
+  tx: Transaction;
+  packageId: string;
+  input: MintAgentInput;
+  /** SUI coin (or another funding coin) to seed the treasury with. */
+  fundingCoin: TransactionResult;
+  /** Type tag for `fundingCoin`, e.g. `0x2::sui::SUI`. */
+  fundingCoinTypeTag: string;
+  /** Optional pre-provisioned messaging channels. */
+  messaging?: { inboxId: string; outboxId: string };
+}
+
+/**
+ * Compose the canonical mint PTB: `new` → `fund` → (optional) `attach_messaging`
+ * → `share`. Returns the share-call result for any downstream chaining the
+ * caller may want.
+ */
+export function buildMintPTB(args: BuildMintPTBArgs): TransactionResult {
+  const { tx, packageId, input, fundingCoin, fundingCoinTypeTag, messaging } = args;
+  const identity = newAgent(tx, packageId, input);
+  fundAgent(tx, packageId, {
+    identity,
+    coin: fundingCoin,
+    coinTypeTag: fundingCoinTypeTag,
+  });
+  if (messaging) {
+    attachMessaging(tx, packageId, {
+      identity,
+      inboxId: messaging.inboxId,
+      outboxId: messaging.outboxId,
+    });
+  }
+  return shareAgent(tx, packageId, identity);
+}

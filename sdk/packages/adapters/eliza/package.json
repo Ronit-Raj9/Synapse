@@ -13,9 +13,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@synapse-core/client": "^0.1.0",
-    "@synapse-core/memwal-bridge": "^0.1.0",
-    "@elizaos/core": "^0.1.7"
+    "@synapse-core/client": "*",
+    "@synapse-core/memwal-bridge": "*",
+    "@elizaos/core": "^1.7.2",
+    "@mysten/sui": "^2.16.2"
   },
   "devDependencies": {
     "typescript": "^5.7.0"
