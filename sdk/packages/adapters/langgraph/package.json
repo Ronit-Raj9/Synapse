@@ -16,7 +16,9 @@
     "@synapse-core/client": "*",
     "@synapse-core/memwal-bridge": "*",
     "@langchain/langgraph": "^1.3.0",
+    "@langchain/langgraph-checkpoint": "^1.0.0",
     "@langchain/core": "^1.1.46",
+    "@mysten-incubation/memwal": "^0.0.3",
     "@mysten/sui": "^2.16.2"
   },
   "devDependencies": {
