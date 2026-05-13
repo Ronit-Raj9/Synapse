@@ -203,8 +203,8 @@ Sui Overflow 2026 theme captured as code: cream + ink palette, vibrant accents, 
 
 | Week | Deliverable |
 |---|---|
-| **Week 1 (May 13–19)** | `@synapse-core/memwal-bridge` real implementation · LangGraph adapter · `@synapse-core/vault` package scaffold |
-| **Week 2 (May 20–26)** | Conservative rebalancer strategy · Real testnet DeepBookV3 swap loop · Walrus artifact reports |
+| **Week 1 (May 13–19)** | ✅ `@synapse-core/memwal-bridge` real implementation · LangGraph adapter · Vault runtime loop · DeepBookV3 swap composition · Walrus artifact reports |
+| **Week 2 (May 20–26)** | Runtime hardening · funded-vault testnet rehearsal · Memory Inspector polish |
 | **Week 3 (May 27–Jun 2)** | Vault Next.js dashboard (mint flow, holdings, audit timeline, revoke) · Indexer with Vault GraphQL views |
 | **Week 4 (Jun 3–9)** | Landing site with pricing calculator · Memory Inspector polish · Demo video script and rehearsals |
 | **Week 5 (Jun 10–16)** | Demo video recording · README polish · Threat model doc · Final submission package |
@@ -245,13 +245,13 @@ synapse-core/                              monorepo root
 ├── sdk/packages/
 │   ├── client/                            ✅ Sui + Walrus + Seal + zkLogin SDK
 │   ├── design-tokens/                     ✅ Overflow theme tokens
-│   ├── memwal-bridge/                     🚧 Real MemWal SDK bindings (Week 1)
-│   ├── vault/                             🚧 Vault strategy engine + executor (Week 1–2)
+│   ├── memwal-bridge/                     ✅ Real MemWal SDK bindings
+│   ├── vault/                             ✅ Strategy engine + executor + autonomous runtime
 │   ├── adapters/
-│   │   └── langgraph/                     🚧 LangGraph adapter (Week 1)
-│   └── indexer/                           🚧 GraphQL indexer (Week 3)
+│   │   └── langgraph/                     ✅ LangGraph adapter
+│   └── indexer/                           ✅ GraphQL indexer
 ├── web/
-│   ├── dashboard/                         🚧 Vault product UI (Week 3)
+│   ├── dashboard/                         ✅ Vault product UI
 │   ├── inspector/                         🚧 Memory Inspector dev tool (Week 4)
 │   └── site/                              🚧 Marketing + pricing site (Week 4)
 └── docs/superpowers/plans/                ✅ Implementation plan

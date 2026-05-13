@@ -45,5 +45,7 @@ coverage/
 
 # Local agent runtime data (never check in)
 runtime/
+!sdk/packages/vault/src/runtime/
+!sdk/packages/vault/src/runtime/**
 agent-data/
 *.delegate-key

@@ -8,7 +8,11 @@
     ".": "./src/index.ts",
     "./strategies": "./src/strategies/index.ts",
     "./executor": "./src/executor.ts",
-    "./report": "./src/report.ts"
+    "./report": "./src/report.ts",
+    "./runtime": "./src/runtime/index.ts"
+  },
+  "bin": {
+    "synapse-vault-runtime": "./src/runtime/bin/run.ts"
   },
   "files": [
     "src"
@@ -19,15 +23,19 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@synapse-core/client": "*",
-    "@synapse-core/memwal-bridge": "*",
+    "@mysten/deepbook-v3": "^1.3.6",
     "@mysten/sui": "^2.16.2",
     "@mysten/walrus": "^1.1.7",
-    "@noble/hashes": "^2.0.0"
+    "@noble/hashes": "^2.0.0",
+    "@synapse-core/client": "*",
+    "@synapse-core/memwal-bridge": "*",
+    "pino": "^10.3.1"
   },
   "devDependencies": {
+    "@types/node": "^22.10.0",
+    "msw": "^2.14.6",
+    "tsx": "^4.21.0",
     "typescript": "^5.7.0",
-    "vitest": "^2.1.0",
-    "@types/node": "^22.10.0"
+    "vitest": "^2.1.0"
   }
 }

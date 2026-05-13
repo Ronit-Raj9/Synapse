@@ -17,7 +17,7 @@
  * version while still enforcing Synapse policy.
  */
 
-import type { Transaction, TransactionResult } from '@mysten/sui/transactions';
+import type { Transaction, TransactionObjectArgument, TransactionResult } from '@mysten/sui/transactions';
 import {
   target,
   ActionKind,
@@ -40,9 +40,9 @@ export type DeepBookSwapFn = (
   tx: Transaction,
   args: {
     trade: PlannedTrade;
-    inputCoin: TransactionResult;
+    inputCoin: TransactionObjectArgument;
   },
-) => TransactionResult;
+) => TransactionObjectArgument;
 
 export interface BuildRebalancePTBArgs {
   tx: Transaction;
