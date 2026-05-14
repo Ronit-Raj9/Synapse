@@ -1,0 +1,144 @@
+/**
+ * Live event loader. Queries Sui RPC for all events emitted by the deployed
+ * `synapse_core` modules and projects them into the same `TimelineEntry`
+ * shape the dashboard renders. This replaces sample data when the dashboard
+ * has detected a real vault.
+ */
+
+import type { SuiJsonRpcClient } from '@mysten/sui/jsonRpc';
+import type { TimelineEntry } from './sample-data';
+import { SYNAPSE_PACKAGE_ID } from './synapse-config';
+
+/** The Sui RPC client surface we need — narrowed to just `queryEvents`. */
+type LiveEventsClient = Pick<SuiJsonRpcClient, 'queryEvents'>;
+
+const MODULES = [
+  'agent',
+  'wallet',
+  'artifacts',
+  'coordination',
+  'messaging_bridge',
+  'deepbook_adapter',
+  'attestation',
+] as const;
+
+const KIND_BY_EVENT_TAIL: Array<{ tail: string; kind: TimelineEntry['kind']; accent: string }> = [
+  { tail: '::agent::AgentMintedEvent', kind: 'agent_minted', accent: '#030F1C' },
+  { tail: '::agent::AgentRevokedEvent', kind: 'agent_revoked', accent: '#FF6B35' },
+  { tail: '::agent::AgentFundedEvent', kind: 'agent_funded', accent: '#5BD49C' },
+  { tail: '::wallet::SpendEvent', kind: 'spend', accent: '#5BC0EB' },
+  { tail: '::artifacts::ArtifactPublishedEvent', kind: 'artifact_published', accent: '#9D7AEB' },
+  { tail: '::coordination::CrossAgentReadEvent', kind: 'cross_agent_read', accent: '#FF8FA3' },
+  { tail: '::messaging_bridge::MessageSentEvent', kind: 'message_sent', accent: '#FF8FA3' },
+  { tail: '::messaging_bridge::MessageReceivedEvent', kind: 'message_received', accent: '#FF8FA3' },
+  { tail: '::deepbook_adapter::SwapEvent', kind: 'swap', accent: '#FF6B35' },
+  { tail: '::attestation::ActionLogEvent', kind: 'action_log', accent: '#F7C543' },
+];
+
+function classifyType(type: string): { kind: TimelineEntry['kind']; accent: string } | null {
+  for (const m of KIND_BY_EVENT_TAIL) {
+    if (type.endsWith(m.tail)) return { kind: m.kind, accent: m.accent };
+  }
+  return null;
+}
+
+export interface LoadEventsOptions {
+  client: LiveEventsClient;
+  /** Restrict to events tagged with this AgentIdentity ID. */
+  agentId?: string;
+  /** Page size. Default 50. */
+  limit?: number;
+}
+
+/**
+ * Fetch events emitted by the deployed `synapse_core` package, optionally
+ * filtered to a single agent. Newest first.
+ */
+export async function loadLiveTimeline(opts: LoadEventsOptions): Promise<TimelineEntry[]> {
+  const { client, agentId, limit = 50 } = opts;
+
+  const entries: TimelineEntry[] = [];
+  for (const moduleName of MODULES) {
+    const pageLimit = Math.min(50, limit);
+    try {
+      const page = await client.queryEvents({
+        query: { MoveModule: { package: SYNAPSE_PACKAGE_ID, module: moduleName } },
+        cursor: null,
+        limit: pageLimit,
+        order: 'descending',
+      });
+      for (const ev of page.data) {
+        const meta = classifyType(ev.type);
+        if (!meta) continue;
+        const parsed = ev.parsedJson as Record<string, unknown>;
+        if (agentId && !matchesAgent(parsed, agentId)) continue;
+        entries.push({
+          id: `${ev.id.txDigest}-${ev.id.eventSeq}`,
+          vaultId: agentId ?? '',
+          kind: meta.kind,
+          description: describe(meta.kind, parsed),
+          timestamp: Number(ev.timestampMs ?? Date.now()),
+          txDigest: ev.id.txDigest,
+          accentColor: meta.accent,
+        });
+      }
+    } catch (err) {
+      // Per-module failures shouldn't kill the whole load.
+      console.warn(`[synapse-events] ${moduleName} query failed`, err);
+    }
+  }
+
+  entries.sort((a, b) => b.timestamp - a.timestamp);
+  return entries.slice(0, limit);
+}
+
+function matchesAgent(parsed: Record<string, unknown>, agentId: string): boolean {
+  const lower = agentId.toLowerCase();
+  for (const key of [
+    'agent_id',
+    'reader_id',
+    'writer_id',
+    'sender_agent_id',
+    'receiver_agent_id',
+  ]) {
+    const v = parsed[key];
+    if (typeof v === 'string' && v.toLowerCase() === lower) return true;
+  }
+  return false;
+}
+
+function describe(kind: TimelineEntry['kind'], p: Record<string, unknown>): string {
+  switch (kind) {
+    case 'agent_minted':
+      return `Vault minted · spend cap ${p['spend_per_epoch'] ?? '?'} per epoch`;
+    case 'agent_revoked':
+      return `Vault revoked at epoch ${p['revoked_at_epoch'] ?? '?'}`;
+    case 'agent_funded':
+      return `Treasury funded with ${p['amount'] ?? '?'} ${shortenTypeName(p['token_type'])}`;
+    case 'spend':
+      return `Spent ${p['amount'] ?? '?'} ${shortenTypeName(p['token_type'])} → ${shortenAddr(p['target_pkg'])}`;
+    case 'artifact_published':
+      return `Artifact ${p['label'] ?? p['artifact_slot'] ?? ''} published`;
+    case 'cross_agent_read':
+      return `Cross-agent memory read`;
+    case 'message_sent':
+      return `Message sent → ${shortenAddr(p['recipient_inbox_id'])}`;
+    case 'message_received':
+      return `Message received ← ${shortenAddr(p['sender_outbox_id'])}`;
+    case 'swap':
+      return `Swap ${p['input_amount'] ?? '?'} → ${p['output_amount'] ?? '?'}`;
+    case 'action_log':
+      return typeof p['description'] === 'string' ? (p['description'] as string) : 'Action log';
+  }
+}
+
+function shortenAddr(v: unknown): string {
+  if (typeof v !== 'string') return '?';
+  return v.length > 12 ? `${v.slice(0, 8)}…${v.slice(-4)}` : v;
+}
+
+function shortenTypeName(v: unknown): string {
+  if (typeof v !== 'string') return '';
+  const last = v.split('::').pop() ?? v;
+  return last.replace(/[<>]/g, '');
+}

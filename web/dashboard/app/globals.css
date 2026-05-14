@@ -1,0 +1,543 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+ * Synapse Vault — Sui Overflow 2026 theme tokens
+ *
+ * Editorial brutalism with Y2K accents. Cream paper background with sharp
+ * dark navy ink. Vibrant accent palette drawn from the Overflow keycap
+ * illustration. Bold display typography paired with editorial serif accents
+ * and monospace data.
+ * ------------------------------------------------------------------------- */
+
+:root {
+  /* Surfaces */
+  --paper: #f5f0e6;
+  --paper-soft: #ece6d8;
+  --paper-strong: #fbf7ed;
+  --ink: #030f1c;
+  --ink-soft: #1a2533;
+  --ink-mute: #3d4a5c;
+
+  /* Y2K accent palette */
+  --accent-orange: #ff6b35;
+  --accent-purple: #9d7aeb;
+  --accent-green: #5bd49c;
+  --accent-blue: #4a9bff;
+  --accent-pink: #ff8fa3;
+  --accent-yellow: #f7c543;
+  --accent-lavender: #c4a8f0;
+  --accent-coral: #ff7e6b;
+  --code-cyan: #5bc0eb;
+
+  /* Functional */
+  --grid: #d6e4f5;
+  --divider: rgba(3, 15, 28, 0.12);
+  --overlay: rgba(3, 15, 28, 0.04);
+
+  /* State colors */
+  --state-active: #5bd49c;
+  --state-expired: #f7c543;
+  --state-revoked: #ff6b35;
+  --state-draft: #c4a8f0;
+
+  /* Shadows */
+  --shadow-flat: 4px 4px 0 0 var(--ink);
+  --shadow-flat-lg: 6px 6px 0 0 var(--ink);
+  --shadow-soft: 0 8px 32px rgba(3, 15, 28, 0.08);
+  --shadow-card: 2px 2px 0 0 var(--ink), 0 4px 16px rgba(3, 15, 28, 0.06);
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-soft: var(--paper-soft);
+  --color-paper-strong: var(--paper-strong);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-mute: var(--ink-mute);
+  --color-accent-orange: var(--accent-orange);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-green: var(--accent-green);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-pink: var(--accent-pink);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-lavender: var(--accent-lavender);
+  --color-accent-coral: var(--accent-coral);
+  --color-code-cyan: var(--code-cyan);
+  --color-grid: var(--grid);
+  --color-state-active: var(--state-active);
+  --color-state-expired: var(--state-expired);
+  --color-state-revoked: var(--state-revoked);
+
+  --font-display: var(--font-bricolage), 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-serif: var(--font-instrument), 'Instrument Serif', Georgia, serif;
+  --font-sans: var(--font-geist), 'Geist', system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* ---------------------------------------------------------------------------
+ * Base
+ * ------------------------------------------------------------------------- */
+
+html,
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+* {
+  border-color: var(--divider);
+}
+
+/* ---------------------------------------------------------------------------
+ * Decorative patterns
+ * ------------------------------------------------------------------------- */
+
+.blueprint-grid {
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.blueprint-grid-dense {
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.crosshatch {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--divider) 0,
+    var(--divider) 1px,
+    transparent 1px,
+    transparent 12px
+  );
+}
+
+.dot-grid {
+  background-image: radial-gradient(circle, var(--grid) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.4'/%3E%3C/svg%3E");
+}
+
+/* ---------------------------------------------------------------------------
+ * Buttons (sharp Y2K flat-shadow style)
+ * ------------------------------------------------------------------------- */
+
+.btn-flat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  background-color: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow-flat);
+  cursor: pointer;
+  transition:
+    transform 120ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 120ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-flat:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 0 var(--ink);
+}
+
+.btn-flat:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 0 var(--ink);
+}
+
+.btn-flat:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-flat[data-variant='primary'] {
+  background-color: var(--ink);
+  color: var(--paper);
+}
+
+.btn-flat[data-variant='accent'] {
+  background-color: var(--accent-orange);
+  color: var(--ink);
+}
+
+.btn-flat[data-variant='danger'] {
+  background-color: var(--accent-orange);
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+.btn-flat[data-variant='ghost'] {
+  background-color: transparent;
+  box-shadow: none;
+  border-color: var(--divider);
+}
+
+.btn-flat[data-variant='ghost']:hover:not(:disabled) {
+  transform: none;
+  border-color: var(--ink);
+  background-color: var(--paper-strong);
+  box-shadow: none;
+}
+
+/* ---------------------------------------------------------------------------
+ * Code tag decoration: <date>May 13, 2026</date>
+ * ------------------------------------------------------------------------- */
+
+.code-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  font-weight: 500;
+  color: currentColor;
+}
+
+.code-tag::before {
+  content: '<';
+  color: var(--code-cyan);
+  font-weight: 600;
+}
+
+.code-tag::after {
+  content: '>';
+  color: var(--code-cyan);
+  font-weight: 600;
+}
+
+.code-tag-close::before {
+  content: '</';
+  color: var(--code-cyan);
+  font-weight: 600;
+}
+
+.code-tag-close::after {
+  content: '>';
+  color: var(--code-cyan);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------------
+ * Cards & surfaces
+ * ------------------------------------------------------------------------- */
+
+.card {
+  background-color: var(--paper-strong);
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+  box-shadow: var(--shadow-card);
+}
+
+.card-flat {
+  background-color: var(--paper-strong);
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+  box-shadow: var(--shadow-flat);
+}
+
+.card-bare {
+  background-color: var(--paper-strong);
+  border: 1px solid var(--divider);
+  border-radius: 6px;
+}
+
+.divider-dashed {
+  border: 0;
+  border-top: 1.5px dashed var(--ink-mute);
+}
+
+/* ---------------------------------------------------------------------------
+ * Animations
+ * ------------------------------------------------------------------------- */
+
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes drift {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  33% {
+    transform: translate(8px, -4px) rotate(0.5deg);
+  }
+  66% {
+    transform: translate(-4px, 8px) rotate(-0.5deg);
+  }
+}
+
+.animate-ticker {
+  animation: ticker 60s linear infinite;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-blink {
+  animation: blink 1.6s ease-in-out infinite;
+}
+
+.animate-drift {
+  animation: drift 12s ease-in-out infinite;
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+/* ---------------------------------------------------------------------------
+ * Pulsing dot used to denote live/active state
+ * ------------------------------------------------------------------------- */
+
+.live-dot {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background-color: var(--state-active);
+}
+
+.live-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background-color: var(--state-active);
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+/* ---------------------------------------------------------------------------
+ * Marquee ticker (number/code strips)
+ * ------------------------------------------------------------------------- */
+
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--paper) 8%,
+    var(--paper) 92%,
+    transparent 100%
+  );
+}
+
+/* ---------------------------------------------------------------------------
+ * Number display ("tabular" feel)
+ * ------------------------------------------------------------------------- */
+
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+.num-display {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+/* ---------------------------------------------------------------------------
+ * Status pill
+ * ------------------------------------------------------------------------- */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  background-color: var(--paper);
+}
+
+.pill[data-state='active'] {
+  background-color: var(--state-active);
+}
+
+.pill[data-state='expired'] {
+  background-color: var(--state-expired);
+}
+
+.pill[data-state='revoked'] {
+  background-color: var(--state-revoked);
+  color: var(--paper);
+}
+
+.pill[data-state='draft'] {
+  background-color: var(--state-draft);
+}
+
+/* ---------------------------------------------------------------------------
+ * Print styles — `Export PDF` opens the browser print dialog, which renders
+ * the dashboard in print-friendly form. Hides the navbar / interactive
+ * controls and forces solid backgrounds for the audit timeline.
+ * ------------------------------------------------------------------------- */
+
+@media print {
+  html,
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  /* Hide chrome — keep just the dashboard content */
+  header,
+  .syn-wallet-slot,
+  .btn-flat,
+  button[aria-label='Close modal'],
+  .marquee,
+  .blueprint-grid,
+  .blueprint-grid-dense,
+  .crosshatch,
+  .dot-grid,
+  .noise,
+  .live-dot {
+    display: none !important;
+  }
+  /* Force backgrounds to print */
+  .card,
+  .card-flat,
+  .card-bare {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    background-color: #fff !important;
+    break-inside: avoid;
+  }
+  .num-display,
+  .headline {
+    color: #000 !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+  a {
+    text-decoration: none !important;
+  }
+  a::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.7em;
+    color: #555;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Display headline utility
+ * ------------------------------------------------------------------------- */
+
+.headline {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.92;
+  color: var(--ink);
+}
+
+/* ---------------------------------------------------------------------------
+ * Wallet button override: reskin dapp-kit's <ConnectButton> to match the
+ * flat-shadow brutalist aesthetic. We scope under .syn-wallet-slot to avoid
+ * leaking styles into other dapp-kit components we might use later.
+ * ------------------------------------------------------------------------- */
+
+.syn-wallet-slot button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  background-color: var(--ink);
+  color: var(--paper);
+  box-shadow: var(--shadow-flat);
+  cursor: pointer;
+  transition:
+    transform 120ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 120ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.syn-wallet-slot button:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 0 var(--ink);
+}
+
+.syn-wallet-slot button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 0 var(--ink);
+}
