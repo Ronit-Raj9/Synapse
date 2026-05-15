@@ -10,6 +10,7 @@ import { LiveVaultBanner } from './live-vault-banner';
 import { PolicyPanel } from './policy-panel';
 import { ArtifactsPanel } from './artifacts-panel';
 import { RunTickButton } from './run-tick-button';
+import { SessionKeyPanel } from './session-key-panel';
 import { CodeTag } from '../ui/code-tag';
 import {
   SAMPLE_REBALANCE_HISTORY,
@@ -19,6 +20,7 @@ import {
 import { formatUsd } from '@/lib/format';
 import type { LocalVaultRecord } from '@/lib/local-vaults';
 import { useLiveVault } from '../../hooks/use-live-vault';
+import { useLiveNavHistory } from '../../hooks/use-live-nav-history';
 
 /**
  * Top-level dashboard client island. Detects the user's live vault, fetches
@@ -29,6 +31,8 @@ export function DashboardShell() {
   const [liveVault, setLiveVault] = useState<LocalVaultRecord | null>(null);
   const liveQuery = useLiveVault(liveVault?.agentId);
   const live = liveQuery.data ?? null;
+  const historyQuery = useLiveNavHistory(liveVault?.agentId, live);
+  const liveHistory = historyQuery.data ?? null;
 
   const sampleVault = SAMPLE_VAULT;
   const navUsd = live?.navUsd ?? sampleVault.navUsd;
@@ -44,9 +48,10 @@ export function DashboardShell() {
       <div className="mt-6">
         <VaultCard
           vault={sampleVault}
-          history={SAMPLE_REBALANCE_HISTORY}
+          sampleHistory={SAMPLE_REBALANCE_HISTORY}
           {...(live ? { live } : {})}
-          loading={liveQuery.isLoading}
+          {...(liveHistory ? { liveHistory } : {})}
+          loading={liveQuery.isLoading || historyQuery.isLoading}
         />
       </div>
 
@@ -93,6 +98,7 @@ export function DashboardShell() {
             loading={liveQuery.isLoading}
           />
           <PolicyPanel {...(live ? { live } : {})} />
+          {liveVault && <SessionKeyPanel vaultId={liveVault.agentId} />}
           {liveVault && <ArtifactsPanel vaultId={liveVault.agentId} />}
           <DangerZone {...(liveVault ? { vaultId: liveVault.agentId } : {})} />
         </div>

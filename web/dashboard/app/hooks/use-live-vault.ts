@@ -21,18 +21,31 @@ export interface PricedVaultState extends LiveVaultState {
   spendCapUsd: number;
   /** ISO timestamp from the most recent successful fetch. */
   asOf: string;
+  /** Symbol → USD map actually used for valuation. */
+  priceMap: Record<string, number>;
+  /** If the oracle call failed, a short message; otherwise null. */
+  priceError: string | null;
+  /** Symbols the oracle could not price. */
+  unpriced: string[];
 }
 
 /**
  * Reads live AgentIdentity state + prices its holdings using Pyth Hermes.
  * Re-fetches every 30s by default. Falls back to `null` when no vault is
- * provided (which keeps the demo dashboard happy when the user hasn't
- * minted anything yet).
+ * provided.
+ *
+ * Failure semantics:
+ *   - `loadLiveVault` errors → the React Query enters error state, no
+ *     stale data is returned.
+ *   - The Pyth call failing is NOT fatal: balances still load, NAV degrades
+ *     to whatever the stable-peg fallback can recover, and `priceError`
+ *     carries the diagnostic.
+ *   - Symbols with no oracle coverage AND no peg fallback land in
+ *     `unpriced` so the UI can surface a footnote.
  */
-export function useLiveVault(vaultId: string | null | undefined): UseQueryResult<
-  PricedVaultState | null,
-  Error
-> {
+export function useLiveVault(
+  vaultId: string | null | undefined,
+): UseQueryResult<PricedVaultState | null, Error> {
   const client = useSuiClient();
   return useQuery<PricedVaultState | null, Error>({
     queryKey: ['synapse-vault', vaultId],
@@ -40,7 +53,15 @@ export function useLiveVault(vaultId: string | null | undefined): UseQueryResult
       if (!vaultId) return null;
       const state = await loadLiveVault({ client, vaultId });
       const symbols = uniqueSymbols(state.balances.map((b) => b.symbol));
-      const priceMap = await fetchPythPricesUsd(symbols, signal).catch(() => ({}));
+
+      let priceMap: Record<string, number> = {};
+      let priceError: string | null = null;
+      try {
+        priceMap = await fetchPythPricesUsd(symbols, signal);
+      } catch (err) {
+        priceError = err instanceof Error ? err.message : String(err);
+      }
+
       const stableFallback = stablePegFallback(state.balances, priceMap);
       const prices = { ...stableFallback, ...priceMap };
 
@@ -55,6 +76,10 @@ export function useLiveVault(vaultId: string | null | undefined): UseQueryResult
         };
       });
 
+      const unpriced = priced
+        .filter((p) => p.priceUsd === 0 && p.amount > 0n)
+        .map((p) => p.symbol);
+
       const navUsd = priced.reduce((sum, h) => sum + h.valueUsd, 0);
       const spendCapUsd = inferSpendCapUsd(state.identity.spendPerEpoch, priced);
 
@@ -64,12 +89,16 @@ export function useLiveVault(vaultId: string | null | undefined): UseQueryResult
         navUsd,
         spendCapUsd,
         asOf: new Date().toISOString(),
+        priceMap: prices,
+        priceError,
+        unpriced,
       };
     },
     enabled: !!vaultId,
     staleTime: 30_000,
     refetchInterval: 30_000,
     refetchOnWindowFocus: true,
+    retry: 1,
   });
 }
 

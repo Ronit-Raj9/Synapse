@@ -29,6 +29,19 @@ export const SYNAPSE_UPGRADE_CAP =
   '0x523919c8fa8d7d356c016749cf0df268c385c83b1194c0930c9167056b448e4d';
 
 /**
+ * Optional hosted indexer GraphQL endpoint. When set, the audit timeline +
+ * inspector prefer it over direct `queryEvents` calls — the GraphQL path
+ * paginates better and supports cross-agent joins. When unset (default),
+ * the dashboard reads events directly from the Sui fullnode and everything
+ * still works.
+ *
+ * Configure via `NEXT_PUBLIC_SYNAPSE_INDEXER_URL=https://…/graphql` in
+ * `.env.local`.
+ */
+export const SYNAPSE_INDEXER_URL: string | null =
+  process.env['NEXT_PUBLIC_SYNAPSE_INDEXER_URL'] ?? null;
+
+/**
  * Default Sui full-node URL for the active network. Use this when
  * constructing a standalone `SuiClient` outside of @mysten/dapp-kit
  * (e.g., in event indexer logic).

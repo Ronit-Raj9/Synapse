@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en" data-scroll-behavior="smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Synapse Vault — Autonomous AI Treasury Management on Sui</title>
+    <meta
+      name="description"
+      content="Hire an AI portfolio manager. Pay it in basis points. Revoke it in one click. Sui Overflow 2026 · Walrus Specialized Track."
+    />
+    <meta property="og:title" content="Synapse Vault" />
+    <meta
+      property="og:description"
+      content="Autonomous AI treasury management on Sui — 1% AUM, cryptographic kill switch, fully on-chain audit."
+    />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Geist:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  </head>
+  <body class="bg-paper text-ink">
+    <header class="site-nav">
+      <a href="/" class="logo" aria-label="Synapse Vault">
+        <svg viewBox="0 0 36 36" width="32" height="32" aria-hidden>
+          <rect x="3" y="3" width="14" height="14" rx="2" fill="#FF6B35" stroke="#030F1C" stroke-width="2" />
+          <rect x="19" y="3" width="14" height="14" rx="2" fill="#5BD49C" stroke="#030F1C" stroke-width="2" />
+          <rect x="3" y="19" width="14" height="14" rx="2" fill="#9D7AEB" stroke="#030F1C" stroke-width="2" />
+          <rect x="19" y="19" width="14" height="14" rx="2" fill="#4A9BFF" stroke="#030F1C" stroke-width="2" />
+        </svg>
+        <span class="logo-text">Synapse<span class="dot">.</span></span>
+      </a>
+      <nav class="site-nav-links">
+        <a href="#how">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#tech">Built on</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="nav-actions">
+        <span class="testnet-pill">
+          <span class="dot-live"></span>
+          <span class="testnet-label">Testnet · Live</span>
+        </span>
+        <a class="btn btn-primary" href="https://localhost:3001/mint">
+          Mint a vault
+          <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
+            <path d="M2 7H12M12 7L7.5 2.5M12 7L7.5 11.5" stroke="currentColor" stroke-width="2" />
+          </svg>
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero -->
+      <section class="hero blueprint-grid">
+        <div class="hero-grid">
+          <div>
+            <div class="badge">
+              <span class="dot-live"></span>
+              <span>Sui Overflow 2026 · Walrus Specialized Track</span>
+            </div>
+            <h1 class="headline">
+              <span>Autonomous</span>
+              <span>AI <span class="serif">treasury</span></span>
+              <span>management<span class="dot">.</span></span>
+            </h1>
+            <p class="lede">
+              Hire an AI portfolio manager. Pay it in basis points. Revoke it in one click.
+              <span class="serif">Synapse Vault</span> is the first treasury manager where every
+              decision is policy-bounded on-chain and every dollar is auditable to a single Sui
+              transaction.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="https://localhost:3001/mint">
+                Mint a vault
+                <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
+                  <path d="M2 7H12M12 7L7.5 2.5M12 7L7.5 11.5" stroke="currentColor" stroke-width="2" />
+                </svg>
+              </a>
+              <a class="btn btn-accent" href="https://localhost:3001/dashboard">See it live</a>
+              <a class="btn btn-ghost" href="#pricing">Pricing</a>
+            </div>
+            <dl class="hero-stats">
+              <div>
+                <dt>Fee</dt>
+                <dd class="display">1% AUM</dd>
+                <dd class="hint">+ 0.5% perf</dd>
+              </div>
+              <div>
+                <dt>Settlement</dt>
+                <dd class="display">atomic</dd>
+                <dd class="hint">single PTB</dd>
+              </div>
+              <div>
+                <dt>Kill switch</dt>
+                <dd class="display">1 tx</dd>
+                <dd class="hint">cryptographic</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="hero-card">
+            <div class="hero-card-grid">
+              <div class="hero-card-row">
+                <span class="mono-small">treasury</span>
+                <span class="mono">$10,000,000</span>
+              </div>
+              <div class="hero-card-row">
+                <span class="mono-small">strategy</span>
+                <span class="mono">Conservative Rebalancer v1.0</span>
+              </div>
+              <div class="hero-card-row">
+                <span class="mono-small">cap</span>
+                <span class="mono">5% / epoch · DeepBookV3 only</span>
+              </div>
+              <div class="hero-card-row">
+                <span class="mono-small">expiry</span>
+                <span class="mono">90 epochs · renewable</span>
+              </div>
+              <div class="hero-card-row">
+                <span class="mono-small">audit</span>
+                <span class="mono">Walrus + on-chain log</span>
+              </div>
+              <hr class="dashed" />
+              <div class="hero-card-projection">
+                <span class="mono-small">annual revenue at 1% mgmt + alpha</span>
+                <span class="display-3xl">$140,000</span>
+                <span class="hint">per vault · scales linearly to portfolio</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Partners marquee -->
+      <section class="partners">
+        <div class="marquee">
+          <ul class="marquee-track">
+            <li>● Built on Walrus</li>
+            <li>● Built on MemWal</li>
+            <li>● Built on DeepBookV3</li>
+            <li>● Built on Seal</li>
+            <li>● Built on Sui Stack Messaging</li>
+            <li>● Built on zkLogin</li>
+            <li>● Built on Walrus</li>
+            <li>● Built on MemWal</li>
+            <li>● Built on DeepBookV3</li>
+            <li>● Built on Seal</li>
+            <li>● Built on Sui Stack Messaging</li>
+            <li>● Built on zkLogin</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- How it works -->
+      <section id="how" class="section">
+        <div class="section-grid">
+          <div class="section-intro">
+            <span class="mono-small">&lt;how&gt; · four primitives, one audit trail</span>
+            <h2 class="headline-2">
+              Four primitives.<br />One <span class="serif">audit trail</span>.
+            </h2>
+            <p>
+              Every Vault is a single Sui object that composes Walrus storage, MemWal memory,
+              Seal encryption, and DeepBookV3 liquidity. The Move VM enforces every policy gate.
+            </p>
+          </div>
+          <ol class="steps">
+            <li class="step">
+              <div class="step-marker" style="background:#4A9BFF">01</div>
+              <div>
+                <span class="mono-small">identity</span>
+                <h3>Mint with zkLogin</h3>
+                <p>
+                  Sign in with Google. Spawn a Vault in two clicks with spend cap, contract
+                  allowlist, and expiry baked into Move at mint time.
+                </p>
+              </div>
+            </li>
+            <li class="step">
+              <div class="step-marker" style="background:#5BD49C">02</div>
+              <div>
+                <span class="mono-small">memory</span>
+                <h3>Recall via MemWal</h3>
+                <p>
+                  The strategy reads its long-term memory off Walrus before every decision. Past
+                  rebalance rationale persists across sessions and survives crashes.
+                </p>
+              </div>
+            </li>
+            <li class="step">
+              <div class="step-marker" style="background:#FF6B35">03</div>
+              <div>
+                <span class="mono-small">execute</span>
+                <h3>Execute on DeepBookV3</h3>
+                <p>
+                  One PTB chains policy gate → wallet::spend → DeepBookV3 swap → record audit.
+                  Atomic. No off-policy action can land — the Move VM rejects it.
+                </p>
+              </div>
+            </li>
+            <li class="step">
+              <div class="step-marker" style="background:#9D7AEB">04</div>
+              <div>
+                <span class="mono-small">audit</span>
+                <h3>Audit &amp; revoke</h3>
+                <p>
+                  Every action is a signed event. Compliance officers query by agent + epoch. One
+                  revocation PTB cascades wallet, MemWal delegate, and Walrus blobs.
+                </p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- Pricing calculator -->
+      <section id="pricing" class="section section-soft">
+        <div class="section-header">
+          <span class="mono-small">&lt;pricing&gt;</span>
+          <h2 class="headline-2">
+            Pay <span class="serif">in basis points</span>,<br />not flat fees.
+          </h2>
+          <p>
+            Industry-standard treasury management economics: 1% annual management fee plus 0.5%
+            of realized alpha vs. benchmark. Streamed continuously to the protocol fee account
+            on-chain.
+          </p>
+        </div>
+
+        <div class="calculator card-flat">
+          <div class="calc-left">
+            <span class="mono-small">&lt;inputs&gt;</span>
+            <div class="field">
+              <label for="aum">Treasury AUM</label>
+              <input
+                id="aum"
+                type="range"
+                min="500000"
+                max="250000000"
+                step="500000"
+                value="10000000"
+              />
+              <span class="field-value" id="aum-display">$10,000,000</span>
+            </div>
+            <div class="field">
+              <label for="mgmt">Management fee (bps/yr)</label>
+              <input id="mgmt" type="range" min="0" max="250" step="5" value="100" />
+              <span class="field-value" id="mgmt-display">100 bps</span>
+            </div>
+            <div class="field">
+              <label for="perf">Performance fee (bps of alpha)</label>
+              <input id="perf" type="range" min="0" max="200" step="5" value="50" />
+              <span class="field-value" id="perf-display">50 bps</span>
+            </div>
+            <div class="field">
+              <label for="ret">Expected return %</label>
+              <input id="ret" type="range" min="0" max="25" step="0.5" value="8" />
+              <span class="field-value" id="ret-display">8.0%</span>
+            </div>
+            <div class="field">
+              <label for="bench">Benchmark %</label>
+              <input id="bench" type="range" min="0" max="15" step="0.5" value="3" />
+              <span class="field-value" id="bench-display">3.0%</span>
+            </div>
+          </div>
+          <div class="calc-right dot-grid">
+            <span class="mono-small">&lt;annual revenue&gt;</span>
+            <p class="display-6xl" id="arr-display">$140,000</p>
+            <p class="serif italic muted">per Vault, at this configuration</p>
+            <hr class="dashed" />
+            <div class="breakdown">
+              <div>
+                <span class="dot-blue"></span>
+                <span class="display-sm">Management fee</span>
+                <span class="display-sm strong" id="mgmt-fee-display">$100,000</span>
+              </div>
+              <p class="mono-mini" id="mgmt-fee-hint">1% of $10,000,000</p>
+              <div>
+                <span class="dot-orange"></span>
+                <span class="display-sm">Performance fee</span>
+                <span class="display-sm strong" id="perf-fee-display">$25,000</span>
+              </div>
+              <p class="mono-mini" id="perf-fee-hint">0.5% of 5.00% alpha</p>
+            </div>
+            <div class="five-vault">
+              <span class="mono-small">&lt;five-vault portfolio&gt;</span>
+              <p class="display-3xl" id="five-display">$625,000</p>
+              <p>
+                Five comparable DAO treasuries =
+                <span class="serif italic"><span id="five-line">$625,000</span> ARR ceiling</span>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tech stack -->
+      <section id="tech" class="section">
+        <div class="section-header">
+          <span class="mono-small">&lt;built-on&gt;</span>
+          <h2 class="headline-2">
+            Six sponsor primitives.<br />One coherent product.
+          </h2>
+        </div>
+        <div class="tech-grid">
+          <div class="tech-card" style="border-top-color:#FF6B35">
+            <h3>Walrus</h3>
+            <p>Programmable blob storage for audit reports + datasets. Verifiable, decentralized.</p>
+          </div>
+          <div class="tech-card" style="border-top-color:#9D7AEB">
+            <h3>MemWal</h3>
+            <p>Long-term semantic memory for agents. Delegate-key authentication, Seal encryption.</p>
+          </div>
+          <div class="tech-card" style="border-top-color:#5BD49C">
+            <h3>DeepBookV3</h3>
+            <p>Parallel-execution CLOB on Sui. Real swap composability inside policy-bounded PTBs.</p>
+          </div>
+          <div class="tech-card" style="border-top-color:#4A9BFF">
+            <h3>Seal</h3>
+            <p>Client-side encryption for sensitive artifacts. End-to-end privacy at rest.</p>
+          </div>
+          <div class="tech-card" style="border-top-color:#F7C543">
+            <h3>Sui Stack Messaging</h3>
+            <p>Inter-agent comms with Seal payloads, Walrus storage, full on-chain audit log.</p>
+          </div>
+          <div class="tech-card" style="border-top-color:#FF8FA3">
+            <h3>zkLogin</h3>
+            <p>Anchor agents to a human Google identity. No seed phrase, no custodial provider.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Real-world application -->
+      <section class="section section-soft">
+        <div class="section-header">
+          <span class="mono-small">&lt;real-world&gt;</span>
+          <h2 class="headline-2">
+            Five customers.<br />Real revenue model.
+          </h2>
+        </div>
+        <ul class="customer-grid">
+          <li>
+            <span class="mono-small">crypto-native · highest fit</span>
+            <h3>Tokenized Treasury Agent</h3>
+            <p>
+              RWA fund managers operating $10M+ AUM in stablecoins, T-bill tokens, private credit.
+              Move-VM-enforced spend cap, contract allowlist, daily expiry. Audit trail by design.
+            </p>
+            <p class="mono-mini">TAM: $24B · sales cycle: 2–6 weeks</p>
+          </li>
+          <li>
+            <span class="mono-small">tradfi bridge</span>
+            <h3>Compliance-Bound Research Desk</h3>
+            <p>
+              Asset managers deploying AI research assistants whose reports get cited in
+              client-facing materials. Tamper-proof timestamping + cryptographic provenance.
+            </p>
+            <p class="mono-mini">TAM: $200B · regulator-driven adoption</p>
+          </li>
+          <li>
+            <span class="mono-small">enterprise</span>
+            <h3>Autonomous SaaS Operator</h3>
+            <p>
+              AI agents operating with corporate spend caps. CFOs approve once; CISOs revoke
+              instantly. SOC2-friendly per-agent audit log.
+            </p>
+            <p class="mono-mini">TAM: $50B+ enterprise AI deployment</p>
+          </li>
+          <li>
+            <span class="mono-small">healthcare</span>
+            <h3>HIPAA Memory Audit</h3>
+            <p>
+              AI care assistants with Seal-encrypted MemWal memory. "Right to be forgotten"
+              satisfied by one-PTB revocation cascade.
+            </p>
+            <p class="mono-mini">Compliance-bottleneck market</p>
+          </li>
+          <li>
+            <span class="mono-small">crypto-native</span>
+            <h3>DAO Treasury Multi-Agent</h3>
+            <p>
+              DAOs spawn multiple capability-scoped agents — yield, OTC, market-making — all
+              revocable by governance vote.
+            </p>
+            <p class="mono-mini">Top 50 DAOs · $5B+ treasury</p>
+          </li>
+        </ul>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq" class="section">
+        <div class="section-header">
+          <span class="mono-small">&lt;faq&gt;</span>
+          <h2 class="headline-2">Frequently asked.</h2>
+        </div>
+        <div class="faq-grid">
+          <details>
+            <summary>What happens if the AI agent goes rogue?</summary>
+            <p>
+              The owner clicks <strong>Revoke vault</strong>. A single PTB sets
+              <code>AgentIdentity.revoked = true</code>, invalidates the MemWal delegate, and
+              queues Walrus blobs for eviction. Total time from "rogue" to "dead": one
+              transaction. No multisig, no vendor approval.
+            </p>
+          </details>
+          <details>
+            <summary>How are the policy gates enforced?</summary>
+            <p>
+              In the Move VM, not in our backend. Every spend call checks four invariants
+              atomically: not revoked, sender = session key, before expiry, target on allowlist
+              — plus the per-epoch spend cap. A compromised agent runtime cannot bypass these.
+            </p>
+          </details>
+          <details>
+            <summary>Who runs the Synapse Vault?</summary>
+            <p>
+              You do. Synapse Core is open source and the strategy runner is a Node process you
+              host. We don't custody your funds, we don't see your data. The compliance trail
+              is verifiable from any Sui fullnode.
+            </p>
+          </details>
+          <details>
+            <summary>Why 1% AUM?</summary>
+            <p>
+              Industry standard. Identical economics to Yearn Vaults, BlackRock ETFs, traditional
+              asset management funds. We didn't invent a fee structure — we ported a proven one
+              to autonomous agents.
+            </p>
+          </details>
+          <details>
+            <summary>Is this production-ready?</summary>
+            <p>
+              Testnet today. Mainnet target: August 20, 2026, with external security audit
+              (OpenZeppelin or OtterSec) in the run-up. Read <code>docs/threat-model.md</code>
+              for the full security review.
+            </p>
+          </details>
+          <details>
+            <summary>How do I integrate?</summary>
+            <p>
+              Mint a Vault at <a href="https://localhost:3001/mint">/mint</a>. For your own
+              strategy logic, fork the LangGraph adapter at
+              <code>@synapse-core/adapter-langgraph</code> and run the Node CLI. Full setup in
+              <code>docs/runtime-setup.md</code>.
+            </p>
+          </details>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="cta dot-grid">
+        <div>
+          <h2 class="headline-3">
+            <span class="orange">/&gt;</span> Hire your first AI<br />treasury manager.
+          </h2>
+          <p>
+            Sign in with Google, set a spend cap, watch it rebalance — and revoke it whenever you
+            want.
+          </p>
+          <div class="cta-actions">
+            <a class="btn btn-accent" href="https://localhost:3001/mint">
+              Mint a vault
+              <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
+                <path d="M2 7H12M12 7L7.5 2.5M12 7L7.5 11.5" stroke="currentColor" stroke-width="2" />
+              </svg>
+            </a>
+            <a class="btn btn-paper" href="https://localhost:3001/dashboard">Tour the dashboard</a>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <span class="mono-small">© 2026 Synapse Labs · Built for Sui Overflow 2026</span>
+        <nav class="footer-nav">
+          <a href="https://docs.wal.app/">Walrus</a>
+          <a href="https://docs.memwal.ai/">MemWal</a>
+          <a href="https://github.com/MystenLabs/sui">Sui</a>
+          <a href="#how">Docs</a>
+        </nav>
+      </footer>
+    </main>
+
+    <script src="./calculator.js"></script>
+  </body>
+</html>

@@ -3,18 +3,32 @@
  * Kept dependency-free for tree-shake friendliness in client bundles.
  */
 
-const usdFormatter = new Intl.NumberFormat('en-US', {
+const usd0 = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
   minimumFractionDigits: 0,
   maximumFractionDigits: 0,
 });
 
-const usdFineFormatter = new Intl.NumberFormat('en-US', {
+const usd2 = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
+});
+
+const usd4 = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 4,
+  maximumFractionDigits: 4,
+});
+
+const usd6 = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 6,
+  maximumFractionDigits: 6,
 });
 
 const compactFormatter = new Intl.NumberFormat('en-US', {
@@ -28,9 +42,24 @@ const percentFormatter = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 2,
 });
 
+/**
+ * Adaptive USD formatter that scales precision to magnitude.
+ *   - `fine: false` (default): `$1,234`, `$1.23`, `$0.1234`, `$0.001234`, `<$0.000001`
+ *     The threshold gates ensure testnet dust values don't display as `$0`.
+ *   - `fine: true`: always 2-decimal precision (`$1,234.56`, `$0.12`).
+ *
+ * Returns `—` for non-finite values; `$0` exactly for amount === 0.
+ */
 export function formatUsd(amount: number, opts: { fine?: boolean } = {}): string {
   if (!Number.isFinite(amount)) return '—';
-  return (opts.fine ? usdFineFormatter : usdFormatter).format(amount);
+  if (amount === 0) return '$0';
+  if (opts.fine) return usd2.format(amount);
+  const abs = Math.abs(amount);
+  if (abs >= 1000) return usd0.format(amount);
+  if (abs >= 1) return usd2.format(amount);
+  if (abs >= 0.0001) return usd4.format(amount);
+  if (abs >= 0.000001) return usd6.format(amount);
+  return amount > 0 ? '<$0.000001' : '>−$0.000001';
 }
 
 export function formatCompact(value: number): string {

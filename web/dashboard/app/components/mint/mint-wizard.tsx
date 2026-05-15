@@ -146,11 +146,18 @@ export function MintWizard() {
 
       const result = await signAndExecute({ transaction: tx });
 
-      // Look up object changes to find the freshly minted AgentIdentity.
-      const detail = await suiClient.getTransactionBlock({
+      // Wait for the fullnode to index the transaction before reading it.
+      // The wallet returns the digest as soon as the validator certificate
+      // is available, but `getTransactionBlock` queries a fullnode that may
+      // not have applied the checkpoint yet — without this wait we race and
+      // see "Could not find the referenced transaction".
+      const detail = await suiClient.waitForTransaction({
         digest: result.digest,
         options: { showObjectChanges: true, showEffects: true },
+        timeout: 60_000,
+        pollInterval: 600,
       });
+
       const agentChange = detail.objectChanges?.find(
         (c) => c.type === 'created' && c.objectType.includes('::agent::AgentIdentity'),
       );

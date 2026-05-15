@@ -7,7 +7,7 @@
 
 import type { SuiJsonRpcClient } from '@mysten/sui/jsonRpc';
 import type { TimelineEntry } from './sample-data';
-import { SYNAPSE_PACKAGE_ID } from './synapse-config';
+import { SYNAPSE_INDEXER_URL, SYNAPSE_PACKAGE_ID } from './synapse-config';
 
 /** The Sui RPC client surface we need — narrowed to just `queryEvents`. */
 type LiveEventsClient = Pick<SuiJsonRpcClient, 'queryEvents'>;
@@ -53,9 +53,23 @@ export interface LoadEventsOptions {
 /**
  * Fetch events emitted by the deployed `synapse_core` package, optionally
  * filtered to a single agent. Newest first.
+ *
+ * When `NEXT_PUBLIC_SYNAPSE_INDEXER_URL` is configured, we try the GraphQL
+ * endpoint first (pagination + cross-agent joins). Any failure transparently
+ * falls back to direct `queryEvents` against the Sui fullnode so the UI
+ * stays responsive even when the indexer is down or unconfigured.
  */
 export async function loadLiveTimeline(opts: LoadEventsOptions): Promise<TimelineEntry[]> {
   const { client, agentId, limit = 50 } = opts;
+
+  if (SYNAPSE_INDEXER_URL && agentId) {
+    try {
+      const entries = await fetchFromIndexer(SYNAPSE_INDEXER_URL, agentId, limit);
+      if (entries.length > 0) return entries;
+    } catch (err) {
+      console.warn('[synapse-events] indexer query failed, falling back to RPC', err);
+    }
+  }
 
   const entries: TimelineEntry[] = [];
   for (const moduleName of MODULES) {
@@ -90,6 +104,71 @@ export async function loadLiveTimeline(opts: LoadEventsOptions): Promise<Timelin
 
   entries.sort((a, b) => b.timestamp - a.timestamp);
   return entries.slice(0, limit);
+}
+
+// ---------------------------------------------------------------------------
+// Hosted-indexer path
+// ---------------------------------------------------------------------------
+
+interface IndexerTimelineRow {
+  vaultId: string;
+  kind: string;
+  description: string;
+  txDigest: string;
+  timestampMs: string;
+  walrusBlobId?: string | null;
+  amount?: string | null;
+  tokenType?: string | null;
+  counterparty?: string | null;
+}
+
+const TIMELINE_QUERY = `
+query VaultTimeline($vaultId: ID!) {
+  vaultTimeline(vaultId: $vaultId) {
+    vaultId
+    kind
+    description
+    txDigest
+    timestampMs
+    walrusBlobId
+    amount
+    tokenType
+    counterparty
+  }
+}`;
+
+async function fetchFromIndexer(
+  endpoint: string,
+  agentId: string,
+  limit: number,
+): Promise<TimelineEntry[]> {
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ query: TIMELINE_QUERY, variables: { vaultId: agentId } }),
+  });
+  if (!response.ok) throw new Error(`indexer returned ${response.status}`);
+  const body = (await response.json()) as { data?: { vaultTimeline?: IndexerTimelineRow[] } };
+  const rows = body.data?.vaultTimeline ?? [];
+
+  return rows.slice(0, limit).map((row, index) => {
+    const kind = row.kind as TimelineEntry['kind'];
+    const accent = KIND_BY_EVENT_TAIL.find((m) => m.kind === kind)?.accent ?? '#5BC0EB';
+    const entry: TimelineEntry = {
+      id: `${row.txDigest}-${index}`,
+      vaultId: row.vaultId,
+      kind,
+      description: row.description,
+      timestamp: Number(row.timestampMs ?? Date.now()),
+      txDigest: row.txDigest,
+      accentColor: accent,
+    };
+    if (row.walrusBlobId) entry.walrusBlobId = row.walrusBlobId;
+    if (row.amount !== null && row.amount !== undefined) entry.amount = Number(row.amount);
+    if (row.tokenType) entry.tokenSymbol = row.tokenType.split('::').pop() ?? row.tokenType;
+    if (row.counterparty) entry.counterparty = row.counterparty;
+    return entry;
+  });
 }
 
 function matchesAgent(parsed: Record<string, unknown>, agentId: string): boolean {

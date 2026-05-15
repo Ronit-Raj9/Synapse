@@ -1,0 +1,15 @@
+node_modules
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+**/tsconfig.tsbuildinfo
+**/.cache
+.git
+.github
+web/dashboard/.next
+web/dashboard/node_modules
+move/**/build
+runtime
+agent-data
+*.log

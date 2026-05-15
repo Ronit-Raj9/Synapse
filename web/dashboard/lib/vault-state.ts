@@ -121,14 +121,43 @@ async function loadTreasuryBalances(
   return out;
 }
 
+/**
+ * Pull the canonical coin type tag (`<addr>::<module>::<type>`) out of a
+ * dynamic field name. The Bag treasury stores `Balance<T>` keyed by Move's
+ * `TypeName` struct, which Sui's RPC normalizes to one of:
+ *
+ *   - a plain string: `"0x2::sui::SUI"` (rare, SDK-dependent)
+ *   - `{ name: "0000…02::sui::SUI" }`               ← typical TypeName shape
+ *   - `{ name: "0x2::sui::SUI" }`                   ← already 0x-prefixed
+ *   - `{ fields: { name: "…" } }`                   ← deeper wrap
+ *
+ * We accept all variants and normalize to `0x`-prefixed form.
+ */
 function coinTypeFromDynamicField(name: { type: string; value: unknown }): string {
   const value = name.value;
-  if (typeof value === 'string') return value;
-  const record = asRecord(value, 'dynamic field name value');
-  const definingId = stringField(record.defining_id, 'dynamic name defining_id');
-  const moduleName = stringField(record.module, 'dynamic name module');
-  const typeName = stringField(record.name, 'dynamic name name');
-  return `${definingId}::${moduleName}::${typeName}`;
+  if (typeof value === 'string') return normalizeTypeTag(value);
+  if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+    const obj = value as Record<string, unknown>;
+    if (typeof obj.name === 'string') return normalizeTypeTag(obj.name);
+    if (typeof obj.fields === 'object' && obj.fields !== null) {
+      const f = obj.fields as Record<string, unknown>;
+      if (typeof f.name === 'string') return normalizeTypeTag(f.name);
+    }
+  }
+  throw new Error(`Cannot parse dynamic field name: ${JSON.stringify(value)}`);
+}
+
+function normalizeTypeTag(raw: string): string {
+  // TypeName.name omits the 0x prefix on the leading address; restore it
+  // so downstream `getCoinMetadata` calls + UI links resolve correctly.
+  const trimmed = raw.trim();
+  if (trimmed.startsWith('0x')) return trimmed;
+  // Make sure the leading hex looks like an address before prefixing.
+  const colon = trimmed.indexOf('::');
+  if (colon === -1) return trimmed;
+  const head = trimmed.slice(0, colon);
+  if (/^[0-9a-fA-F]+$/.test(head)) return `0x${trimmed}`;
+  return trimmed;
 }
 
 // ---------------------------------------------------------------------------
@@ -206,14 +235,46 @@ function byte(value: unknown, label: string): number {
   return value;
 }
 
+/**
+ * Parse a Move `Option<ID>` from the parsed-JSON RPC response. Sui's
+ * normalization can deliver any of the following shapes depending on
+ * SDK + node version:
+ *
+ *   - `null` / `undefined`                           ← canonical None
+ *   - a plain `"0x..."` string                       ← canonical Some
+ *   - `{ vec: ["0x..."] }`                           ← BCS-derived Some
+ *   - `{ vec: [] }`                                  ← BCS-derived None
+ *   - `{ fields: { vec: [...] } }`                   ← deeper wrapper
+ *   - `{ vec: [{ id: "0x..." }] }`                   ← ID struct form
+ *   - `{ vec: [{ fields: { id: "0x..." } }] }`       ← double-wrapped
+ *
+ * We accept all of them. Never throws — an unrecognized shape returns null.
+ */
 function optionId(value: unknown): string | null {
-  const record = asRecord(value, 'option');
-  const fields = asRecord(record.fields, 'option.fields');
-  const vec = fields.vec;
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'string') return value.length > 0 ? value : null;
+  if (typeof value !== 'object' || Array.isArray(value)) return null;
+
+  const obj = value as Record<string, unknown>;
+
+  // Drill into `fields.vec` then `vec` to find the wrapped array.
+  let vec: unknown = obj.vec;
+  if (vec === undefined && typeof obj.fields === 'object' && obj.fields !== null) {
+    vec = (obj.fields as Record<string, unknown>).vec;
+  }
   if (!Array.isArray(vec) || vec.length === 0) return null;
+
   const first = vec[0];
-  if (typeof first === 'string') return first;
-  return idFromField(first, 'option.vec[0]');
+  if (typeof first === 'string') return first.length > 0 ? first : null;
+  if (typeof first === 'object' && first !== null) {
+    const f = first as Record<string, unknown>;
+    if (typeof f.id === 'string') return f.id;
+    if (typeof f.fields === 'object' && f.fields !== null) {
+      const ff = f.fields as Record<string, unknown>;
+      if (typeof ff.id === 'string') return ff.id;
+    }
+  }
+  return null;
 }
 
 function findFieldValue(record: Record<string, unknown>, key: string): unknown {

@@ -5,27 +5,56 @@ import { formatUsd, shortenAddress, timeAgo } from '@/lib/format';
 import { Sparkline } from './sparkline';
 import { CodeTag } from '../ui/code-tag';
 import type { PricedVaultState } from '../../hooks/use-live-vault';
+import type { NavHistory } from '../../hooks/use-live-nav-history';
 
 interface VaultCardProps {
   vault: Vault;
-  history: number[];
+  /** Sample history shown only when no live vault is detected. */
+  sampleHistory: number[];
   /** Real on-chain state, when available. Overrides matching sample fields. */
   live?: PricedVaultState;
+  /** Real NAV history series. Falls back to `sampleHistory` if absent. */
+  liveHistory?: NavHistory | null;
   loading?: boolean;
 }
 
 /**
- * Top-of-dashboard hero card showing the active vault's NAV, 24h PnL,
- * inline sparkline, and fee economics. Sharp two-color flat-shadow style.
+ * Top-of-dashboard hero card. NAV, 24h change, sparkline, and labels are
+ * all live-data-first; sample fields render only when no real vault has
+ * been detected for the connected wallet.
  */
-export function VaultCard({ vault, history, live, loading }: VaultCardProps) {
+export function VaultCard({ vault, sampleHistory, live, liveHistory, loading }: VaultCardProps) {
   const navUsd = live?.navUsd ?? vault.navUsd;
   const ownerDisplay = live ? live.identity.owner : vault.owner;
   const sessionDisplay = live ? live.identity.sessionAddr : vault.sessionAddr;
   const expiryDisplay = live ? live.identity.expiryEpoch.toString() : vault.expiryEpoch.toString();
-  const positive = vault.pnl24hUsd >= 0;
   const aumFeeUsdYear = (navUsd * vault.managementFeeBps) / 10_000;
   const dataMode: 'live' | 'demo' = live ? 'live' : 'demo';
+
+  // 24h change: prefer the real one when we have it; fall back to sample
+  // only when not live. Honest "—" when live but no comparison point exists.
+  const change24h = pickChange24h({ live, liveHistory, vault });
+
+  // Sparkline data: real series → numeric history → sample.
+  const sparklineData =
+    liveHistory && liveHistory.series.length > 0
+      ? liveHistory.series.map((p) => p.navUsd)
+      : sampleHistory;
+
+  const sparklineCount = liveHistory ? liveHistory.series.length : sampleHistory.length;
+  const sparklineLabel = liveHistory
+    ? sparklineCount <= 1
+      ? 'NAV — awaiting strategy ticks'
+      : `NAV — ${liveHistory.meaningfulEventCount} ${pluralize('event', liveHistory.meaningfulEventCount)}`
+    : `NAV — ${sampleCount(sampleHistory)} epochs`;
+
+  const growthDisplay: string = liveHistory
+    ? liveHistory.series.length <= 1
+      ? '—'
+      : liveHistory.growthPct === null
+        ? 'from nil'
+        : `${liveHistory.growthPct >= 0 ? '↑' : '↓'} ${Math.abs(liveHistory.growthPct * 100).toFixed(2)}%`
+    : '↑ 10.97%';
 
   return (
     <div className="card-flat relative overflow-hidden">
@@ -68,17 +97,32 @@ export function VaultCard({ vault, history, live, loading }: VaultCardProps) {
               </p>
               <p
                 className="num mt-1 text-xl font-semibold"
-                style={{ color: positive ? 'var(--state-active)' : 'var(--state-revoked)' }}
+                style={{
+                  color:
+                    change24h.usd === null
+                      ? 'var(--ink-mute)'
+                      : change24h.usd >= 0
+                        ? 'var(--state-active)'
+                        : 'var(--state-revoked)',
+                }}
               >
-                {positive ? '+' : ''}
-                {formatUsd(vault.pnl24hUsd)}{' '}
-                <span className="text-base text-ink-mute">
-                  ({positive ? '+' : ''}
-                  {(vault.pnl24hPct * 100).toFixed(2)}%)
-                </span>
+                {change24h.label}
               </p>
             </div>
           </div>
+
+          {live && (live.priceError || live.unpriced.length > 0) && (
+            <p className="rounded-sm border-l-2 border-state-expired bg-paper p-2 font-mono text-[10px] text-ink-soft">
+              {live.priceError ? (
+                <>oracle error: {live.priceError}</>
+              ) : (
+                <>
+                  oracle has no feed for {live.unpriced.join(', ')} — value reported is the priced
+                  subset only
+                </>
+              )}
+            </p>
+          )}
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs">
             <Detail label="Owner" value={shortenAddress(ownerDisplay)} />
@@ -110,16 +154,74 @@ export function VaultCard({ vault, history, live, loading }: VaultCardProps) {
           <div className="card-bare p-4">
             <div className="mb-2 flex items-center justify-between">
               <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-mute">
-                NAV — 17 epochs
+                {sparklineLabel}
               </span>
-              <span className="font-mono text-[11px] text-state-active">↑ 10.97%</span>
+              <span
+                className="font-mono text-[11px]"
+                style={{
+                  color: growthDisplay.startsWith('↑')
+                    ? 'var(--state-active)'
+                    : growthDisplay.startsWith('↓')
+                      ? 'var(--state-revoked)'
+                      : growthDisplay === 'from nil'
+                        ? 'var(--accent-blue)'
+                        : 'var(--ink-mute)',
+                }}
+              >
+                {growthDisplay}
+              </span>
             </div>
-            <Sparkline data={history} width={320} height={70} />
+            {sparklineData.length >= 2 ? (
+              <Sparkline data={sparklineData} width={320} height={70} />
+            ) : (
+              <div className="flex h-[70px] items-center justify-center font-mono text-[11px] text-ink-mute">
+                {live
+                  ? 'awaiting strategy ticks · history fills here'
+                  : 'history will appear once events land'}
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
+}
+
+function pickChange24h({
+  live,
+  liveHistory,
+  vault,
+}: {
+  live: PricedVaultState | undefined;
+  liveHistory: NavHistory | null | undefined;
+  vault: Vault;
+}): { usd: number | null; label: string } {
+  if (live && liveHistory) {
+    if (liveHistory.change24hUsd === null) {
+      return { usd: null, label: '— · need 24h history' };
+    }
+    const usd = liveHistory.change24hUsd;
+    const pct = liveHistory.change24hPct ?? 0;
+    const sign = usd >= 0 ? '+' : '';
+    return {
+      usd,
+      label: `${sign}${formatUsd(usd)} (${sign}${(pct * 100).toFixed(2)}%)`,
+    };
+  }
+  // Sample only.
+  const positive = vault.pnl24hUsd >= 0;
+  return {
+    usd: vault.pnl24hUsd,
+    label: `${positive ? '+' : ''}${formatUsd(vault.pnl24hUsd)} (${positive ? '+' : ''}${(vault.pnl24hPct * 100).toFixed(2)}%)`,
+  };
+}
+
+function sampleCount(history: readonly number[]): number {
+  return history.length;
+}
+
+function pluralize(word: string, count: number): string {
+  return count === 1 ? word : `${word}s`;
 }
 
 function Detail({ label, value }: { label: string; value: string }) {
