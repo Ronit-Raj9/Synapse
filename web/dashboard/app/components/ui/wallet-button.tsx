@@ -28,8 +28,8 @@ export function WalletButton() {
 
   return (
     <button
-      className="btn-flat"
-      data-variant="primary"
+      type="button"
+      className="inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-md border-2 border-ink bg-ink px-3 font-mono text-[11px] text-paper transition-all hover:-translate-y-px hover:shadow-[2px_2px_0_0_var(--accent-orange)]"
       onClick={() => {
         disconnect();
         toast.push({
@@ -40,8 +40,10 @@ export function WalletButton() {
       }}
       title="Click to disconnect"
     >
-      <span className="live-dot" />
-      <span className="font-mono text-xs">{shortenAddress(account.address)}</span>
+      <span className="relative inline-block h-1.5 w-1.5 rounded-full bg-state-active">
+        <span className="absolute inset-0 animate-pulse-ring rounded-full bg-state-active" />
+      </span>
+      {shortenAddress(account.address)}
     </button>
   );
 }

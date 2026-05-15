@@ -35,11 +35,7 @@ export function ZkLoginSignInButton({
   }, []);
 
   if (!GOOGLE_CLIENT_ID) {
-    return (
-      <span className="font-mono text-[11px] text-ink-mute">
-        zkLogin not configured · set <code>NEXT_PUBLIC_GOOGLE_CLIENT_ID</code>
-      </span>
-    );
+    return null;
   }
 
   async function startSignIn() {
@@ -58,17 +54,12 @@ export function ZkLoginSignInButton({
     return (
       <button
         type="button"
-        className={`btn-flat ${className}`}
-        data-variant="ghost"
-        onClick={() => {
-          clearActiveAccount();
-        }}
+        className={`inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-md border border-ink/15 bg-paper-strong px-2.5 font-mono text-[11px] text-ink transition-colors hover:border-ink ${className}`}
+        onClick={() => clearActiveAccount()}
         title="Sign out (clears local zkLogin state)"
       >
         <GoogleGlyph />
-        <span>
-          zkLogin · <span className="font-mono">{shortenAddress(account.address)}</span>
-        </span>
+        <span>{shortenAddress(account.address)}</span>
       </button>
     );
   }
@@ -76,16 +67,13 @@ export function ZkLoginSignInButton({
   return (
     <button
       type="button"
-      className={`btn-flat ${className}`}
-      data-variant="primary"
+      className={`inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-md border-2 border-ink bg-paper px-3 font-display text-[12px] font-semibold tracking-tight text-ink transition-all hover:-translate-y-px hover:shadow-[2px_2px_0_0_var(--ink)] disabled:opacity-50 ${className}`}
       onClick={startSignIn}
       disabled={busy}
+      title={error ?? undefined}
     >
       <GoogleGlyph />
-      <span>{busy ? 'Redirecting…' : 'Sign in with Google'}</span>
-      {error && (
-        <span className="ml-2 font-mono text-[10px] text-accent-orange">{error}</span>
-      )}
+      <span>{busy ? 'Redirecting…' : 'Sign in'}</span>
     </button>
   );
 }

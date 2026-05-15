@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
+import { useCurrentAccount } from '@mysten/dapp-kit';
 import { useStrategies } from '../../hooks/use-strategies';
 import {
   alphaSummary,
@@ -20,7 +21,9 @@ type SortKey = 'recent' | 'aum' | 'vaults' | 'alpha';
 
 export function MarketplaceBrowser() {
   const query = useStrategies();
+  const account = useCurrentAccount();
   const strategies = query.data ?? [];
+  const ownedAddress = account?.address ?? null;
 
   const [risk, setRisk] = useState<RiskFilter>('all');
   const [status, setStatus] = useState<StatusFilter>('active');
@@ -115,7 +118,11 @@ export function MarketplaceBrowser() {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {filtered.map((s) => (
-          <StrategyCard key={s.id} strategy={s} />
+          <StrategyCard
+            key={s.id}
+            strategy={s}
+            ownedByMe={ownedAddress !== null && s.strategist === ownedAddress}
+          />
         ))}
       </div>
     </>
@@ -155,7 +162,13 @@ function Selector<T extends string | number>({
   );
 }
 
-function StrategyCard({ strategy }: { strategy: LiveStrategy }) {
+function StrategyCard({
+  strategy,
+  ownedByMe,
+}: {
+  strategy: LiveStrategy;
+  ownedByMe: boolean;
+}) {
   const alpha = alphaSummary(strategy);
   const accent =
     strategy.riskProfile === 0
@@ -220,15 +233,29 @@ function StrategyCard({ strategy }: { strategy: LiveStrategy }) {
           >
             {shortenHash(strategy.id)} ↗
           </a>
-          <Link
-            href={`/mint?strategy=${strategy.id}`}
-            className="font-display text-[11px] text-accent-orange hover:underline"
-          >
-            hire →
-          </Link>
+          {ownedByMe ? (
+            <Link
+              href="/strategist"
+              className="font-display text-[11px] text-accent-purple hover:underline"
+            >
+              manage →
+            </Link>
+          ) : (
+            <Link
+              href={`/mint?strategy=${strategy.id}`}
+              className="font-display text-[11px] text-accent-orange hover:underline"
+            >
+              hire →
+            </Link>
+          )}
         </div>
       </footer>
 
+      {ownedByMe && (
+        <span className="absolute left-3 top-3 rounded-sm border border-accent-purple bg-paper px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.16em] text-accent-purple">
+          your strategy
+        </span>
+      )}
       {!strategy.active && (
         <span className="absolute right-3 top-3 rounded-sm border border-accent-orange bg-paper px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.16em] text-accent-orange">
           deprecated
