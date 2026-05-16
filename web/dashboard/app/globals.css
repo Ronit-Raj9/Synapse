@@ -407,6 +407,41 @@ html {
 }
 
 /* ---------------------------------------------------------------------------
+ * Skeleton loader — used as a neutral placeholder while live data loads.
+ * Pairs with the .shimmer animation for the moving highlight stripe.
+ * ------------------------------------------------------------------------- */
+
+.skeleton {
+  position: relative;
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    rgba(3, 15, 28, 0.06) 0%,
+    rgba(3, 15, 28, 0.12) 50%,
+    rgba(3, 15, 28, 0.06) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: 4px;
+  animation: shimmer 1.8s linear infinite;
+  color: transparent !important;
+  user-select: none;
+}
+
+.skeleton-line {
+  display: block;
+  height: 0.85rem;
+  border-radius: 999px;
+}
+
+.fade-in {
+  animation: fade-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------------------------------------------------------------------------
  * Pulsing dot used to denote live/active state
  * ------------------------------------------------------------------------- */
 

@@ -12,7 +12,13 @@
     "/index.html": "/index.html",
     "/styles.css": "/styles.css",
     "/calculator.js": "/calculator.js",
-    "/favicon.svg": "/favicon.svg"
+    "/performance.js": "/performance.js",
+    "/scroll-reveal.js": "/scroll-reveal.js",
+    "/favicon.svg": "/favicon.svg",
+    "/index.json": "/index.json",
+    "/conservative-rebalancer.json": "/conservative-rebalancer.json",
+    "/balanced-yield.json": "/balanced-yield.json",
+    "/aggressive-momentum.json": "/aggressive-momentum.json"
   },
   "headers": {
     "/": {
@@ -31,9 +37,33 @@
       "Content-Type": "application/javascript; charset=utf-8",
       "Cache-Control": "public, max-age=31536000, immutable"
     },
+    "/performance.js": {
+      "Content-Type": "application/javascript; charset=utf-8",
+      "Cache-Control": "public, max-age=31536000, immutable"
+    },
+    "/scroll-reveal.js": {
+      "Content-Type": "application/javascript; charset=utf-8",
+      "Cache-Control": "public, max-age=31536000, immutable"
+    },
     "/favicon.svg": {
       "Content-Type": "image/svg+xml",
       "Cache-Control": "public, max-age=31536000, immutable"
+    },
+    "/index.json": {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "public, max-age=3600"
+    },
+    "/conservative-rebalancer.json": {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "public, max-age=3600"
+    },
+    "/balanced-yield.json": {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "public, max-age=3600"
+    },
+    "/aggressive-momentum.json": {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "public, max-age=3600"
     }
   }
 }

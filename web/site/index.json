@@ -1,0 +1,37 @@
+{
+  "generatedAt": "2026-05-16T04:45:40.587Z",
+  "startDate": "2026-02-16",
+  "endDate": "2026-05-16",
+  "strategies": [
+    {
+      "slug": "conservative-rebalancer",
+      "name": "Conservative Rebalancer",
+      "totalReturnPct": 7.434277349713267,
+      "benchmarkReturnPct": 3.777714176183275,
+      "alphaPct": 3.656563173529992,
+      "maxDrawdownPct": 11.119895451961758,
+      "sharpeAnnualized": 0.9052517960783506,
+      "tradesExecuted": 3
+    },
+    {
+      "slug": "balanced-yield",
+      "name": "Balanced Yield",
+      "totalReturnPct": 8.842193964435621,
+      "benchmarkReturnPct": 3.777714176183275,
+      "alphaPct": 5.064479788252346,
+      "maxDrawdownPct": 13.283625969107737,
+      "sharpeAnnualized": 0.9316239595753517,
+      "tradesExecuted": 9
+    },
+    {
+      "slug": "aggressive-momentum",
+      "name": "Aggressive Momentum",
+      "totalReturnPct": -2.6980998850620894,
+      "benchmarkReturnPct": 3.777714176183275,
+      "alphaPct": -6.475814061245364,
+      "maxDrawdownPct": 8.19426368125388,
+      "sharpeAnnualized": -0.6068289604784769,
+      "tradesExecuted": 10
+    }
+  ]
+}

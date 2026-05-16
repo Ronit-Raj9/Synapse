@@ -1,0 +1,838 @@
+{
+  "strategySlug": "aggressive-momentum",
+  "strategyName": "Aggressive Momentum",
+  "startDate": "2026-02-16",
+  "endDate": "2026-05-16",
+  "startNavUsd": 2973.2297583619693,
+  "endNavUsd": 2893.009049668973,
+  "totalReturnPct": -2.6980998850620894,
+  "benchmarkReturnPct": 3.777714176183275,
+  "alphaPct": -6.475814061245364,
+  "maxDrawdownPct": 8.19426368125388,
+  "volatilityPct": 16.158867108056874,
+  "sharpeAnnualized": -0.6068289604784769,
+  "tradesExecuted": 10,
+  "noops": 81,
+  "series": [
+    {
+      "date": "2026-02-16",
+      "priceUsd": 0.9732297583619692,
+      "navUsd": 2973.2297583619693,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Momentum 0.00% inside [-1.00%, 2.00%]. Hold 32.73% base."
+    },
+    {
+      "date": "2026-02-17",
+      "priceUsd": 0.9910070379458348,
+      "navUsd": 2991.007037945835,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Momentum 0.00% inside [-1.00%, 2.00%]. Hold 33.13% base."
+    },
+    {
+      "date": "2026-02-18",
+      "priceUsd": 0.9676825915878824,
+      "navUsd": 2967.6825915878826,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Momentum 0.00% inside [-1.00%, 2.00%]. Hold 32.61% base."
+    },
+    {
+      "date": "2026-02-19",
+      "priceUsd": 0.9295649840717041,
+      "navUsd": 2929.564984071704,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Momentum 0.00% inside [-1.00%, 2.00%]. Hold 31.73% base."
+    },
+    {
+      "date": "2026-02-20",
+      "priceUsd": 0.9271039591183934,
+      "navUsd": 2927.1039591183935,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Momentum 0.00% inside [-1.00%, 2.00%]. Hold 31.67% base."
+    },
+    {
+      "date": "2026-02-21",
+      "priceUsd": 0.9536714450255065,
+      "navUsd": 2953.6714450255067,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Momentum 0.00% inside [-1.00%, 2.00%]. Hold 32.29% base."
+    },
+    {
+      "date": "2026-02-22",
+      "priceUsd": 0.9499696675526216,
+      "navUsd": 2949.9696675526216,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Momentum 0.00% inside [-1.00%, 2.00%]. Hold 32.20% base."
+    },
+    {
+      "date": "2026-02-23",
+      "priceUsd": 0.922900312104958,
+      "navUsd": 2922.900312104958,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Pyth confidence 155bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-02-24",
+      "priceUsd": 0.8794056589696074,
+      "navUsd": 2879.4056589696074,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Pyth confidence 300bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-02-25",
+      "priceUsd": 0.8602457663946909,
+      "navUsd": 2860.2457663946907,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Pyth confidence 300bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-02-26",
+      "priceUsd": 0.9630896304467979,
+      "navUsd": 2963.089630446798,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Pyth confidence 108bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-02-27",
+      "priceUsd": 0.9377875383423598,
+      "navUsd": 2937.7875383423598,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Momentum 1.15% inside [-1.00%, 2.00%]. Hold 31.92% base."
+    },
+    {
+      "date": "2026-02-28",
+      "priceUsd": 0.8990680386573332,
+      "navUsd": 2899.068038657333,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Pyth confidence 172bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-01",
+      "priceUsd": 0.9050316699675918,
+      "navUsd": 2905.031669967592,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Pyth confidence 142bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-02",
+      "priceUsd": 0.8877958551949485,
+      "navUsd": 2887.7958551949487,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Pyth confidence 114bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-03",
+      "priceUsd": 0.9228546808282773,
+      "navUsd": 2922.854680828277,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Pyth confidence 148bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-04",
+      "priceUsd": 0.91046901129627,
+      "navUsd": 2910.46901129627,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Pyth confidence 175bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-05",
+      "priceUsd": 0.9587186694311188,
+      "navUsd": 2958.718669431119,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Momentum -0.45% inside [-1.00%, 2.00%]. Hold 32.40% base."
+    },
+    {
+      "date": "2026-03-06",
+      "priceUsd": 0.9536902555808823,
+      "navUsd": 2953.6902555808824,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Momentum 1.70% inside [-1.00%, 2.00%]. Hold 32.29% base."
+    },
+    {
+      "date": "2026-03-07",
+      "priceUsd": 0.9016052826927989,
+      "navUsd": 2901.605282692799,
+      "suiUnits": 1000,
+      "usdcUnits": 2000,
+      "decision": "noop",
+      "rationale": "Momentum 0.28% inside [-1.00%, 2.00%]. Hold 31.07% base."
+    },
+    {
+      "date": "2026-03-08",
+      "priceUsd": 0.895099012962997,
+      "navUsd": 2892.8612654305894,
+      "suiUnits": 0,
+      "usdcUnits": 2892.8612654305894,
+      "decision": "rebalance",
+      "rationale": "Momentum -1.10%, conf 33bps → EXIT $895.10 on 0xb663828d…."
+    },
+    {
+      "date": "2026-03-09",
+      "priceUsd": 0.8801523827195284,
+      "navUsd": 2892.8612654305894,
+      "suiUnits": 0,
+      "usdcUnits": 2892.8612654305894,
+      "decision": "noop",
+      "rationale": "Momentum -0.86% inside [-1.00%, 2.00%]. Hold 0.00% base."
+    },
+    {
+      "date": "2026-03-10",
+      "priceUsd": 0.9402654166149893,
+      "navUsd": 2892.8612654305894,
+      "suiUnits": 0,
+      "usdcUnits": 2892.8612654305894,
+      "decision": "noop",
+      "rationale": "Momentum 1.89% inside [-1.00%, 2.00%]. Hold 0.00% base."
+    },
+    {
+      "date": "2026-03-11",
+      "priceUsd": 0.9559290546236457,
+      "navUsd": 2892.8612654305894,
+      "suiUnits": 0,
+      "usdcUnits": 2892.8612654305894,
+      "decision": "noop",
+      "rationale": "Pyth confidence 150bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-12",
+      "priceUsd": 0.9794108840442053,
+      "navUsd": 2889.2451888505893,
+      "suiUnits": 1473.1453151330093,
+      "usdcUnits": 1446.4306334305893,
+      "decision": "rebalance",
+      "rationale": "Momentum 2.16%, conf 65bps → ENTER $1446.43 on 0xb663828d…."
+    },
+    {
+      "date": "2026-03-13",
+      "priceUsd": 0.9945488082671659,
+      "navUsd": 2911.545551000482,
+      "suiUnits": 1473.1453151330093,
+      "usdcUnits": 1446.4306334305893,
+      "decision": "noop",
+      "rationale": "Pyth confidence 129bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-14",
+      "priceUsd": 0.9950458523734486,
+      "navUsd": 2912.277769197067,
+      "suiUnits": 1473.1453151330093,
+      "usdcUnits": 1446.4306334305893,
+      "decision": "noop",
+      "rationale": "Pyth confidence 300bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-15",
+      "priceUsd": 1.000673497224434,
+      "navUsd": 2920.5681078445286,
+      "suiUnits": 1473.1453151330093,
+      "usdcUnits": 1446.4306334305893,
+      "decision": "noop",
+      "rationale": "Pyth confidence 300bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-16",
+      "priceUsd": 1.020321831360292,
+      "navUsd": 2949.512959226936,
+      "suiUnits": 1473.1453151330093,
+      "usdcUnits": 1446.4306334305893,
+      "decision": "noop",
+      "rationale": "Pyth confidence 300bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-17",
+      "priceUsd": 1.0730227097882756,
+      "navUsd": 3027.149011386514,
+      "suiUnits": 1473.1453151330093,
+      "usdcUnits": 1446.4306334305893,
+      "decision": "noop",
+      "rationale": "Pyth confidence 300bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-18",
+      "priceUsd": 1.0293149045929044,
+      "navUsd": 2962.761062928207,
+      "suiUnits": 1473.1453151330093,
+      "usdcUnits": 1446.4306334305893,
+      "decision": "noop",
+      "rationale": "Pyth confidence 230bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-19",
+      "priceUsd": 0.9868857818742657,
+      "navUsd": 2900.2567995700406,
+      "suiUnits": 1473.1453151330093,
+      "usdcUnits": 1446.4306334305893,
+      "decision": "noop",
+      "rationale": "Momentum 0.76% inside [-1.00%, 2.00%]. Hold 50.13% base."
+    },
+    {
+      "date": "2026-03-20",
+      "priceUsd": 0.9572038694902889,
+      "navUsd": 2856.531029397397,
+      "suiUnits": 1473.1453151330093,
+      "usdcUnits": 1446.4306334305893,
+      "decision": "noop",
+      "rationale": "Pyth confidence 113bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-21",
+      "priceUsd": 0.9676394536650341,
+      "navUsd": 2871.904161335099,
+      "suiUnits": 1473.1453151330093,
+      "usdcUnits": 1446.4306334305893,
+      "decision": "noop",
+      "rationale": "Pyth confidence 83bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-22",
+      "priceUsd": 0.9427932724168709,
+      "navUsd": 2835.3021258304216,
+      "suiUnits": 1473.1453151330093,
+      "usdcUnits": 1446.4306334305893,
+      "decision": "noop",
+      "rationale": "Pyth confidence 174bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-23",
+      "priceUsd": 0.9046397475174524,
+      "navUsd": 2779.096439369033,
+      "suiUnits": 1473.1453151330093,
+      "usdcUnits": 1446.4306334305893,
+      "decision": "noop",
+      "rationale": "Pyth confidence 300bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-24",
+      "priceUsd": 0.9518188241577402,
+      "navUsd": 2848.598075093974,
+      "suiUnits": 1473.1453151330093,
+      "usdcUnits": 1446.4306334305893,
+      "decision": "noop",
+      "rationale": "Pyth confidence 300bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-25",
+      "priceUsd": 0.9533223254865549,
+      "navUsd": 2850.8129510328135,
+      "suiUnits": 1473.1453151330093,
+      "usdcUnits": 1446.4306334305893,
+      "decision": "noop",
+      "rationale": "Pyth confidence 221bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-26",
+      "priceUsd": 0.9669588709398655,
+      "navUsd": 2867.340386755328,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "rebalance",
+      "rationale": "Momentum -2.02%, conf 61bps → EXIT $1424.47 on 0xb663828d…."
+    },
+    {
+      "date": "2026-03-27",
+      "priceUsd": 0.926735797269567,
+      "navUsd": 2867.3403867553275,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 95bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-28",
+      "priceUsd": 0.878719382432186,
+      "navUsd": 2867.340386755327,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 276bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-29",
+      "priceUsd": 0.8573271378978067,
+      "navUsd": 2867.340386755327,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 272bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-30",
+      "priceUsd": 0.845388060663364,
+      "navUsd": 2867.3403867553266,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 196bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-03-31",
+      "priceUsd": 0.8621406703727409,
+      "navUsd": 2867.340386755327,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 283bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-01",
+      "priceUsd": 0.8774928886772642,
+      "navUsd": 2867.340386755327,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 239bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-02",
+      "priceUsd": 0.8825469928036337,
+      "navUsd": 2867.340386755327,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 262bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-03",
+      "priceUsd": 0.8609529161829852,
+      "navUsd": 2867.340386755327,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 213bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-04",
+      "priceUsd": 0.873844727959917,
+      "navUsd": 2867.340386755327,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Momentum -0.55% inside [-1.00%, 2.00%]. Hold 0.00% base."
+    },
+    {
+      "date": "2026-04-05",
+      "priceUsd": 0.8704605309728328,
+      "navUsd": 2867.340386755327,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Momentum 1.53% inside [-1.00%, 2.00%]. Hold 0.00% base."
+    },
+    {
+      "date": "2026-04-06",
+      "priceUsd": 0.8690470049811657,
+      "navUsd": 2867.340386755327,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 84bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-07",
+      "priceUsd": 0.872872269845857,
+      "navUsd": 2867.340386755327,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Momentum 1.24% inside [-1.00%, 2.00%]. Hold 0.00% base."
+    },
+    {
+      "date": "2026-04-08",
+      "priceUsd": 0.9633107613083076,
+      "navUsd": 2867.340386755328,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 293bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-09",
+      "priceUsd": 0.9137437441357932,
+      "navUsd": 2867.3403867553275,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 106bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-10",
+      "priceUsd": 0.9295787174656264,
+      "navUsd": 2867.3403867553275,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 239bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-11",
+      "priceUsd": 0.9448455400352535,
+      "navUsd": 2867.3403867553275,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 244bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-12",
+      "priceUsd": 0.9413430700280516,
+      "navUsd": 2867.3403867553275,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 244bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-13",
+      "priceUsd": 0.9011813667202858,
+      "navUsd": 2867.340386755327,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 111bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-14",
+      "priceUsd": 0.9585360313186201,
+      "navUsd": 2867.340386755328,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 294bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-15",
+      "priceUsd": 0.9330443574439188,
+      "navUsd": 2867.3403867553275,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 94bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-16",
+      "priceUsd": 0.9588449508873953,
+      "navUsd": 2867.340386755328,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 148bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-17",
+      "priceUsd": 1.0023833534135655,
+      "navUsd": 2867.3403867553284,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 235bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-18",
+      "priceUsd": 1.0003279670882421,
+      "navUsd": 2867.3403867553284,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Pyth confidence 176bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-19",
+      "priceUsd": 0.9586529749961317,
+      "navUsd": 2867.340386755328,
+      "suiUnits": 9.322320693172514e-12,
+      "usdcUnits": 2867.340386755319,
+      "decision": "noop",
+      "rationale": "Momentum 1.84% inside [-1.00%, 2.00%]. Hold 0.00% base."
+    },
+    {
+      "date": "2026-04-20",
+      "priceUsd": 0.9228836557698356,
+      "navUsd": 2863.7562112728274,
+      "suiUnits": 1549.5842932927264,
+      "usdcUnits": 1433.670193755319,
+      "decision": "rebalance",
+      "rationale": "Momentum 2.41%, conf 72bps → ENTER $1433.67 on 0xb663828d…."
+    },
+    {
+      "date": "2026-04-21",
+      "priceUsd": 0.9441053852367924,
+      "navUsd": 2893.020268593917,
+      "suiUnits": 15.517696900726378,
+      "usdcUnits": 2878.369927383469,
+      "decision": "rebalance",
+      "rationale": "Momentum -1.51%, conf 45bps → EXIT $1448.32 on 0xb663828d…."
+    },
+    {
+      "date": "2026-04-22",
+      "priceUsd": 0.9489979215789234,
+      "navUsd": 2893.09618948995,
+      "suiUnits": 15.517696900726378,
+      "usdcUnits": 2878.369927383469,
+      "decision": "noop",
+      "rationale": "Momentum 1.71% inside [-1.00%, 2.00%]. Hold 0.51% base."
+    },
+    {
+      "date": "2026-04-23",
+      "priceUsd": 0.9457467760084505,
+      "navUsd": 2893.0090496688717,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "rebalance",
+      "rationale": "Momentum -1.37%, conf 41bps → EXIT $14.68 on 0xb663828d…."
+    },
+    {
+      "date": "2026-04-24",
+      "priceUsd": 0.9461364526800224,
+      "navUsd": 2893.0090496688717,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 168bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-25",
+      "priceUsd": 0.9460359300866927,
+      "navUsd": 2893.0090496688717,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 163bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-26",
+      "priceUsd": 0.9387241354726268,
+      "navUsd": 2893.0090496688663,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "rebalance",
+      "rationale": "Momentum -2.08%, conf 62bps → EXIT $0.00 on 0xb663828d…."
+    },
+    {
+      "date": "2026-04-27",
+      "priceUsd": 0.9473450450963309,
+      "navUsd": 2893.0090496688726,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 80bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-04-28",
+      "priceUsd": 0.9339270091275784,
+      "navUsd": 2893.009049668863,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "rebalance",
+      "rationale": "Momentum -1.08%, conf 32bps → EXIT $0.00 on 0xb663828d…."
+    },
+    {
+      "date": "2026-04-29",
+      "priceUsd": 0.9251513194174399,
+      "navUsd": 2893.0090496688567,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "rebalance",
+      "rationale": "Momentum -2.51%, conf 75bps → EXIT $0.00 on 0xb663828d…."
+    },
+    {
+      "date": "2026-04-30",
+      "priceUsd": 0.9066080468194128,
+      "navUsd": 2893.009049668843,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 124bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-05-01",
+      "priceUsd": 0.9080851037005839,
+      "navUsd": 2893.0090496688445,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 121bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-05-02",
+      "priceUsd": 0.9179997962396172,
+      "navUsd": 2893.0090496688513,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 89bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-05-03",
+      "priceUsd": 0.9274048164034547,
+      "navUsd": 2893.009049668858,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "rebalance",
+      "rationale": "Momentum -1.21%, conf 36bps → EXIT $0.00 on 0xb663828d…."
+    },
+    {
+      "date": "2026-05-04",
+      "priceUsd": 0.9208531336825088,
+      "navUsd": 2893.0090496688535,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 84bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-05-05",
+      "priceUsd": 0.9290173938724879,
+      "navUsd": 2893.0090496688595,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Momentum -0.53% inside [-1.00%, 2.00%]. Hold 0.00% base."
+    },
+    {
+      "date": "2026-05-06",
+      "priceUsd": 0.9665393769336927,
+      "navUsd": 2893.0090496688867,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 134bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-05-07",
+      "priceUsd": 0.9920312952280548,
+      "navUsd": 2893.0090496689054,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 283bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-05-08",
+      "priceUsd": 0.968524643543785,
+      "navUsd": 2893.009049668888,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 200bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-05-09",
+      "priceUsd": 1.02228556717935,
+      "navUsd": 2893.009049668927,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 300bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-05-10",
+      "priceUsd": 1.0669606756050047,
+      "navUsd": 2893.0090496689595,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 300bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-05-11",
+      "priceUsd": 1.33224329767164,
+      "navUsd": 2893.0090496691523,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 300bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-05-12",
+      "priceUsd": 1.2920297413907635,
+      "navUsd": 2893.009049669123,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 300bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-05-13",
+      "priceUsd": 1.2376067535238557,
+      "navUsd": 2893.0090496690837,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 300bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-05-14",
+      "priceUsd": 1.2094298026836416,
+      "navUsd": 2893.009049669063,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 300bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-05-15",
+      "priceUsd": 1.1892455759551313,
+      "navUsd": 2893.0090496690486,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 300bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-05-16",
+      "priceUsd": 1.0987151618746516,
+      "navUsd": 2893.0090496689827,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 224bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+    },
+    {
+      "date": "2026-05-16",
+      "priceUsd": 1.085549880434109,
+      "navUsd": 2893.009049668973,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Momentum 1.74% inside [-1.00%, 2.00%]. Hold 0.00% base."
+    }
+  ],
+  "generatedAt": "2026-05-16T04:45:40.587Z"
+}

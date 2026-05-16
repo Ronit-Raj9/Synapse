@@ -2,6 +2,7 @@
 
 import type { Vault } from '@/lib/sample-data';
 import { formatUsd, shortenAddress, timeAgo } from '@/lib/format';
+import { AnimatedNumber } from '../ui/animated-number';
 import { Sparkline } from './sparkline';
 import { CodeTag } from '../ui/code-tag';
 import type { PricedVaultState } from '../../hooks/use-live-vault';
@@ -89,7 +90,11 @@ export function VaultCard({ vault, sampleHistory, live, liveHistory, loading }: 
               <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-mute">
                 Net asset value
               </p>
-              <p className="num-display mt-1 text-5xl">{formatUsd(navUsd)}</p>
+              <AnimatedNumber
+                value={navUsd}
+                format={formatUsd}
+                className="num-display mt-1 inline-block text-5xl"
+              />
             </div>
             <div className="pb-2">
               <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-mute">

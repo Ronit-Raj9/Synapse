@@ -1,6 +1,7 @@
 import { Navbar } from '../components/ui/navbar';
 import { CodeTag } from '../components/ui/code-tag';
 import { MarketplaceBrowser } from '../components/marketplace/marketplace-browser';
+import { BacktestSummaryStrip } from '../components/marketplace/backtest-summary-strip';
 
 export const metadata = {
   title: 'Strategy marketplace · Synapse Vault',
@@ -27,6 +28,7 @@ export default function MarketplacePage() {
               are all queryable from any Sui fullnode. Pick one and mint a vault against it.
             </p>
           </header>
+          <BacktestSummaryStrip />
           <MarketplaceBrowser />
         </section>
       </main>

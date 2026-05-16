@@ -5,15 +5,18 @@ import { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { useCurrentAccount } from '@mysten/dapp-kit';
 import { useStrategies } from '../../hooks/use-strategies';
+import { useBacktest } from '../../hooks/use-backtest';
 import {
   alphaSummary,
   RISK_LABEL,
   type LiveStrategy,
   type RiskProfile,
 } from '@/lib/strategies';
+import { backtestSlugForStrategy } from '@/lib/backtests';
 import { CodeTag } from '../ui/code-tag';
 import { explorerAddressUrl, explorerObjectUrl } from '@/lib/synapse-config';
 import { shortenAddress, shortenHash } from '@/lib/format';
+import { EquityCurve } from './equity-curve';
 
 type RiskFilter = 'all' | RiskProfile;
 type StatusFilter = 'all' | 'active' | 'deprecated';
@@ -176,9 +179,12 @@ function StrategyCard({
       : strategy.riskProfile === 1
         ? 'var(--accent-blue)'
         : 'var(--accent-orange)';
+  const slug = backtestSlugForStrategy(strategy.name);
+  const backtest = useBacktest(slug);
   return (
     <motion.article
       layout
+      id={slug ?? undefined}
       className="card-flat relative flex flex-col gap-4 overflow-hidden p-5"
     >
       <div className="absolute inset-x-0 top-0 h-1" style={{ backgroundColor: accent }} />
@@ -197,7 +203,40 @@ function StrategyCard({
         </span>
       </header>
 
-      <p className="line-clamp-3 text-sm leading-relaxed text-ink-soft">{strategy.description}</p>
+      <p className="line-clamp-2 text-sm leading-relaxed text-ink-soft">{strategy.description}</p>
+
+      {backtest.data && (
+        <div className="-mx-1 rounded-sm border border-divider bg-paper p-3">
+          <div className="flex items-baseline justify-between">
+            <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-mute">
+              90d backtest
+            </span>
+            <span
+              className="num-display text-base"
+              style={{
+                color:
+                  backtest.data.totalReturnPct >= 0
+                    ? 'var(--state-active)'
+                    : 'var(--accent-orange)',
+              }}
+            >
+              {backtest.data.totalReturnPct >= 0 ? '+' : ''}
+              {backtest.data.totalReturnPct.toFixed(2)}%
+            </span>
+          </div>
+          <div className="mt-1 text-ink">
+            <EquityCurve summary={backtest.data} accent={accent} height={80} />
+          </div>
+          <div className="mt-1 grid grid-cols-3 gap-1 font-mono text-[10px] text-ink-mute">
+            <span>
+              α {backtest.data.alphaPct >= 0 ? '+' : ''}
+              {backtest.data.alphaPct.toFixed(2)}%
+            </span>
+            <span>DD −{backtest.data.maxDrawdownPct.toFixed(1)}%</span>
+            <span>Sharpe {backtest.data.sharpeAnnualized.toFixed(2)}</span>
+          </div>
+        </div>
+      )}
 
       <dl className="grid grid-cols-3 gap-2 border-t border-divider pt-3 text-[11px]">
         <Stat label="vaults" value={`${strategy.activeVaultCount}/${strategy.vaultCount}`} />
@@ -206,7 +245,7 @@ function StrategyCard({
           value={`${(strategy.royaltyBps / 100).toFixed(1)}%`}
         />
         <Stat
-          label="net α"
+          label="live α"
           value={
             alpha.ticks === 0n
               ? '—'

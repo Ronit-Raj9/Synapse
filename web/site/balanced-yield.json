@@ -1,0 +1,838 @@
+{
+  "strategySlug": "balanced-yield",
+  "strategyName": "Balanced Yield",
+  "startDate": "2026-02-16",
+  "endDate": "2026-05-16",
+  "startNavUsd": 2971.2029881219696,
+  "endNavUsd": 3233.9225194088212,
+  "totalReturnPct": 8.842193964435621,
+  "benchmarkReturnPct": 3.777714176183275,
+  "alphaPct": 5.064479788252346,
+  "maxDrawdownPct": 13.283625969107737,
+  "volatilityPct": 49.29031360139607,
+  "sharpeAnnualized": 0.9316239595753517,
+  "tradesExecuted": 9,
+  "noops": 82,
+  "series": [
+    {
+      "date": "2026-02-16",
+      "priceUsd": 0.9732297583619692,
+      "navUsd": 2971.2029881219696,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "rebalance",
+      "rationale": "Vol 0.00% → regime 0.05. Drift 27.27% exceeds 2.28%; quote->base on 0xb663828d…."
+    },
+    {
+      "date": "2026-02-17",
+      "priceUsd": 0.9910070379458348,
+      "navUsd": 3003.7518608458586,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "0.41% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-02-18",
+      "priceUsd": 0.9676825915878824,
+      "navUsd": 2961.046539580101,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "0.16% drift below regime-1.00 threshold 7.98%. Hold."
+    },
+    {
+      "date": "2026-02-19",
+      "priceUsd": 0.9295649840717041,
+      "navUsd": 2891.256043811036,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "1.13% drift below regime-0.98 threshold 7.89%. Hold."
+    },
+    {
+      "date": "2026-02-20",
+      "priceUsd": 0.9271039591183934,
+      "navUsd": 2886.750090715247,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "1.20% drift below regime-0.96 threshold 7.74%. Hold."
+    },
+    {
+      "date": "2026-02-21",
+      "priceUsd": 0.9536714450255065,
+      "navUsd": 2935.3931754631058,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "0.52% drift below regime-0.92 threshold 7.52%. Hold."
+    },
+    {
+      "date": "2026-02-22",
+      "priceUsd": 0.9499696675526216,
+      "navUsd": 2928.61549706475,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "0.61% drift below regime-0.88 threshold 7.26%. Hold."
+    },
+    {
+      "date": "2026-02-23",
+      "priceUsd": 0.922900312104958,
+      "navUsd": 2879.0535266278685,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "1.31% drift below regime-0.83 threshold 6.99%. Hold."
+    },
+    {
+      "date": "2026-02-24",
+      "priceUsd": 0.8794056589696074,
+      "navUsd": 2799.4180614604584,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "2.48% drift below regime-0.79 threshold 6.71%. Hold."
+    },
+    {
+      "date": "2026-02-25",
+      "priceUsd": 0.8602457663946909,
+      "navUsd": 2764.337727493593,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "3.02% drift below regime-0.74 threshold 6.45%. Hold."
+    },
+    {
+      "date": "2026-02-26",
+      "priceUsd": 0.9630896304467979,
+      "navUsd": 2952.63717036803,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "0.28% drift below regime-0.70 threshold 6.20%. Hold."
+    },
+    {
+      "date": "2026-02-27",
+      "priceUsd": 0.9377875383423598,
+      "navUsd": 2906.310927273844,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "0.92% drift below regime-0.66 threshold 5.96%. Hold."
+    },
+    {
+      "date": "2026-02-28",
+      "priceUsd": 0.8990680386573332,
+      "navUsd": 2835.418411845082,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "1.94% drift below regime-0.62 threshold 5.75%. Hold."
+    },
+    {
+      "date": "2026-03-01",
+      "priceUsd": 0.9050316699675918,
+      "navUsd": 2846.3373758842126,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "1.78% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-03-02",
+      "priceUsd": 0.8877958551949485,
+      "navUsd": 2814.779884836119,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "2.25% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-03-03",
+      "priceUsd": 0.9228546808282773,
+      "navUsd": 2878.9699791643825,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "1.31% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-03-04",
+      "priceUsd": 0.91046901129627,
+      "navUsd": 2856.292742228573,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "1.64% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-03-05",
+      "priceUsd": 0.9587186694311188,
+      "navUsd": 2944.634266824254,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "0.39% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-03-06",
+      "priceUsd": 0.9536902555808823,
+      "navUsd": 2935.4276161867215,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "0.52% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-03-07",
+      "priceUsd": 0.9016052826927989,
+      "navUsd": 2840.063916394314,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "1.88% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-03-08",
+      "priceUsd": 0.895099012962997,
+      "navUsd": 2828.1514218901034,
+      "suiUnits": 1830.9253994874564,
+      "usdcUnits": 1189.2919040000002,
+      "decision": "noop",
+      "rationale": "2.05% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-03-09",
+      "priceUsd": 0.8801523827195284,
+      "navUsd": 2800.6128124380893,
+      "suiUnits": 1909.0997677541225,
+      "usdcUnits": 1120.3141030000002,
+      "decision": "rebalance",
+      "rationale": "Vol 0.00% → regime 0.05. Drift 2.46% exceeds 2.28%; quote->base on 0xb663828d…."
+    },
+    {
+      "date": "2026-03-10",
+      "priceUsd": 0.9402654166149893,
+      "navUsd": 2915.3745914869096,
+      "suiUnits": 1909.0997677541225,
+      "usdcUnits": 1120.3141030000002,
+      "decision": "noop",
+      "rationale": "1.57% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-03-11",
+      "priceUsd": 0.9559290546236457,
+      "navUsd": 2945.27803917142,
+      "suiUnits": 1909.0997677541225,
+      "usdcUnits": 1120.3141030000002,
+      "decision": "noop",
+      "rationale": "1.96% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-03-12",
+      "priceUsd": 0.9794108840442053,
+      "navUsd": 2989.917872327889,
+      "suiUnits": 1831.7790273591224,
+      "usdcUnits": 1195.8535557684565,
+      "decision": "rebalance",
+      "rationale": "Vol 4.98% → regime 0.06. Drift 2.53% exceeds 2.38%; base->quote on 0xb663828d…."
+    },
+    {
+      "date": "2026-03-13",
+      "priceUsd": 0.9945488082671659,
+      "navUsd": 3017.64720443726,
+      "suiUnits": 1831.7790273591224,
+      "usdcUnits": 1195.8535557684565,
+      "decision": "noop",
+      "rationale": "0.37% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-03-14",
+      "priceUsd": 0.9950458523734486,
+      "navUsd": 3018.557679406821,
+      "suiUnits": 1831.7790273591224,
+      "usdcUnits": 1195.8535557684565,
+      "decision": "noop",
+      "rationale": "0.38% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-03-15",
+      "priceUsd": 1.000673497224434,
+      "navUsd": 3028.866281218282,
+      "suiUnits": 1831.7790273591224,
+      "usdcUnits": 1195.8535557684565,
+      "decision": "noop",
+      "rationale": "0.52% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-03-16",
+      "priceUsd": 1.020321831360292,
+      "navUsd": 3064.857687610891,
+      "suiUnits": 1831.7790273591224,
+      "usdcUnits": 1195.8535557684565,
+      "decision": "noop",
+      "rationale": "0.98% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-03-17",
+      "priceUsd": 1.0730227097882756,
+      "navUsd": 3161.394051438674,
+      "suiUnits": 1831.7790273591224,
+      "usdcUnits": 1195.8535557684565,
+      "decision": "noop",
+      "rationale": "2.17% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-03-18",
+      "priceUsd": 1.0293149045929044,
+      "navUsd": 3081.331010549895,
+      "suiUnits": 1831.7790273591224,
+      "usdcUnits": 1195.8535557684565,
+      "decision": "noop",
+      "rationale": "1.19% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-03-19",
+      "priceUsd": 0.9868857818742657,
+      "navUsd": 3003.610233404646,
+      "suiUnits": 1831.7790273591224,
+      "usdcUnits": 1195.8535557684565,
+      "decision": "noop",
+      "rationale": "0.19% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-03-20",
+      "priceUsd": 0.9572038694902889,
+      "navUsd": 2949.2395288077664,
+      "suiUnits": 1831.7790273591224,
+      "usdcUnits": 1195.8535557684565,
+      "decision": "noop",
+      "rationale": "0.55% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-03-21",
+      "priceUsd": 0.9676394536650341,
+      "navUsd": 2968.3552130373055,
+      "suiUnits": 1831.7790273591224,
+      "usdcUnits": 1195.8535557684565,
+      "decision": "noop",
+      "rationale": "0.29% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-03-22",
+      "priceUsd": 0.9427932724168709,
+      "navUsd": 2922.8424993169565,
+      "suiUnits": 1831.7790273591224,
+      "usdcUnits": 1195.8535557684565,
+      "decision": "noop",
+      "rationale": "0.91% drift below regime-0.06 threshold 2.39%. Hold."
+    },
+    {
+      "date": "2026-03-23",
+      "priceUsd": 0.9046397475174524,
+      "navUsd": 2852.9536725863773,
+      "suiUnits": 1831.7790273591224,
+      "usdcUnits": 1195.8535557684565,
+      "decision": "noop",
+      "rationale": "1.92% drift below regime-0.06 threshold 2.39%. Hold."
+    },
+    {
+      "date": "2026-03-24",
+      "priceUsd": 0.9518188241577402,
+      "navUsd": 2939.3753157062256,
+      "suiUnits": 1831.7790273591224,
+      "usdcUnits": 1195.8535557684565,
+      "decision": "noop",
+      "rationale": "0.68% drift below regime-0.06 threshold 2.39%. Hold."
+    },
+    {
+      "date": "2026-03-25",
+      "priceUsd": 0.9533223254865549,
+      "navUsd": 2942.1293979079546,
+      "suiUnits": 1831.7790273591224,
+      "usdcUnits": 1195.8535557684565,
+      "decision": "noop",
+      "rationale": "0.65% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-03-26",
+      "priceUsd": 0.9669588709398655,
+      "navUsd": 2967.1085358749588,
+      "suiUnits": 1831.7790273591224,
+      "usdcUnits": 1195.8535557684565,
+      "decision": "noop",
+      "rationale": "0.30% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-03-27",
+      "priceUsd": 0.926735797269567,
+      "navUsd": 2893.428753109785,
+      "suiUnits": 1831.7790273591224,
+      "usdcUnits": 1195.8535557684565,
+      "decision": "noop",
+      "rationale": "1.33% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-03-28",
+      "priceUsd": 0.878719382432186,
+      "navUsd": 2805.289130844195,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "rebalance",
+      "rationale": "Vol 0.00% → regime 0.05. Drift 2.63% exceeds 2.28%; quote->base on 0xb663828d…."
+    },
+    {
+      "date": "2026-03-29",
+      "priceUsd": 0.8573271378978067,
+      "navUsd": 2764.314408403433,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "0.60% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-03-30",
+      "priceUsd": 0.845388060663364,
+      "navUsd": 2741.446290235939,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "0.93% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-03-31",
+      "priceUsd": 0.8621406703727409,
+      "navUsd": 2773.534252389559,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "0.46% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-04-01",
+      "priceUsd": 0.8774928886772642,
+      "navUsd": 2802.939903716462,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "0.04% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-04-02",
+      "priceUsd": 0.8825469928036337,
+      "navUsd": 2812.6205388378444,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "0.10% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-04-03",
+      "priceUsd": 0.8609529161829852,
+      "navUsd": 2771.259227056201,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "0.49% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-04-04",
+      "priceUsd": 0.873844727959917,
+      "navUsd": 2795.95221373506,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "0.14% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-04-05",
+      "priceUsd": 0.8704605309728328,
+      "navUsd": 2789.4701200955737,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "0.23% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-04-06",
+      "priceUsd": 0.8690470049811657,
+      "navUsd": 2786.762651270679,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "0.27% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-04-07",
+      "priceUsd": 0.872872269845857,
+      "navUsd": 2794.0895666787947,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "0.16% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-04-08",
+      "priceUsd": 0.9633107613083076,
+      "navUsd": 2967.3155261932225,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "2.18% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-04-09",
+      "priceUsd": 0.9137437441357932,
+      "navUsd": 2872.37482150951,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "0.93% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-04-10",
+      "priceUsd": 0.9295787174656264,
+      "navUsd": 2902.7051422013874,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "1.34% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-04-11",
+      "priceUsd": 0.9448455400352535,
+      "navUsd": 2931.947226468773,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "1.73% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-04-12",
+      "priceUsd": 0.9413430700280516,
+      "navUsd": 2925.2385925911285,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "1.64% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-04-13",
+      "priceUsd": 0.9011813667202858,
+      "navUsd": 2848.3128336723166,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "0.60% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-04-14",
+      "priceUsd": 0.9585360313186201,
+      "navUsd": 2958.170004518645,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "2.06% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-04-15",
+      "priceUsd": 0.9330443574439188,
+      "navUsd": 2909.343231811944,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "1.43% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-04-16",
+      "priceUsd": 0.9588449508873953,
+      "navUsd": 2958.761709309918,
+      "suiUnits": 1915.4008068163096,
+      "usdcUnits": 1122.1893167684566,
+      "decision": "noop",
+      "rationale": "2.07% drift below regime-0.05 threshold 2.28%. Hold."
+    },
+    {
+      "date": "2026-04-17",
+      "priceUsd": 1.0023833534135655,
+      "navUsd": 3041.918518727325,
+      "suiUnits": 1820.9531454873095,
+      "usdcUnits": 1216.6253983447757,
+      "decision": "rebalance",
+      "rationale": "Vol 0.00% → regime 0.05. Drift 3.11% exceeds 2.28%; base->quote on 0xb663828d…."
+    },
+    {
+      "date": "2026-04-18",
+      "priceUsd": 1.0003279670882421,
+      "navUsd": 3038.1757565330363,
+      "suiUnits": 1820.9531454873095,
+      "usdcUnits": 1216.6253983447757,
+      "decision": "noop",
+      "rationale": "0.04% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-04-19",
+      "priceUsd": 0.9586529749961317,
+      "navUsd": 2962.287548594749,
+      "suiUnits": 1820.9531454873095,
+      "usdcUnits": 1216.6253983447757,
+      "decision": "noop",
+      "rationale": "1.07% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-04-20",
+      "priceUsd": 0.9228836557698356,
+      "navUsd": 2897.1532942376853,
+      "suiUnits": 1820.9531454873095,
+      "usdcUnits": 1216.6253983447757,
+      "decision": "noop",
+      "rationale": "1.99% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-04-21",
+      "priceUsd": 0.9441053852367924,
+      "navUsd": 2935.7970692632207,
+      "suiUnits": 1820.9531454873095,
+      "usdcUnits": 1216.6253983447757,
+      "decision": "noop",
+      "rationale": "1.44% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-04-22",
+      "priceUsd": 0.9489979215789234,
+      "navUsd": 2944.706148704835,
+      "suiUnits": 1820.9531454873095,
+      "usdcUnits": 1216.6253983447757,
+      "decision": "noop",
+      "rationale": "1.32% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-04-23",
+      "priceUsd": 0.9457467760084505,
+      "navUsd": 2938.7859649518455,
+      "suiUnits": 1820.9531454873095,
+      "usdcUnits": 1216.6253983447757,
+      "decision": "noop",
+      "rationale": "1.40% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-04-24",
+      "priceUsd": 0.9461364526800224,
+      "navUsd": 2939.4955479126675,
+      "suiUnits": 1820.9531454873095,
+      "usdcUnits": 1216.6253983447757,
+      "decision": "noop",
+      "rationale": "1.39% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-04-25",
+      "priceUsd": 0.9460359300866927,
+      "navUsd": 2939.3125009801515,
+      "suiUnits": 1820.9531454873095,
+      "usdcUnits": 1216.6253983447757,
+      "decision": "noop",
+      "rationale": "1.39% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-04-26",
+      "priceUsd": 0.9387241354726268,
+      "navUsd": 2925.9980655785107,
+      "suiUnits": 1820.9531454873095,
+      "usdcUnits": 1216.6253983447757,
+      "decision": "noop",
+      "rationale": "1.58% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-04-27",
+      "priceUsd": 0.9473450450963309,
+      "navUsd": 2941.6963380747566,
+      "suiUnits": 1820.9531454873095,
+      "usdcUnits": 1216.6253983447757,
+      "decision": "noop",
+      "rationale": "1.36% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-04-28",
+      "priceUsd": 0.9339270091275784,
+      "navUsd": 2917.262723271195,
+      "suiUnits": 1820.9531454873095,
+      "usdcUnits": 1216.6253983447757,
+      "decision": "noop",
+      "rationale": "1.70% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-04-29",
+      "priceUsd": 0.9251513194174399,
+      "navUsd": 2901.2826034896975,
+      "suiUnits": 1820.9531454873095,
+      "usdcUnits": 1216.6253983447757,
+      "decision": "noop",
+      "rationale": "1.93% drift below regime-0.07 threshold 2.42%. Hold."
+    },
+    {
+      "date": "2026-04-30",
+      "priceUsd": 0.9066080468194128,
+      "navUsd": 2867.342125602191,
+      "suiUnits": 1897.551717407257,
+      "usdcUnits": 1147.0064693447757,
+      "decision": "rebalance",
+      "rationale": "Vol 0.00% → regime 0.05. Drift 2.43% exceeds 2.28%; quote->base on 0xb663828d…."
+    },
+    {
+      "date": "2026-05-01",
+      "priceUsd": 0.9080851037005839,
+      "navUsd": 2870.144917423766,
+      "suiUnits": 1897.551717407257,
+      "usdcUnits": 1147.0064693447757,
+      "decision": "noop",
+      "rationale": "0.04% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-05-02",
+      "priceUsd": 0.9179997962396172,
+      "navUsd": 2888.9585592787735,
+      "suiUnits": 1897.551717407257,
+      "usdcUnits": 1147.0064693447757,
+      "decision": "noop",
+      "rationale": "0.30% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-05-03",
+      "priceUsd": 0.9274048164034547,
+      "navUsd": 2906.8050714429132,
+      "suiUnits": 1897.551717407257,
+      "usdcUnits": 1147.0064693447757,
+      "decision": "noop",
+      "rationale": "0.54% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-05-04",
+      "priceUsd": 0.9208531336825088,
+      "navUsd": 2894.3729146438745,
+      "suiUnits": 1897.551717407257,
+      "usdcUnits": 1147.0064693447757,
+      "decision": "noop",
+      "rationale": "0.37% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-05-05",
+      "priceUsd": 0.9290173938724879,
+      "navUsd": 2909.8650205887293,
+      "suiUnits": 1897.551717407257,
+      "usdcUnits": 1147.0064693447757,
+      "decision": "noop",
+      "rationale": "0.58% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-05-06",
+      "priceUsd": 0.9665393769336927,
+      "navUsd": 2981.0649239870445,
+      "suiUnits": 1897.551717407257,
+      "usdcUnits": 1147.0064693447757,
+      "decision": "noop",
+      "rationale": "1.52% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-05-07",
+      "priceUsd": 0.9920312952280548,
+      "navUsd": 3029.4371573265166,
+      "suiUnits": 1897.551717407257,
+      "usdcUnits": 1147.0064693447757,
+      "decision": "noop",
+      "rationale": "2.14% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-05-08",
+      "priceUsd": 0.968524643543785,
+      "navUsd": 2984.8320700525364,
+      "suiUnits": 1897.551717407257,
+      "usdcUnits": 1147.0064693447757,
+      "decision": "noop",
+      "rationale": "1.57% drift below regime-0.06 threshold 2.38%. Hold."
+    },
+    {
+      "date": "2026-05-09",
+      "priceUsd": 1.02228556717935,
+      "navUsd": 3086.6268729969397,
+      "suiUnits": 1811.732241243257,
+      "usdcUnits": 1234.519151180462,
+      "decision": "rebalance",
+      "rationale": "Vol 5.02% → regime 0.06. Drift 2.84% exceeds 2.38%; base->quote on 0xb663828d…."
+    },
+    {
+      "date": "2026-05-10",
+      "priceUsd": 1.0669606756050047,
+      "navUsd": 3167.566207312737,
+      "suiUnits": 1811.732241243257,
+      "usdcUnits": 1234.519151180462,
+      "decision": "noop",
+      "rationale": "1.03% drift below regime-0.07 threshold 2.44%. Hold."
+    },
+    {
+      "date": "2026-05-11",
+      "priceUsd": 1.33224329767164,
+      "navUsd": 3647.625397343609,
+      "suiUnits": 1643.027497963257,
+      "usdcUnits": 1458.713025291856,
+      "decision": "rebalance",
+      "rationale": "Vol 7.72% → regime 0.07. Drift 6.16% exceeds 2.44%; base->quote on 0xb663828d…."
+    },
+    {
+      "date": "2026-05-12",
+      "priceUsd": 1.2920297413907635,
+      "navUsd": 3581.553418583236,
+      "suiUnits": 1643.027497963257,
+      "usdcUnits": 1458.713025291856,
+      "decision": "noop",
+      "rationale": "0.73% drift below regime-0.12 threshold 2.73%. Hold."
+    },
+    {
+      "date": "2026-05-13",
+      "priceUsd": 1.2376067535238557,
+      "navUsd": 3492.134952996586,
+      "suiUnits": 1643.027497963257,
+      "usdcUnits": 1458.713025291856,
+      "decision": "noop",
+      "rationale": "1.77% drift below regime-0.12 threshold 2.72%. Hold."
+    },
+    {
+      "date": "2026-05-14",
+      "priceUsd": 1.2094298026836416,
+      "navUsd": 3445.8394479573553,
+      "suiUnits": 1643.027497963257,
+      "usdcUnits": 1458.713025291856,
+      "decision": "noop",
+      "rationale": "2.33% drift below regime-0.12 threshold 2.72%. Hold."
+    },
+    {
+      "date": "2026-05-15",
+      "priceUsd": 1.1892455759551313,
+      "navUsd": 3412.442102064788,
+      "suiUnits": 1721.5717755591438,
+      "usdcUnits": 1365.070484291856,
+      "decision": "rebalance",
+      "rationale": "Vol 16.87% → regime 0.12. Drift 2.74% exceeds 2.72%; quote->base on 0xb663828d…."
+    },
+    {
+      "date": "2026-05-16",
+      "priceUsd": 1.0987151618746516,
+      "navUsd": 3256.587496354152,
+      "suiUnits": 1721.5717755591438,
+      "usdcUnits": 1365.070484291856,
+      "decision": "noop",
+      "rationale": "1.92% drift below regime-0.12 threshold 2.74%. Hold."
+    },
+    {
+      "date": "2026-05-16",
+      "priceUsd": 1.085549880434109,
+      "navUsd": 3233.9225194088212,
+      "suiUnits": 1721.5717755591438,
+      "usdcUnits": 1365.070484291856,
+      "decision": "noop",
+      "rationale": "2.21% drift below regime-0.12 threshold 2.74%. Hold."
+    }
+  ],
+  "generatedAt": "2026-05-16T04:45:40.584Z"
+}

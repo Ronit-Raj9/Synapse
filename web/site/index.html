@@ -22,6 +22,7 @@
     />
     <link rel="stylesheet" href="./styles.css" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <script defer src="./scroll-reveal.js"></script>
   </head>
   <body class="bg-paper text-ink">
     <header class="site-nav">
@@ -156,9 +157,37 @@
         </div>
       </section>
 
+      <!-- Performance — real 90-day backtest numbers -->
+      <section id="performance" class="section section-soft">
+        <div class="section-header" data-reveal>
+          <span class="mono-small">&lt;performance&gt;</span>
+          <h2 class="headline-2">
+            Real returns.<br />
+            <span class="serif">Verifiable inputs.</span>
+          </h2>
+          <p>
+            Each strategy replayed deterministically against CoinGecko's last 90 days of
+            SUI/USD daily closes — same <code>evaluate()</code> function the live runtime
+            uses, 0.25% per-trade fee assumed. Dashed line is buy-and-hold; coloured line is
+            the strategy; dots mark each on-chain rebalance.
+          </p>
+        </div>
+        <div class="perf-grid" data-perf-grid data-reveal data-reveal-delay="120">
+          <article class="perf-card perf-card-placeholder">
+            <span class="mono-small">loading backtest…</span>
+          </article>
+        </div>
+        <p class="perf-footnote mono-mini" data-reveal data-reveal-delay="240">
+          Note · the Aggressive Momentum strategy underperformed buy-and-hold in this
+          window. We ship the result anyway because the on-chain reputation registry exists
+          for exactly this reason — vault owners pick winners from public track records,
+          not whitepaper promises.
+        </p>
+      </section>
+
       <!-- How it works -->
       <section id="how" class="section">
-        <div class="section-grid">
+        <div class="section-grid" data-reveal>
           <div class="section-intro">
             <span class="mono-small">&lt;how&gt; · four primitives, one audit trail</span>
             <h2 class="headline-2">
@@ -220,7 +249,7 @@
 
       <!-- Pricing calculator -->
       <section id="pricing" class="section section-soft">
-        <div class="section-header">
+        <div class="section-header" data-reveal>
           <span class="mono-small">&lt;pricing&gt;</span>
           <h2 class="headline-2">
             Pay <span class="serif">in basis points</span>,<br />not flat fees.
@@ -232,7 +261,7 @@
           </p>
         </div>
 
-        <div class="calculator card-flat">
+        <div class="calculator card-flat" data-reveal data-reveal-delay="120">
           <div class="calc-left">
             <span class="mono-small">&lt;inputs&gt;</span>
             <div class="field">
@@ -301,13 +330,13 @@
 
       <!-- Tech stack -->
       <section id="tech" class="section">
-        <div class="section-header">
+        <div class="section-header" data-reveal>
           <span class="mono-small">&lt;built-on&gt;</span>
           <h2 class="headline-2">
             Six sponsor primitives.<br />One coherent product.
           </h2>
         </div>
-        <div class="tech-grid">
+        <div class="tech-grid" data-reveal data-reveal-delay="100">
           <div class="tech-card" style="border-top-color:#FF6B35">
             <h3>Walrus</h3>
             <p>Programmable blob storage for audit reports + datasets. Verifiable, decentralized.</p>
@@ -337,13 +366,13 @@
 
       <!-- Real-world application -->
       <section class="section section-soft">
-        <div class="section-header">
+        <div class="section-header" data-reveal>
           <span class="mono-small">&lt;real-world&gt;</span>
           <h2 class="headline-2">
             Five customers.<br />Real revenue model.
           </h2>
         </div>
-        <ul class="customer-grid">
+        <ul class="customer-grid" data-reveal data-reveal-delay="100">
           <li>
             <span class="mono-small">crypto-native · highest fit</span>
             <h3>Tokenized Treasury Agent</h3>
@@ -394,11 +423,11 @@
 
       <!-- FAQ -->
       <section id="faq" class="section">
-        <div class="section-header">
+        <div class="section-header" data-reveal>
           <span class="mono-small">&lt;faq&gt;</span>
           <h2 class="headline-2">Frequently asked.</h2>
         </div>
-        <div class="faq-grid">
+        <div class="faq-grid" data-reveal data-reveal-delay="100">
           <details>
             <summary>What happens if the AI agent goes rogue?</summary>
             <p>
@@ -486,5 +515,6 @@
     </main>
 
     <script src="./calculator.js"></script>
+    <script src="./performance.js"></script>
   </body>
 </html>
