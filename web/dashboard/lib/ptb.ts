@@ -42,20 +42,51 @@ export interface MintAgentParams {
   memwalNamespace: Uint8Array;
   /** Amount of SUI to seed the treasury with (in MIST). */
   fundingMist: bigint;
+  /**
+   * One-time SUI buffer transferred to the session address as part of
+   * the mint PTB. The session needs *some* gas to sign its first
+   * pull_operational_funds call (chicken-and-egg) — this breaks the
+   * cycle. Default 0.02 SUI ≈ 4 tick signatures' worth of gas.
+   */
+  sessionGasSeedMist: bigint;
+  /**
+   * Per-epoch cap on `pull_operational_funds<SUI>`. Set as part of mint
+   * so the runtime can auto-refuel from tick 1. Zero disables auto-refuel
+   * (legacy behavior — owner refuels manually). Defaults to 0.05 SUI/epoch
+   * which covers ~10 ticks at testnet gas prices.
+   */
+  operationalCapMist: bigint;
 }
 
 /**
  * Build the canonical mint PTB:
- *   1. `agent::new(...)`                          → hot-potato `AgentIdentity`
- *   2. SplitCoins(gas, [funding])                  → `Coin<SUI>`
- *   3. `agent::fund<SUI>(identity, coin)`
- *   4. `agent::share(identity)`                    → shared object on-chain
+ *   1. `splitCoins(gas, [funding, sessionGasSeed])` → 2 Coin<SUI> handles
+ *   2. `agent::new(...)`                            → hot-potato `AgentIdentity`
+ *   3. `agent::fund<SUI>(identity, fundingCoin)`
+ *   4. (optional) `agent::set_operational_cap(identity, cap)`
+ *   5. `transfer(sessionGasCoin, sessionAddr)`     → seed session for first tick
+ *   6. `agent::share(identity)`                    → shared object on-chain
+ *
+ * Steps 4–5 enable the auto-refuel loop from the very first tick — no
+ * post-mint owner refueling required. The session's first
+ * `pull_operational_funds` call is paid by the seed coin from step 5,
+ * which itself was paid by the owner via the mint tx gas.
  */
 export function buildMintPTB(params: MintAgentParams): Transaction {
   const tx = new Transaction();
 
-  const [fundingCoin] = tx.splitCoins(tx.gas, [params.fundingMist]);
-  if (!fundingCoin) throw new Error('splitCoins did not return a coin handle');
+  // Split off two SUI coins from the owner's gas: one funds the treasury,
+  // one seeds the session's gas for its first auto-refuel call.
+  const splits =
+    params.sessionGasSeedMist > 0n
+      ? tx.splitCoins(tx.gas, [params.fundingMist, params.sessionGasSeedMist])
+      : tx.splitCoins(tx.gas, [params.fundingMist]);
+  const fundingCoin = splits[0];
+  const sessionGasCoin = params.sessionGasSeedMist > 0n ? splits[1] : null;
+  if (!fundingCoin) throw new Error('splitCoins did not return a funding coin');
+  if (params.sessionGasSeedMist > 0n && !sessionGasCoin) {
+    throw new Error('splitCoins did not return a session gas coin');
+  }
 
   const identity = tx.moveCall({
     target: synapseTarget('agent', 'new'),
@@ -76,6 +107,17 @@ export function buildMintPTB(params: MintAgentParams): Transaction {
     typeArguments: [SUI_COIN_TYPE_TAG],
     arguments: [identity, fundingCoin],
   });
+
+  if (params.operationalCapMist > 0n) {
+    tx.moveCall({
+      target: synapseTarget('agent', 'set_operational_cap'),
+      arguments: [identity, tx.pure.u64(params.operationalCapMist)],
+    });
+  }
+
+  if (sessionGasCoin) {
+    tx.transferObjects([sessionGasCoin], tx.pure.address(params.sessionAddr));
+  }
 
   tx.moveCall({
     target: synapseTarget('agent', 'share'),

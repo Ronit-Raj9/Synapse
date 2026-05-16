@@ -135,6 +135,15 @@ export function MintWizard() {
     const fundingMist = BigInt(Math.round(form.fundingSui * 1_000_000_000));
     const spendPerEpochMist = (fundingMist * BigInt(Math.round(form.spendPct * 100))) / 10_000n;
 
+    // Auto-derived autonomy params. The owner gets full hands-off operation
+    // by default; can override if they want to disable auto-refuel.
+    //   sessionGasSeed: 0.02 SUI flat (enough for ~4 ticks of gas)
+    //   operationalCap: max(0.05 SUI, 5% of treasury) per epoch
+    const sessionGasSeedMist = 20_000_000n; // 0.02 SUI
+    const operationalCapMist = fundingMist / 20n > 50_000_000n
+      ? fundingMist / 20n
+      : 50_000_000n; // ≥ 0.05 SUI/epoch
+
     // CRITICAL — save the session key file *before* submitting the mint PTB.
     // If the tx fails or the user closes the tab mid-flow, they still have
     // the secret in their Downloads. The secret is what the agent runtime
@@ -172,6 +181,8 @@ export function MintWizard() {
           ? new Uint8Array()
           : new TextEncoder().encode(`synapse:vault:${account.address}`),
         fundingMist,
+        sessionGasSeedMist,
+        operationalCapMist,
       });
 
       toast.push({
@@ -755,6 +766,14 @@ function MintStep({
       <SummaryRow label="Spend cap" value={`${form.spendPct.toFixed(1)}% per epoch`} />
       <SummaryRow label="Expiry" value={`${form.expiryDays} epochs from now`} />
       <SummaryRow label="Funding" value={`${form.fundingSui.toFixed(3)} SUI`} />
+      <SummaryRow
+        label="Session gas seed"
+        value="0.02 SUI (one-time, bundled in this tx)"
+      />
+      <SummaryRow
+        label="Operational cap"
+        value={`${(Math.max(0.05, form.fundingSui * 0.05)).toFixed(4)} SUI / epoch (auto-refuel)`}
+      />
       <SummaryRow
         label="MemWal"
         value={form.skipMemWal ? 'skipped' : form.memwalAccountId || '—'}
