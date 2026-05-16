@@ -14,15 +14,19 @@ interface RunTickButtonProps {
 }
 
 /**
- * Submit a real "strategy tick" event on-chain from the connected wallet.
+ * Owner check-in button. NOT a real strategy tick.
  *
- * The full production runtime runs as a Node worker (see
- * `@synapse-core/vault` runtime). This in-browser variant lets the owner
- * produce a real on-chain audit log entry from the dashboard — useful for
- * demos and for end-of-day "I checked the vault" attestations.
+ * The autonomous strategy loop is a separate Node process (see
+ * `@synapse-core/vault` runtime, deployable via the AWS Fargate stack in
+ * `infrastructure/aws/`). That loop signs with the agent's session key
+ * and is the only thing the Move VM authorizes to mutate the vault.
  *
- * The PTB calls `attestation::log_owner_action(...)` so the action is
- * recorded against the owner address and visible in the audit timeline.
+ * This button signs from the OWNER wallet — which by design cannot run
+ * a strategy tick (`assert_can_act` rejects non-session signers). So it
+ * only does what it's allowed to: emit an `ActionLogEvent` via
+ * `attestation::log_owner_action`. Useful for end-of-day "I reviewed
+ * the vault" attestations that show up in the audit timeline alongside
+ * the agent's automated decisions.
  */
 export function RunTickButton({ vaultId }: RunTickButtonProps) {
   const account = useCurrentAccount();
@@ -105,11 +109,11 @@ export function RunTickButton({ vaultId }: RunTickButtonProps) {
         disabled={isPending || !account}
         title={
           !account
-            ? 'Connect a wallet to enable manual ticks'
-            : 'Submit a real audit log entry on-chain'
+            ? 'Connect a wallet to enable owner attestations'
+            : 'Sign an attestation::log_owner_action — visible in audit timeline'
         }
       >
-        {isPending ? 'Signing…' : 'Run tick now'}
+        {isPending ? 'Signing…' : 'Log owner check-in'}
       </button>
     </div>
   );

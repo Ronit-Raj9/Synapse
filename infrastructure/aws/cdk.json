@@ -1,0 +1,11 @@
+{
+  "app": "npx tsx bin/app.ts",
+  "context": {
+    "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
+    "@aws-cdk/core:checkSecretUsage": true,
+    "@aws-cdk/aws-iam:standardizedServicePrincipals": true,
+    "@aws-cdk/aws-ecs:disableExplicitDeploymentControllerForCircuitBreaker": true,
+    "@aws-cdk/aws-ecs:enableImdsBlockingDeprecatedFeature": true,
+    "@aws-cdk/aws-ecs:disableEcsImdsBlocking": false
+  }
+}

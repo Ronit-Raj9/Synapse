@@ -48,26 +48,34 @@ const KNOWN_STRATEGIES: Record<string, string> = {
     AGGRESSIVE_MOMENTUM_ID,
 };
 
-function parseArgs(): { vault: string; strategyOverride: string | null } {
+function parseArgs(): {
+  vault: string;
+  strategyOverride: string | null;
+  quoteTypeOverride: string | null;
+} {
   const args = process.argv.slice(2);
   let vault: string | null = null;
   let strategyOverride: string | null = null;
+  let quoteTypeOverride: string | null = null;
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--vault') vault = args[++i] ?? null;
     else if (args[i] === '--strategy') strategyOverride = args[++i] ?? null;
+    else if (args[i] === '--quote-type') quoteTypeOverride = args[++i] ?? null;
   }
   if (!vault) {
-    console.error('usage: simulate-tick.ts --vault <0x…> [--strategy <slug>]');
+    console.error(
+      'usage: simulate-tick.ts --vault <0x…> [--strategy <slug>] [--quote-type <0x…::usdc::USDC>]',
+    );
     process.exit(1);
   }
-  return { vault, strategyOverride };
+  return { vault, strategyOverride, quoteTypeOverride };
 }
 
-function buildStrategy(slug: string): Strategy {
+function buildStrategy(slug: string, quoteTypeTag: string): Strategy {
   const common = {
     baseTypeTag: SUI_TYPE_TAG,
     baseSymbol: 'SUI',
-    quoteTypeTag: USDC_TYPE_TAG,
+    quoteTypeTag,
     quoteSymbol: 'USDC',
     poolId: POOL_ID,
   };
@@ -245,7 +253,7 @@ function printDecision(decision: StrategyDecision): void {
 }
 
 async function main(): Promise<void> {
-  const { vault, strategyOverride } = parseArgs();
+  const { vault, strategyOverride, quoteTypeOverride } = parseArgs();
   const client = new SuiJsonRpcClient({ url: getJsonRpcFullnodeUrl('testnet') });
 
   console.log(`Loading vault ${vault}…`);
@@ -273,9 +281,23 @@ async function main(): Promise<void> {
   const navUsd = holdings.reduce((s, h) => s + h.valueUsd, 0);
   console.log(`  holdings:`);
   for (const h of holdings) {
-    console.log(`    ${h.symbol}: ${(Number(h.amount) / 10 ** h.decimals).toFixed(6)} ($${h.valueUsd.toFixed(2)})`);
+    console.log(
+      `    ${h.symbol}: ${(Number(h.amount) / 10 ** h.decimals).toFixed(6)} ($${h.valueUsd.toFixed(2)})   ${h.coinTypeTag}`,
+    );
   }
   console.log(`  NAV: $${navUsd.toFixed(2)}`);
+
+  // Auto-discover the quote token from the vault's actual holdings unless
+  // the caller pinned one with --quote-type. We pick the first non-SUI
+  // token. This makes the simulator work against vaults funded with any
+  // USDC variant (Circle, DeepBookV3 demo, bridge, …) without hardcoded
+  // type tags.
+  const detectedQuote =
+    holdings.find((h) => h.coinTypeTag !== SUI_TYPE_TAG)?.coinTypeTag ?? USDC_TYPE_TAG;
+  const quoteTypeTag = quoteTypeOverride ?? detectedQuote;
+  if (quoteTypeTag !== USDC_TYPE_TAG) {
+    console.log(`  quote token resolved: ${quoteTypeTag}`);
+  }
 
   const { epoch } = await client.getLatestSuiSystemState();
   const currentEpoch = BigInt(epoch);
@@ -289,7 +311,7 @@ async function main(): Promise<void> {
         {
           poolId: POOL_ID,
           baseTypeTag: SUI_TYPE_TAG,
-          quoteTypeTag: USDC_TYPE_TAG,
+          quoteTypeTag,
           bestBid: suiPriceUsd * 0.999,
           bestAsk: suiPriceUsd * 1.001,
           mid: suiPriceUsd,
@@ -312,7 +334,7 @@ async function main(): Promise<void> {
     },
   };
 
-  const strategy = buildStrategy(slug);
+  const strategy = buildStrategy(slug, quoteTypeTag);
   const decision = await strategy.evaluate(input);
   printDecision(decision);
 

@@ -19,8 +19,15 @@ export interface RuntimeConfig {
   walrusNetwork: 'testnet' | 'mainnet';
   /** Strategy to run. */
   strategy: Strategy;
-  /** Path to the session keypair file (base64 32-byte secret). */
-  sessionKeyPath: string;
+  /**
+   * Path to the session keypair file (base64 32-byte secret or
+   * `suiprivkey…` string). Either `sessionKeyPath` or `sessionKeyEnv`
+   * must be set; the runtime prefers `sessionKeyEnv` when both exist so
+   * containers can inject the secret without bind mounts.
+   */
+  sessionKeyPath?: string;
+  /** In-memory session secret. Wins over `sessionKeyPath` when set. */
+  sessionKeyEnv?: string;
   /** MemWal credentials. If absent, runtime runs without memory recall. */
   memwal?: { delegateKeyHex: string; relayerUrl?: string };
   /** Tick interval in milliseconds. Default 600_000 (10 min). */
@@ -40,7 +47,13 @@ export interface RuntimeConfig {
 export function loadFromEnv(env: NodeJS.ProcessEnv = process.env): RuntimeConfig {
   const packageId = required(env.SYNAPSE_PACKAGE_ID, 'SYNAPSE_PACKAGE_ID');
   const agentId = required(env.SYNAPSE_AGENT_ID, 'SYNAPSE_AGENT_ID');
-  const sessionKeyPath = required(env.SYNAPSE_SESSION_KEY_PATH, 'SYNAPSE_SESSION_KEY_PATH');
+  const sessionKeyPath = env.SYNAPSE_SESSION_KEY_PATH;
+  const sessionKeyEnv = env.SYNAPSE_SESSION_KEY ?? env.SYNAPSE_SESSION_SECRET_BASE64;
+  if (!sessionKeyPath && !sessionKeyEnv) {
+    throw new Error(
+      'Set SYNAPSE_SESSION_KEY (inline secret) or SYNAPSE_SESSION_KEY_PATH (file path).',
+    );
+  }
   const fullnodeUrl = env.SYNAPSE_FULLNODE_URL ?? getJsonRpcFullnodeUrl('testnet');
   const walrusNetwork = parseWalrusNetwork(env.SYNAPSE_WALRUS_NETWORK);
 
@@ -59,7 +72,8 @@ export function loadFromEnv(env: NodeJS.ProcessEnv = process.env): RuntimeConfig
     agentId,
     fullnodeUrl,
     walrusNetwork,
-    sessionKeyPath,
+    ...(sessionKeyPath ? { sessionKeyPath } : {}),
+    ...(sessionKeyEnv ? { sessionKeyEnv } : {}),
     strategy: conservativeRebalancer({
       baseTypeTag: SUI_TYPE_TAG_TESTNET,
       baseSymbol: 'SUI',

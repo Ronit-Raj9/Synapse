@@ -1,0 +1,29 @@
+{
+  "name": "@synapse-core/aws-infra",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AWS infrastructure-as-code for the Synapse Vault runtime (CDK).",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "synth": "cdk synth",
+    "diff": "cdk diff",
+    "deploy": "cdk deploy",
+    "destroy": "cdk destroy"
+  },
+  "bin": {
+    "synapse-aws": "./bin/app.ts"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.176.0",
+    "constructs": "^10.4.2"
+  },
+  "devDependencies": {
+    "aws-cdk": "^2.176.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}

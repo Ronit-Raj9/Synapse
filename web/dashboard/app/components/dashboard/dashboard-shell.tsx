@@ -12,6 +12,7 @@ import { ArtifactsPanel } from './artifacts-panel';
 import { RunTickButton } from './run-tick-button';
 import { SessionKeyPanel } from './session-key-panel';
 import { DepositPanel } from './deposit-panel';
+import { RuntimeHealthPanel } from './runtime-health-panel';
 import { CodeTag } from '../ui/code-tag';
 import {
   SAMPLE_REBALANCE_HISTORY,
@@ -76,14 +77,17 @@ export function DashboardShell() {
       </section>
 
       {liveVault && (
-        <div className="mt-6 flex flex-wrap items-center gap-3 rounded-md border-2 border-ink bg-paper-strong px-5 py-3 shadow-[2px_2px_0_0_var(--ink)]">
-          <CodeTag>strategy</CodeTag>
-          <span className="font-display text-sm">
-            Run a noop strategy tick now — produces a real audit event on-chain.
-          </span>
-          <span className="ml-auto">
-            <RunTickButton vaultId={liveVault.agentId} />
-          </span>
+        <div className="mt-6 grid gap-4 md:grid-cols-[1.4fr_1fr]">
+          <RuntimeHealthPanel vaultId={liveVault.agentId} />
+          <div className="flex flex-wrap items-center gap-3 rounded-md border-2 border-ink bg-paper-strong px-5 py-3 shadow-[2px_2px_0_0_var(--ink)]">
+            <CodeTag>owner</CodeTag>
+            <span className="font-display text-sm">
+              Log a manual check-in — appears in the audit timeline.
+            </span>
+            <span className="ml-auto">
+              <RunTickButton vaultId={liveVault.agentId} />
+            </span>
+          </div>
         </div>
       )}
 

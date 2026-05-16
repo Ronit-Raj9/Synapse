@@ -110,7 +110,10 @@ export class VaultRuntime {
   }
 
   async #tickOnceInner(): Promise<ExecutionReceipt | null> {
-    const signer = await loadSessionKeypair({ sessionKeyPath: this.#config.sessionKeyPath });
+    const signer = await loadSessionKeypair({
+      ...(this.#config.sessionKeyPath ? { sessionKeyPath: this.#config.sessionKeyPath } : {}),
+      ...(this.#config.sessionKeyEnv ? { sessionKeyEnv: this.#config.sessionKeyEnv } : {}),
+    });
     const systemState = await this.#client.getLatestSuiSystemState();
     const currentEpoch = BigInt(systemState.epoch);
     const agent = await loadAgentState({
