@@ -11,6 +11,7 @@ import { PolicyPanel } from './policy-panel';
 import { ArtifactsPanel } from './artifacts-panel';
 import { RunTickButton } from './run-tick-button';
 import { SessionKeyPanel } from './session-key-panel';
+import { DepositPanel } from './deposit-panel';
 import { CodeTag } from '../ui/code-tag';
 import {
   SAMPLE_REBALANCE_HISTORY,
@@ -98,6 +99,7 @@ export function DashboardShell() {
             loading={liveQuery.isLoading}
           />
           <PolicyPanel {...(live ? { live } : {})} />
+          {liveVault && <DepositPanel vaultId={liveVault.agentId} />}
           {liveVault && (
             <SessionKeyPanel
               vaultId={liveVault.agentId}
