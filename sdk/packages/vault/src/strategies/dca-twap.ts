@@ -54,6 +54,10 @@ export function dcaTwap(config: DcaTwapConfig): Strategy {
       `Tick index persisted via MemWal counter.`,
     evaluate: async (input: StrategyInput): Promise<StrategyDecision> =>
       evaluate(config, input),
+    prepareMemoryWrite: async ({ input }) => {
+      const prev = input.memory.counters['dca_tick_index'] ?? 0;
+      return { counters: { dca_tick_index: prev + 1 } };
+    },
   };
 }
 

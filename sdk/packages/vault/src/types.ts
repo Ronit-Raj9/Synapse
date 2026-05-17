@@ -36,6 +36,45 @@ export interface Strategy {
    * responsible for actually executing the plan via the Vault executor.
    */
   evaluate(input: StrategyInput): Promise<StrategyDecision>;
+  /**
+   * Optional: declare the counter/fact updates the runtime should persist
+   * to MemWal after this tick. The runtime calls it on BOTH noop and
+   * rebalance paths, then writes the result to MemWal alongside the
+   * decision-outcome record. On the next tick's recall, those counters
+   * and facts appear in `StrategyMemory` so the strategy can read its
+   * own past state.
+   *
+   * Pure function of (input, decision) — the strategy stays a pure
+   * function. The runtime owns side effects.
+   *
+   * Return `null` (or omit the hook entirely) when the strategy is
+   * stateless across ticks.
+   */
+  prepareMemoryWrite?(args: {
+    input: StrategyInput;
+    decision: StrategyDecision;
+  }): Promise<MemoryWrite | null>;
+}
+
+/**
+ * Strategy-declared memory updates the runtime should persist after the
+ * current tick. Merged with the decision-outcome record into a single
+ * MemWal entry. On next tick's recall, the latest entry's counters/facts
+ * populate `StrategyMemory`.
+ */
+export interface MemoryWrite {
+  /**
+   * Per-tick counter values (numeric). The runtime persists the entire
+   * map — partial updates are NOT merged. If you want to keep a value,
+   * read it from `input.memory.counters` and include it in your return.
+   */
+  counters?: Record<string, number>;
+  /**
+   * Per-tick free-form fact strings (typically prefixed with a tag like
+   * `mr:hist:` for routing). Same semantics as counters: full replace,
+   * not merge.
+   */
+  facts?: string[];
 }
 
 /** Input passed to every strategy evaluation. */

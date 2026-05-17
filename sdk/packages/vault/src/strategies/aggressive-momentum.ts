@@ -69,6 +69,20 @@ export function aggressiveMomentum(config: AggressiveMomentumConfig): Strategy {
       `refuses oracle conf > ${config.maxConfBps}bps.`,
     evaluate: async (input: StrategyInput): Promise<StrategyDecision> =>
       evaluate(config, input),
+    prepareMemoryWrite: async ({ input }) => {
+      const base = input.holdings.find((h) => h.coinTypeTag === config.baseTypeTag);
+      if (!base || base.priceUsd <= 0) return null;
+      // Save current price as the *next* tick's lookback baseline.
+      // Carry forward pyth_conf_bps if set (runtime may populate it from
+      // a real Pyth confidence interval in a future iteration).
+      const carriedConf = input.memory.counters['pyth_conf_bps'] ?? 0;
+      return {
+        counters: {
+          price_lookback_usd: base.priceUsd,
+          pyth_conf_bps: carriedConf,
+        },
+      };
+    },
   };
 }
 

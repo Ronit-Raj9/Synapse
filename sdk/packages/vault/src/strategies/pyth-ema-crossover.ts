@@ -55,6 +55,24 @@ export function pythEmaCrossover(config: PythEmaCrossoverConfig): Strategy {
       `Refuses to trade when Pyth confidence > ${config.maxConfBps}bps.`,
     evaluate: async (input: StrategyInput): Promise<StrategyDecision> =>
       evaluate(config, input),
+    prepareMemoryWrite: async ({ input }) => {
+      const base = input.holdings.find((h) => h.coinTypeTag === config.baseTypeTag);
+      if (!base) return null;
+      const price = base.priceUsd;
+      const prevFast = input.memory.counters['ema_fast'] ?? price;
+      const prevSlow = input.memory.counters['ema_slow'] ?? price;
+      const fast = config.fastAlpha * price + (1 - config.fastAlpha) * prevFast;
+      const slow = config.slowAlpha * price + (1 - config.slowAlpha) * prevSlow;
+      const carriedConf = input.memory.counters['pyth_conf_bps'] ?? 0;
+      return {
+        counters: {
+          ema_fast: fast,
+          ema_slow: slow,
+          pyth_conf_bps: carriedConf,
+          last_price_usd: price,
+        },
+      };
+    },
   };
 }
 

@@ -54,5 +54,11 @@ export function newsFlagOverride(config: NewsFlagOverrideConfig): Strategy {
       }
       return config.inner.evaluate(input);
     },
+    // Delegate memory writes to the inner strategy so wrapped strategies
+    // still advance their per-tick state. The freeze fact itself is
+    // injected externally and the wrapper does not produce it.
+    ...(config.inner.prepareMemoryWrite
+      ? { prepareMemoryWrite: (args) => config.inner.prepareMemoryWrite!(args) }
+      : {}),
   };
 }

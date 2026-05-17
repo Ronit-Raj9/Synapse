@@ -49,11 +49,31 @@ export function meanReversion(config: MeanReversionConfig): Strategy {
     description:
       `Buys ${config.baseSymbol} when its price is ≥${config.entryZ.toFixed(1)}σ below a ` +
       `${config.window}-sample rolling mean; exits at ≥${config.exitZ.toFixed(1)}σ above. ` +
-      `Reads price history from MemWal counters for full reproducibility.`,
+      `Reads price history from MemWal facts for full reproducibility.`,
     evaluate: async (input: StrategyInput): Promise<StrategyDecision> =>
       evaluate(config, input),
+    prepareMemoryWrite: async ({ input }) => {
+      const base = input.holdings.find((h) => h.coinTypeTag === config.baseTypeTag);
+      if (!base || base.priceUsd <= 0) return null;
+      const existing = input.memory.facts.find((f) => f.startsWith(HIST_FACT_PREFIX));
+      const historyRaw = existing ? existing.slice(HIST_FACT_PREFIX.length) : '';
+      const history = historyRaw
+        .split(',')
+        .map((s) => Number(s))
+        .filter((n) => Number.isFinite(n) && n > 0)
+        .slice(-config.window + 1);
+      history.push(base.priceUsd);
+      const trimmed = history.slice(-config.window);
+      // Carry forward any non-mr:hist facts unchanged (freeze flags, etc).
+      const carried = input.memory.facts.filter((f) => !f.startsWith(HIST_FACT_PREFIX));
+      return {
+        facts: [...carried, `${HIST_FACT_PREFIX}${trimmed.join(',')}`],
+      };
+    },
   };
 }
+
+const HIST_FACT_PREFIX = 'mr:hist:';
 
 function validate(c: MeanReversionConfig): void {
   if (c.window < 5 || c.window > 200) {
@@ -83,11 +103,9 @@ async function evaluate(
   const navUsd = base.valueUsd + quote.valueUsd;
   if (navUsd <= 0) return { kind: 'noop', rationale: 'NAV is zero.' };
 
-  // Rolling history from memory.counters; encoded as comma-separated string.
-  const historyRaw =
-    typeof input.memory.facts.find((f) => f.startsWith('mr:hist:')) === 'string'
-      ? input.memory.facts.find((f) => f.startsWith('mr:hist:'))!.slice('mr:hist:'.length)
-      : '';
+  // Rolling history from memory.facts; encoded as comma-separated string.
+  const histFact = input.memory.facts.find((f) => f.startsWith('mr:hist:'));
+  const historyRaw = typeof histFact === 'string' ? histFact.slice('mr:hist:'.length) : '';
   const history: number[] = historyRaw
     .split(',')
     .map((s) => Number(s))

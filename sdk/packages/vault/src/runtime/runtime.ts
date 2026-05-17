@@ -261,6 +261,15 @@ export class VaultRuntime {
       decision,
     });
 
+    // Ask the strategy to declare any per-tick memory updates (counters,
+    // facts) it wants the runtime to persist. The strategy stays a pure
+    // function of (input, decision); the runtime owns the side effect of
+    // writing to MemWal.
+    const memoryWrite =
+      typeof activeStrategy.prepareMemoryWrite === 'function'
+        ? await activeStrategy.prepareMemoryWrite({ input, decision })
+        : null;
+
     // Compute realized alpha vs hold using last tick's snapshot. Positive
     // alpha means the strategy outperformed a do-nothing baseline; that's
     // what we record on-chain and what we pay royalty on.
@@ -276,6 +285,16 @@ export class VaultRuntime {
         alpha,
         royaltyMist,
       );
+      // Persist this tick's outcome + strategy memory updates so the next
+      // tick can recover counters/facts. Fires on every tick (noop AND
+      // rebalance) so stateful strategies advance every iteration.
+      await rememberStrategyOutcome({
+        memwal,
+        namespace,
+        decision,
+        receipt,
+        memoryWrite,
+      });
       this.#savePreviousTick(holdings, currentEpoch);
       return receipt;
     }
@@ -356,7 +375,13 @@ export class VaultRuntime {
       epoch: currentEpoch,
       executedAt: new Date().toISOString(),
     };
-    await rememberStrategyOutcome({ memwal, namespace, plan: decision, receipt });
+    await rememberStrategyOutcome({
+      memwal,
+      namespace,
+      decision,
+      receipt,
+      memoryWrite,
+    });
     this.#savePreviousTick(holdings, currentEpoch);
     this.#logger.info(
       {

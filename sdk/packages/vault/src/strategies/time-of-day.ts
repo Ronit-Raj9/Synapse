@@ -50,6 +50,12 @@ export function timeOfDay(config: TimeOfDayConfig): Strategy {
       }
       return config.inner.evaluate(input);
     },
+    // Delegate per-tick memory writes to the inner strategy so its
+    // counters/facts advance even when wrapped. The wrapper itself adds
+    // no state of its own.
+    ...(config.inner.prepareMemoryWrite
+      ? { prepareMemoryWrite: (args) => config.inner.prepareMemoryWrite!(args) }
+      : {}),
   };
 }
 

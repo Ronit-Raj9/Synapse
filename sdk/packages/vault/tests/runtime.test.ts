@@ -278,8 +278,14 @@ describe('VaultRuntime.tickOnce', () => {
     expect(targets).toContain(`${PACKAGE_ID}::artifacts::publish`);
     expect(targets).toContain(`${PACKAGE_ID}::attestation::log_action`);
 
-    // Runtime ran without a MemWal client, so no remember calls expected.
-    expect(vi.mocked(rememberStrategyOutcome)).not.toHaveBeenCalled();
+    // Runtime always invokes rememberStrategyOutcome (fires on noop + rebalance
+    // so stateful strategies advance every tick). The function itself no-ops
+    // internally when memwal is null, so we assert the call shape, not absence.
+    expect(vi.mocked(rememberStrategyOutcome)).toHaveBeenCalledTimes(1);
+    const call = vi.mocked(rememberStrategyOutcome).mock.calls[0]![0];
+    expect(call.memwal).toBeNull();
+    expect(call.decision.kind).toBe('noop');
+    expect(call.memoryWrite).toBeNull();
   });
 
   it('rebalance path: composes Synapse-gated DeepBookV3 swap, remembers outcome', async () => {
