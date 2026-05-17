@@ -23,6 +23,7 @@ import { formatUsd } from '@/lib/format';
 import type { LocalVaultRecord } from '@/lib/local-vaults';
 import { useLiveVault } from '../../hooks/use-live-vault';
 import { useLiveNavHistory } from '../../hooks/use-live-nav-history';
+import { useStrategies } from '../../hooks/use-strategies';
 import { requiresWalrusConsent } from '@/lib/strategies';
 
 /**
@@ -36,6 +37,9 @@ export function DashboardShell() {
   const live = liveQuery.data ?? null;
   const historyQuery = useLiveNavHistory(liveVault?.agentId, live);
   const liveHistory = historyQuery.data ?? null;
+  const strategiesQuery = useStrategies();
+  const hiredStrategy =
+    strategiesQuery.data?.find((s) => s.id === live?.identity.strategyId) ?? null;
 
   const sampleVault = SAMPLE_VAULT;
   const navUsd = live?.navUsd ?? sampleVault.navUsd;
@@ -95,9 +99,9 @@ export function DashboardShell() {
         </div>
       )}
 
-      {live && !live.identity.revoked && (
+      {live && !live.identity.revoked && hiredStrategy && (
         <WalrusExecutionBadge
-          strategyId={live.identity.strategyId}
+          strategy={hiredStrategy}
           consented={live.identity.acceptsWalrusExecution}
         />
       )}
@@ -187,13 +191,13 @@ function resolveStrategyName(strategyId: string | undefined): string {
  *     opt in via the Policy panel.
  */
 function WalrusExecutionBadge({
-  strategyId,
+  strategy,
   consented,
 }: {
-  strategyId: string;
+  strategy: { sourceWalrusBlob: string };
   consented: boolean;
 }) {
-  if (!requiresWalrusConsent(strategyId)) {
+  if (!requiresWalrusConsent(strategy)) {
     return (
       <div className="mt-6 flex flex-wrap items-center gap-3 rounded-md border-2 border-ink bg-paper-strong px-5 py-3 shadow-[2px_2px_0_0_var(--ink)]">
         <span

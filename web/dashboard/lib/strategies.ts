@@ -27,23 +27,29 @@ export const RISK_LABEL: Record<RiskProfile, string> = {
 };
 
 /**
- * On-chain `Strategy` IDs that have a hardcoded local TypeScript
- * implementation in the vault runtime (see
- * `sdk/packages/vault/src/runtime/strategy-resolver.ts` →
- * `KNOWN_STRATEGIES`). These never need Walrus dynamic loading —
- * the runtime executes the bundled impl directly.
+ * Whether the runtime must fetch + hash-verify + execute this
+ * strategy's bundle from Walrus on every tick.
  *
- * Any strategy ID NOT in this set must be loaded from Walrus, which
- * requires the vault owner to opt in via `agent::set_walrus_consent`.
+ * Derived from the on-chain `Strategy.source_walrus_blob` rather than
+ * a hardcoded set of IDs: a real Walrus blob ID is URL-safe base64 of
+ * a 32-byte BLAKE2b256 hash (≥40 chars, alphabet `[A-Za-z0-9_-]`).
+ * Anything shorter or with non-base64 characters is treated as a
+ * placeholder / sentinel string and means "no real bundle exists" —
+ * the runtime should fall back to a built-in implementation, and the
+ * vault owner doesn't need to consent to Walrus execution.
+ *
+ * This pattern keeps the dashboard, runtime, and on-chain state in
+ * agreement without anyone maintaining a hardcoded ID list that drifts
+ * across networks, package upgrades, and republishings.
  */
-export const SEEDED_STRATEGY_IDS: ReadonlySet<string> = new Set([
-  '0x46996c0f9e692968f55a63c3cbc33eb8d19145c123b7a867a02da342e617d3ec', // Conservative Rebalancer
-  '0x44c0f7c4f6e04024c9bb1c0ce1eb1965018675cd074e7a410a59c2d43887c679', // Balanced Yield
-  '0xa1d73e17bc4c53484a3254c5ed3c0b24e340524d0014703c072f91d60f02d4a1', // Aggressive Momentum
-]);
+export function requiresWalrusConsent(
+  strategy: Pick<LiveStrategy, 'sourceWalrusBlob'>,
+): boolean {
+  return isLikelyWalrusBlobId(strategy.sourceWalrusBlob);
+}
 
-export function requiresWalrusConsent(strategyId: string): boolean {
-  return !SEEDED_STRATEGY_IDS.has(strategyId);
+function isLikelyWalrusBlobId(value: string): boolean {
+  return value.length >= 40 && /^[A-Za-z0-9_\-=]+$/.test(value);
 }
 
 export interface LiveStrategy {

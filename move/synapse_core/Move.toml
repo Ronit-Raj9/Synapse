@@ -4,6 +4,10 @@ edition = "2024.beta"
 license = "Apache-2.0"
 authors = ["Synapse Core Team"]
 version = "0.1.0"
+# Latest published instance of this package on testnet (v3). The CLI
+# uses this as the upgrade source. Bump on every successful
+# `sui client upgrade`.
+published-at = "0xd849b7b281cdc030daf4e2269a36e85e285edd44849b481eb6da49aed1978f01"
 
 [dependencies]
 # Sui framework, MoveStdlib, Bridge, and SuiSystem are auto-resolved by `sui move` (Sui CLI 1.50+).

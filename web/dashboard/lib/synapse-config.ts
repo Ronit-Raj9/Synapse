@@ -23,6 +23,8 @@ export const NETWORK = (process.env['NEXT_PUBLIC_SYNAPSE_NETWORK'] as Network) ?
  *  - v1 (`0x7b3f59e4…`) — strategy_registry + marketplace + reputation
  *  - v2 (`0x5da36d89…`) — operational budget (set_operational_cap +
  *    pull_operational_funds<T>) for vault-self-funding autonomy
+ *  - v3 (`0xd849b7b2…`) — per-vault Walrus execution consent
+ *    (set_walrus_consent + accepts_walrus_execution dynamic field)
  *
  * The active value below is the latest. Existing AgentIdentity objects
  * minted under previous package versions remain readable because the
@@ -31,7 +33,7 @@ export const NETWORK = (process.env['NEXT_PUBLIC_SYNAPSE_NETWORK'] as Network) ?
  */
 export const SYNAPSE_PACKAGE_ID =
   process.env['NEXT_PUBLIC_SYNAPSE_PACKAGE_ID'] ??
-  '0x5da36d892956a4659415e245126a3964dd5aa6cf19ec2fdf6332bf828a4c58ed';
+  '0xd849b7b281cdc030daf4e2269a36e85e285edd44849b481eb6da49aed1978f01';
 
 /** UpgradeCap object ID — kept here for traceability, not used at runtime. */
 export const SYNAPSE_UPGRADE_CAP =
@@ -50,6 +52,7 @@ export const SYNAPSE_UPGRADE_CAP =
  * entries — historical events remain forever.
  */
 export const SYNAPSE_PACKAGE_HISTORY: readonly string[] = [
+  '0xd849b7b281cdc030daf4e2269a36e85e285edd44849b481eb6da49aed1978f01', // v3 (walrus consent)
   '0x5da36d892956a4659415e245126a3964dd5aa6cf19ec2fdf6332bf828a4c58ed', // v2 (operational budget)
   '0x7b3f59e42edbf2189df644e63162d0b9a2c2984755bab9d3e9557c4ddd4aa67c', // v1 (marketplace + reputation)
 ];

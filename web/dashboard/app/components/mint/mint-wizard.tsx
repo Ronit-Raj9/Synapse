@@ -175,10 +175,13 @@ export function MintWizard() {
       const { epoch } = await suiClient.getLatestSuiSystemState();
       const expiryEpoch = BigInt(epoch) + BigInt(form.expiryDays);
       // Only emit set_walrus_consent in the mint PTB when the chosen
-      // strategy actually requires it (i.e., not a seeded strategy that
-      // has a hardcoded runtime impl). Saves one tx command + keeps the
-      // on-chain consent event meaningful as a signal.
-      const needsConsent = requiresWalrusConsent(form.strategyId);
+      // strategy actually requires it (i.e., it carries a real Walrus
+      // bundle the runtime needs to fetch). Saves one tx command +
+      // keeps the on-chain consent event meaningful as a signal.
+      const chosenStrategy = strategies.find((s) => s.id === form.strategyId);
+      const needsConsent = chosenStrategy
+        ? requiresWalrusConsent(chosenStrategy)
+        : false;
       const tx = buildMintPTB({
         strategyId: form.strategyId,
         sessionAddr: session.address,
@@ -765,7 +768,7 @@ function MintStep({
   pending: boolean;
   result: { digest: string; agentId?: string; sessionAddress: string } | null;
 }) {
-  const needsConsent = strategy ? requiresWalrusConsent(strategy.id) : false;
+  const needsConsent = strategy ? requiresWalrusConsent(strategy) : false;
   return (
     <motion.div
       initial={{ opacity: 0, y: 4 }}
