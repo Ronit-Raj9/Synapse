@@ -107,6 +107,16 @@ public struct OperationalFundsPulledEvent has copy, drop {
     epoch: u64,
 }
 
+/// Owner toggled per-vault consent to execute marketplace strategies
+/// loaded dynamically from Walrus. The runtime reads this flag instead
+/// of an operator-side env var, so the trust decision lives with the
+/// vault owner where it belongs.
+public struct WalrusConsentSetEvent has copy, drop {
+    agent_id: ID,
+    accept: bool,
+    epoch: u64,
+}
+
 // === Operational budget (dynamic-field state) ===
 
 /// Per-epoch budget for operational expenses (gas, storage, oracle
@@ -122,6 +132,20 @@ public struct OperationalBudget has store, drop {
 
 /// Dynamic-field key for the OperationalBudget value.
 public struct OperationalBudgetKey has copy, drop, store {}
+
+// === Walrus execution consent (dynamic-field state) ===
+
+/// Per-vault consent to dynamically load + execute marketplace strategy
+/// bundles from Walrus. Stored as a dynamic field so existing vaults
+/// minted before this upgrade keep their struct layout intact; absence
+/// of the field means "no consent" (safe default).
+public struct WalrusConsent has store, drop {
+    accept: bool,
+    set_at_epoch: u64,
+}
+
+/// Dynamic-field key for the WalrusConsent value.
+public struct WalrusConsentKey has copy, drop, store {}
 
 // === The spine struct ===
 
@@ -530,6 +554,70 @@ public fun pull_operational_funds<T>(
     });
 
     payout_coin
+}
+
+// === Walrus execution consent (owner toggles per-vault opt-in) ===
+
+/// Owner-only: opt this vault in (or out) of dynamic strategy execution
+/// from Walrus. When `accept` is true, a runtime configured to honor
+/// per-vault consent will fetch the strategy bundle from Walrus,
+/// hash-verify against the on-chain `code_hash`, and run it. When
+/// false (or unset), the runtime ignores Walrus bundles for this vault
+/// and falls back to its locally-bundled strategy implementations.
+///
+/// Idempotent: calling with the same value twice just emits the event.
+/// Designed to be safe to invoke inside a mint PTB (right after `share`)
+/// so opt-in can be expressed in a single signature.
+public fun set_walrus_consent(
+    identity: &mut AgentIdentity,
+    accept: bool,
+    ctx: &TxContext,
+) {
+    assert!(ctx.sender() == identity.owner, ENotOwner);
+    let agent_id = identity.id.to_inner();
+    let epoch_now = ctx.epoch();
+    let uid = &mut identity.id;
+    let key = WalrusConsentKey {};
+    if (df::exists_(uid, key)) {
+        let consent: &mut WalrusConsent = df::borrow_mut(uid, key);
+        consent.accept = accept;
+        consent.set_at_epoch = epoch_now;
+    } else {
+        df::add(uid, key, WalrusConsent {
+            accept,
+            set_at_epoch: epoch_now,
+        });
+    };
+    event::emit(WalrusConsentSetEvent {
+        agent_id,
+        accept,
+        epoch: epoch_now,
+    });
+}
+
+/// Read whether the vault owner has opted into Walrus-loaded strategy
+/// execution. Defaults to `false` for any vault that never called
+/// `set_walrus_consent` (i.e., every vault minted before this upgrade).
+public fun accepts_walrus_execution(identity: &AgentIdentity): bool {
+    let key = WalrusConsentKey {};
+    if (df::exists_(&identity.id, key)) {
+        let consent: &WalrusConsent = df::borrow(&identity.id, key);
+        consent.accept
+    } else {
+        false
+    }
+}
+
+/// Epoch at which the current consent value was set. Returns 0 when
+/// consent has never been explicitly toggled.
+public fun walrus_consent_set_at_epoch(identity: &AgentIdentity): u64 {
+    let key = WalrusConsentKey {};
+    if (df::exists_(&identity.id, key)) {
+        let consent: &WalrusConsent = df::borrow(&identity.id, key);
+        consent.set_at_epoch
+    } else {
+        0
+    }
 }
 
 // === Operational budget — read-only accessors ===

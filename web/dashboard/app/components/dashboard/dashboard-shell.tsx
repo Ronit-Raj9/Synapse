@@ -23,6 +23,7 @@ import { formatUsd } from '@/lib/format';
 import type { LocalVaultRecord } from '@/lib/local-vaults';
 import { useLiveVault } from '../../hooks/use-live-vault';
 import { useLiveNavHistory } from '../../hooks/use-live-nav-history';
+import { requiresWalrusConsent } from '@/lib/strategies';
 
 /**
  * Top-level dashboard client island. Detects the user's live vault, fetches
@@ -94,6 +95,13 @@ export function DashboardShell() {
         </div>
       )}
 
+      {live && !live.identity.revoked && (
+        <WalrusExecutionBadge
+          strategyId={live.identity.strategyId}
+          consented={live.identity.acceptsWalrusExecution}
+        />
+      )}
+
       {liveVault && (
         <div className="mt-6 grid gap-4 md:grid-cols-[1.4fr_1fr]">
           <RuntimeHealthPanel vaultId={liveVault.agentId} />
@@ -150,19 +158,90 @@ export function DashboardShell() {
 
 /**
  * Map a known seeded strategy ID to its human label. Falls through to a
- * generic display when the vault hired an unfamiliar strategy.
+ * generic display when the vault hired an unfamiliar strategy. The
+ * canonical set of seeded IDs lives in `lib/strategies.ts` so the mint
+ * wizard + dashboard agree.
  */
+const SEEDED_STRATEGY_LABELS: Record<string, string> = {
+  '0x46996c0f9e692968f55a63c3cbc33eb8d19145c123b7a867a02da342e617d3ec':
+    'Synapse Conservative Rebalancer',
+  '0x44c0f7c4f6e04024c9bb1c0ce1eb1965018675cd074e7a410a59c2d43887c679':
+    'Synapse Balanced Yield',
+  '0xa1d73e17bc4c53484a3254c5ed3c0b24e340524d0014703c072f91d60f02d4a1':
+    'Synapse Aggressive Momentum',
+};
+
 function resolveStrategyName(strategyId: string | undefined): string {
   if (!strategyId) return 'Synapse Strategy';
-  const seeded: Record<string, string> = {
-    '0x46996c0f9e692968f55a63c3cbc33eb8d19145c123b7a867a02da342e617d3ec':
-      'Synapse Conservative Rebalancer',
-    '0x44c0f7c4f6e04024c9bb1c0ce1eb1965018675cd074e7a410a59c2d43887c679':
-      'Synapse Balanced Yield',
-    '0xa1d73e17bc4c53484a3254c5ed3c0b24e340524d0014703c072f91d60f02d4a1':
-      'Synapse Aggressive Momentum',
-  };
-  return seeded[strategyId] ?? 'Synapse Strategy';
+  return SEEDED_STRATEGY_LABELS[strategyId] ?? 'Synapse Strategy';
+}
+
+/**
+ * Surfaces how the hired strategy will be executed at every tick:
+ *   - Seeded: runtime runs its built-in TypeScript implementation.
+ *   - Walrus + consented: runtime fetches + hash-verifies + executes
+ *     the marketplace bundle.
+ *   - Walrus + NOT consented: runtime falls back to its default,
+ *     ignoring the hired strategy. Critical to surface — the vault
+ *     looks like it hired one thing but executes another. Owner must
+ *     opt in via the Policy panel.
+ */
+function WalrusExecutionBadge({
+  strategyId,
+  consented,
+}: {
+  strategyId: string;
+  consented: boolean;
+}) {
+  if (!requiresWalrusConsent(strategyId)) {
+    return (
+      <div className="mt-6 flex flex-wrap items-center gap-3 rounded-md border-2 border-ink bg-paper-strong px-5 py-3 shadow-[2px_2px_0_0_var(--ink)]">
+        <span
+          className="inline-flex h-2.5 w-2.5 rounded-full"
+          style={{ backgroundColor: 'var(--state-active)' }}
+        />
+        <CodeTag>seeded</CodeTag>
+        <span className="font-display text-sm">
+          Runtime executes this strategy from its built-in implementation. No Walrus loading needed.
+        </span>
+      </div>
+    );
+  }
+  if (consented) {
+    return (
+      <div
+        className="mt-6 flex flex-wrap items-center gap-3 rounded-md border-2 border-ink bg-paper-strong px-5 py-3 shadow-[2px_2px_0_0_var(--ink)]"
+        style={{ borderColor: 'var(--accent-purple)' }}
+      >
+        <span
+          className="inline-flex h-2.5 w-2.5 rounded-full"
+          style={{ backgroundColor: 'var(--accent-purple)' }}
+        />
+        <CodeTag>walrus-loaded</CodeTag>
+        <span className="font-display text-sm">
+          Each tick fetches this strategy&apos;s bundle from Walrus and verifies its sha256
+          against the on-chain commitment before executing.
+        </span>
+      </div>
+    );
+  }
+  return (
+    <div
+      className="mt-6 flex flex-wrap items-center gap-3 rounded-md border-2 border-ink bg-paper-strong px-5 py-3 shadow-[2px_2px_0_0_var(--ink)]"
+      style={{ borderColor: 'var(--accent-orange)' }}
+    >
+      <span
+        className="inline-flex h-2.5 w-2.5 rounded-full"
+        style={{ backgroundColor: 'var(--accent-orange)' }}
+      />
+      <CodeTag>consent missing</CodeTag>
+      <span className="font-display text-sm">
+        This vault hired a marketplace strategy whose code lives on Walrus, but consent
+        is off. The runtime is falling back to its default — your hired strategy is{' '}
+        <strong>not executing</strong>. Enable in the Policy panel below.
+      </span>
+    </div>
+  );
 }
 
 function MicroCard({ label, value, accent }: { label: string; value: string; accent: string }) {

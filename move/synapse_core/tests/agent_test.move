@@ -535,6 +535,53 @@ fun non_owner_set_operational_cap_aborts() {
 }
 
 #[test]
+fun walrus_consent_defaults_false_and_toggles() {
+    let mut scenario = ts::begin(HUMAN);
+    let (strategy_id, _cap_id) = publish_fixture_strategy(&mut scenario);
+    let mut strategy: Strategy = ts::take_shared_by_id<Strategy>(&scenario, strategy_id);
+
+    let mut identity =
+        mint_agent_against(&mut scenario, &mut strategy, AGENT_SESSION, 1000, 10, b"ns");
+
+    // Default: no opt-in, no dynamic field set.
+    assert!(!agent::accepts_walrus_execution(&identity), 0);
+    assert!(agent::walrus_consent_set_at_epoch(&identity) == 0, 1);
+
+    // Owner opts in.
+    ts::next_tx(&mut scenario, HUMAN);
+    agent::set_walrus_consent(&mut identity, true, ts::ctx(&mut scenario));
+    assert!(agent::accepts_walrus_execution(&identity), 2);
+
+    // Owner can flip back to false (idempotent path overwrites the field).
+    ts::next_tx(&mut scenario, HUMAN);
+    agent::set_walrus_consent(&mut identity, false, ts::ctx(&mut scenario));
+    assert!(!agent::accepts_walrus_execution(&identity), 3);
+
+    test_utils::destroy(identity);
+    ts::return_shared(strategy);
+    ts::end(scenario);
+}
+
+#[test]
+#[expected_failure(abort_code = synapse_core::agent::ENotOwner)]
+fun non_owner_set_walrus_consent_aborts() {
+    let mut scenario = ts::begin(HUMAN);
+    let (strategy_id, _cap_id) = publish_fixture_strategy(&mut scenario);
+    let mut strategy: Strategy = ts::take_shared_by_id<Strategy>(&scenario, strategy_id);
+
+    let mut identity =
+        mint_agent_against(&mut scenario, &mut strategy, AGENT_SESSION, 1000, 10, b"ns");
+
+    // Session (not owner) attempts to opt in.
+    ts::next_tx(&mut scenario, AGENT_SESSION);
+    agent::set_walrus_consent(&mut identity, true, ts::ctx(&mut scenario));
+
+    test_utils::destroy(identity);
+    ts::return_shared(strategy);
+    ts::end(scenario);
+}
+
+#[test]
 #[expected_failure(abort_code = synapse_core::strategy_registry::EMaxRoyaltyExceeded)]
 fun publishing_strategy_with_royalty_above_cap_aborts() {
     let mut scenario = ts::begin(STRATEGIST);

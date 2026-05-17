@@ -187,9 +187,18 @@ export class VaultRuntime {
 
     // Dispatch to the correct Strategy implementation based on the vault's
     // on-chain `strategy_id`. Tries (1) hardcoded slug map, (2) Walrus
-    // dynamic load when the operator opted in, (3) configured default
-    // as a last resort. The Walrus path hash-verifies the bundle against
-    // the on-chain `code_hash` before executing — see walrus-loader.ts.
+    // dynamic load when the *vault* consented at mint (or post-mint
+    // toggle) AND the operator hasn't globally disabled, (3) configured
+    // default as a last resort. The Walrus path hash-verifies the
+    // bundle against the on-chain `code_hash` — see walrus-loader.ts.
+    //
+    // Trust model: the per-vault flag (`agent.acceptsWalrusExecution`)
+    // is the primary gate — set by the vault OWNER. The env flag
+    // (`allowWalrusStrategies`, default true) is an OPERATOR override
+    // that can DISABLE Walrus loading globally, but can never ENABLE
+    // it for a vault whose owner didn't consent.
+    const operatorAllowed = this.#config.allowWalrusStrategies !== false;
+    const walrusEnabled = agent.acceptsWalrusExecution && operatorAllowed;
     const resolution = await resolveStrategyWithWalrus({
       strategyId: agent.identity.strategyId,
       defaultStrategy: this.#config.strategy,
@@ -197,7 +206,7 @@ export class VaultRuntime {
         ? { envOverrideJson: this.#config.strategyRegistryJson }
         : {}),
       overrides,
-      ...(this.#config.allowWalrusStrategies
+      ...(walrusEnabled
         ? {
             walrus: {
               enabled: true,
@@ -231,15 +240,23 @@ export class VaultRuntime {
         'dispatching to on-chain strategy',
       );
     } else {
+      const reason =
+        resolution.walrusError
+          ? 'walrus strategy load failed; falling back to runtime-configured strategy'
+          : agent.acceptsWalrusExecution && !operatorAllowed
+            ? 'vault consented to walrus loading but operator has globally disabled it; falling back'
+            : !agent.acceptsWalrusExecution
+              ? 'vault owner has not consented to walrus loading; falling back to runtime-configured strategy'
+              : 'unknown on-chain strategy_id; falling back to runtime-configured strategy';
       this.#logger.warn(
         {
           strategyId: agent.identity.strategyId,
           fallback: this.#config.strategy.id,
+          acceptsWalrusExecution: agent.acceptsWalrusExecution,
+          operatorAllowed,
           walrusError: resolution.walrusError,
         },
-        resolution.walrusError
-          ? 'walrus strategy load failed; falling back to runtime-configured strategy'
-          : 'unknown on-chain strategy_id; falling back to runtime-configured strategy',
+        reason,
       );
     }
     const activeStrategy: Strategy = resolution.strategy;

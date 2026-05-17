@@ -13,6 +13,7 @@ import { Modal } from '../ui/modal';
 import { useToast } from '../ui/toast';
 import { formatUsd, shortenAddress, shortenHash } from '@/lib/format';
 import { synapseTarget, explorerTxUrl } from '@/lib/synapse-config';
+import { buildSetWalrusConsentPTB } from '@/lib/ptb';
 import type { PricedVaultState } from '../../hooks/use-live-vault';
 import { SAMPLE_VAULT } from '@/lib/sample-data';
 
@@ -34,7 +35,14 @@ const SAMPLE_POLICY = {
 
 const DEEPBOOK_TESTNET_PKG = '0xcaf6ba059d539a97646d47f0b9ddf843e138d215e2a12ca1f4585d386f7aec3a';
 
-type EditMode = 'spend' | 'expiry' | 'add-pkg' | 'remove-pkg' | 'op-cap' | null;
+type EditMode =
+  | 'spend'
+  | 'expiry'
+  | 'add-pkg'
+  | 'remove-pkg'
+  | 'op-cap'
+  | 'walrus-consent'
+  | null;
 
 export function PolicyPanel({ live }: PolicyPanelProps) {
   const [editMode, setEditMode] = useState<EditMode>(null);
@@ -150,6 +158,24 @@ export function PolicyPanel({ live }: PolicyPanelProps) {
             editLabel={live.identity.operationalCapPerEpoch === 0n ? '+ enable' : 'Update'}
           />
         )}
+        {live && (
+          <PolicyRow
+            label="Walrus execution"
+            value={
+              live.identity.acceptsWalrusExecution
+                ? 'Opted in · runtime loads strategy bundle from Walrus'
+                : 'Opted out · runtime falls back to seeded impls only'
+            }
+            hint={
+              live.identity.acceptsWalrusExecution
+                ? 'Bundle is hash-verified against on-chain code_hash before each tick'
+                : 'Required to execute any non-seeded marketplace strategy'
+            }
+            accent="var(--accent-purple)"
+            onEdit={() => setEditMode('walrus-consent')}
+            editLabel={live.identity.acceptsWalrusExecution ? 'Revoke' : '+ enable'}
+          />
+        )}
       </dl>
 
       {live && editMode === 'spend' && (
@@ -187,6 +213,12 @@ export function PolicyPanel({ live }: PolicyPanelProps) {
       )}
       {live && editMode === 'op-cap' && (
         <OperationalCapModal
+          identity={live.identity}
+          onClose={() => setEditMode(null)}
+        />
+      )}
+      {live && editMode === 'walrus-consent' && (
+        <WalrusConsentModal
           identity={live.identity}
           onClose={() => setEditMode(null)}
         />
@@ -789,6 +821,111 @@ function OperationalCapModal({
               {error}
             </pre>
           )}
+        </div>
+      )}
+    </Modal>
+  );
+}
+
+function WalrusConsentModal({
+  identity,
+  onClose,
+}: {
+  identity: PricedVaultState['identity'];
+  onClose: () => void;
+}) {
+  const account = useCurrentAccount();
+  const { submit, pending } = useSubmitPolicy();
+  const enabling = !identity.acceptsWalrusExecution;
+  const [digest, setDigest] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function go() {
+    setError(null);
+    try {
+      const tx = buildSetWalrusConsentPTB({
+        agentId: identity.id,
+        accept: enabling,
+      });
+      const d = await submit({
+        tx,
+        vaultId: identity.id,
+        successTitle: enabling ? 'Walrus execution enabled' : 'Walrus execution revoked',
+      });
+      setDigest(d);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title={
+        digest
+          ? enabling
+            ? 'Walrus execution enabled'
+            : 'Walrus execution revoked'
+          : enabling
+            ? 'Enable Walrus-loaded strategy execution'
+            : 'Revoke Walrus consent'
+      }
+      accent={enabling ? 'var(--accent-purple)' : 'var(--accent-orange)'}
+      footer={
+        digest ? (
+          <button type="button" className="btn-flat" data-variant="primary" onClick={onClose}>
+            Close
+          </button>
+        ) : (
+          <>
+            <button
+              type="button"
+              className="btn-flat"
+              data-variant="ghost"
+              onClick={onClose}
+              disabled={pending}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn-flat"
+              data-variant={enabling ? 'primary' : 'danger'}
+              onClick={go}
+              disabled={pending || !account}
+            >
+              {pending ? 'Signing…' : enabling ? 'Enable on-chain' : 'Revoke on-chain'}
+            </button>
+          </>
+        )
+      }
+    >
+      {digest ? (
+        <div className="space-y-3 text-sm">
+          <DoneBlock digest={digest} />
+          <p className="text-ink-soft">
+            {enabling
+              ? 'On the next tick, the runtime will fetch this vault’s strategy bundle from Walrus, verify its sha256 matches the on-chain code_hash, and execute it.'
+              : 'On the next tick, the runtime will fall back to its locally bundled strategy implementations. The vault’s hired strategy will no longer execute as published.'}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3 text-sm">
+          <p className="text-ink-soft">
+            Calls{' '}
+            <code className="font-mono text-[11px]">agent::set_walrus_consent</code>. Owner-only.
+            {enabling
+              ? ' Required so the runtime can fetch + hash-verify + execute any non-seeded marketplace strategy.'
+              : ' After this lands, the runtime stops executing the vault’s strategy bundle and falls back to its built-in implementations.'}
+          </p>
+          <p className="rounded-sm border-l-2 border-accent-blue bg-paper p-3 font-mono text-[11px] text-ink-soft">
+            Trust model: loaded code runs with full runtime privileges. The
+            sha256 guarantee ties what runs to what the strategist committed to
+            on-chain — it does not prevent the bundle from reading env or
+            opening sockets. Sandboxing is a follow-up.
+          </p>
+          {error && <ErrorBlock msg={error} />}
         </div>
       )}
     </Modal>

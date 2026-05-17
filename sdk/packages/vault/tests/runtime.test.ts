@@ -131,6 +131,8 @@ function makeOnChainState(): OnChainAgentState {
       decimals: h.decimals,
     })),
     holdings,
+    // Default off — matches a freshly-minted vault that hasn't opted in.
+    acceptsWalrusExecution: false,
   };
 }
 

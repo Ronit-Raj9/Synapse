@@ -26,6 +26,26 @@ export const RISK_LABEL: Record<RiskProfile, string> = {
   2: 'Aggressive',
 };
 
+/**
+ * On-chain `Strategy` IDs that have a hardcoded local TypeScript
+ * implementation in the vault runtime (see
+ * `sdk/packages/vault/src/runtime/strategy-resolver.ts` →
+ * `KNOWN_STRATEGIES`). These never need Walrus dynamic loading —
+ * the runtime executes the bundled impl directly.
+ *
+ * Any strategy ID NOT in this set must be loaded from Walrus, which
+ * requires the vault owner to opt in via `agent::set_walrus_consent`.
+ */
+export const SEEDED_STRATEGY_IDS: ReadonlySet<string> = new Set([
+  '0x46996c0f9e692968f55a63c3cbc33eb8d19145c123b7a867a02da342e617d3ec', // Conservative Rebalancer
+  '0x44c0f7c4f6e04024c9bb1c0ce1eb1965018675cd074e7a410a59c2d43887c679', // Balanced Yield
+  '0xa1d73e17bc4c53484a3254c5ed3c0b24e340524d0014703c072f91d60f02d4a1', // Aggressive Momentum
+]);
+
+export function requiresWalrusConsent(strategyId: string): boolean {
+  return !SEEDED_STRATEGY_IDS.has(strategyId);
+}
+
 export interface LiveStrategy {
   id: string;
   strategist: string;

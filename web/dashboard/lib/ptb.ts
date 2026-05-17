@@ -58,6 +58,17 @@ export interface MintAgentParams {
    * which covers ~10 ticks at testnet gas prices.
    */
   operationalCapMist: bigint;
+  /**
+   * Opt this vault into dynamic Walrus-loaded strategy execution at
+   * mint time. When true, the mint PTB appends
+   * `agent::set_walrus_consent(identity, true)` so the runtime is
+   * allowed to fetch + hash-verify + execute the strategy's bundle
+   * from Walrus. When false (or omitted), the runtime treats this
+   * vault as opt-out and falls back to its locally bundled
+   * implementations — required for any strategy not in the seeded
+   * set. Toggleable post-mint via `buildSetWalrusConsentPTB`.
+   */
+  acceptWalrusExecution?: boolean;
 }
 
 /**
@@ -121,11 +132,39 @@ export function buildMintPTB(params: MintAgentParams): Transaction {
     tx.transferObjects([sessionGasCoin], tx.pure.address(params.sessionAddr));
   }
 
+  // Opt the vault into Walrus-loaded strategy execution before sharing
+  // — this lets the owner's mint signature express consent in one PTB
+  // when hiring a marketplace strategy that ships as a Walrus bundle.
+  if (params.acceptWalrusExecution) {
+    tx.moveCall({
+      target: synapseTarget('agent', 'set_walrus_consent'),
+      arguments: [identity, tx.pure.bool(true)],
+    });
+  }
+
   tx.moveCall({
     target: synapseTarget('agent', 'share'),
     arguments: [identity],
   });
 
+  return tx;
+}
+
+/**
+ * Post-mint consent toggle. Owner-only; the wallet button that signs
+ * this is the same wallet that signed the original mint. Used from the
+ * Policy panel for vaults minted before the consent upgrade, or to
+ * revoke consent after the fact.
+ */
+export function buildSetWalrusConsentPTB(args: {
+  agentId: string;
+  accept: boolean;
+}): Transaction {
+  const tx = new Transaction();
+  tx.moveCall({
+    target: synapseTarget('agent', 'set_walrus_consent'),
+    arguments: [tx.object(args.agentId), tx.pure.bool(args.accept)],
+  });
   return tx;
 }
 

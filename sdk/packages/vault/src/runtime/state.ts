@@ -14,6 +14,15 @@ export interface OnChainAgentState {
   policy: VaultPolicy;
   balances: TreasuryBalance[];
   holdings: HoldingSnapshot[];
+  /**
+   * Per-vault opt-in to dynamically loading + executing marketplace
+   * strategy bundles from Walrus. Lives in a dynamic field on
+   * AgentIdentity (`WalrusConsentKey`); absence means `false`.
+   * The runtime gates the Walrus loader on this flag — operator can
+   * disable globally via env, but cannot enable for a vault that
+   * hasn't consented.
+   */
+  acceptsWalrusExecution: boolean;
 }
 
 export async function loadAgentState(args: {
@@ -59,7 +68,49 @@ export async function loadAgentState(args: {
     revoked: identity.revoked,
   };
 
-  return { identity, policy, balances, holdings };
+  const acceptsWalrusExecution = await loadWalrusConsent(
+    args.client,
+    args.agentId,
+    args.packageId,
+  );
+
+  return { identity, policy, balances, holdings, acceptsWalrusExecution };
+}
+
+/**
+ * Read the per-vault Walrus-execution consent flag stored as a dynamic
+ * field on the AgentIdentity UID. Returns `false` when the dynamic
+ * field is absent (every vault minted before the consent upgrade).
+ *
+ * The dynamic-field name on-chain is a Move struct `WalrusConsentKey`
+ * with no fields, which Sui serializes as
+ * `{ type: '<pkg>::agent::WalrusConsentKey', value: {} }`.
+ */
+async function loadWalrusConsent(
+  client: SuiJsonRpcClient,
+  agentId: string,
+  packageId: string,
+): Promise<boolean> {
+  try {
+    const field = await client.getDynamicFieldObject({
+      parentId: agentId,
+      name: {
+        type: `${packageId}::agent::WalrusConsentKey`,
+        value: {},
+      },
+    });
+    if (field.error) return false;
+    const content = field.data?.content;
+    if (!content || content.dataType !== 'moveObject') return false;
+    const fields = asRecord(content.fields, 'WalrusConsent.fields');
+    const inner = asRecord(fields.value ?? fields, 'WalrusConsent.value');
+    const accept = inner['accept'] ?? inner['Accept'];
+    return typeof accept === 'boolean' ? accept : false;
+  } catch {
+    // Any error (object not found, parse failure) → default to no-consent.
+    // Walrus loading is opt-in; never default to dangerous behavior on read failure.
+    return false;
+  }
 }
 
 async function loadTreasuryBalances(

@@ -34,6 +34,13 @@ export interface LiveAgentIdentity {
   operationalCapPerEpoch: bigint;
   /** v2+: amount pulled this epoch via pull_operational_funds. */
   operationalSpentThisEpoch: bigint;
+  /**
+   * v3+: vault owner has opted into dynamic Walrus-loaded strategy
+   * execution. Defaults to `false` for any vault that never called
+   * `set_walrus_consent` (i.e., every vault minted before the consent
+   * upgrade). The runtime gates the Walrus loader on this flag.
+   */
+  acceptsWalrusExecution: boolean;
 }
 
 export interface LiveBalance {
@@ -91,17 +98,60 @@ export async function loadLiveVault({
   const treasuryId = idFromField(treasuryFields.id, 'treasury.id');
 
   const identityCore = parseIdentity(vaultId, fields);
-  const [balances, opBudget] = await Promise.all([
+  const [balances, opBudget, acceptsWalrusExecution] = await Promise.all([
     loadTreasuryBalances(client, treasuryId),
     loadOperationalBudget(client, vaultId),
+    loadWalrusConsent(client, vaultId),
   ]);
   const identity: LiveAgentIdentity = {
     ...identityCore,
     operationalCapPerEpoch: opBudget.capPerEpoch,
     operationalSpentThisEpoch: opBudget.spentThisEpoch,
+    acceptsWalrusExecution,
   };
 
   return { identity, balances };
+}
+
+/**
+ * Read the per-vault Walrus-execution consent flag (added in package
+ * v3). Stored as a dynamic field on the AgentIdentity UID keyed by
+ * `WalrusConsentKey`. Returns `false` for any vault whose owner never
+ * called `set_walrus_consent` — the safe default for the runtime.
+ *
+ * Iterates `SYNAPSE_PACKAGE_HISTORY` because the dynamic-field key
+ * type is namespaced by the package that defined it; a v3 key won't
+ * resolve against a v2-typed parent unless we walk the upgrade chain.
+ */
+async function loadWalrusConsent(
+  client: SuiJsonRpcClient,
+  vaultId: string,
+): Promise<boolean> {
+  const packages =
+    SYNAPSE_PACKAGE_HISTORY.length > 0 ? SYNAPSE_PACKAGE_HISTORY : [SYNAPSE_PACKAGE_ID];
+  for (const pkg of packages) {
+    try {
+      const obj = await client.getDynamicFieldObject({
+        parentId: vaultId,
+        name: {
+          type: `${pkg}::agent::WalrusConsentKey`,
+          value: {},
+        },
+      });
+      const content = obj.data?.content;
+      if (!content || content.dataType !== 'moveObject') continue;
+      const moveFields = (content as { fields: unknown }).fields;
+      const inner = asRecord(
+        (moveFields as { value?: unknown }).value ?? moveFields,
+        'WalrusConsent.value',
+      );
+      const accept = inner['accept'];
+      if (typeof accept === 'boolean') return accept;
+    } catch {
+      // Try the next historical package; missing field is not an error.
+    }
+  }
+  return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -224,7 +274,10 @@ function normalizeTypeTag(raw: string): string {
 function parseIdentity(
   id: string,
   fields: Record<string, unknown>,
-): Omit<LiveAgentIdentity, 'operationalCapPerEpoch' | 'operationalSpentThisEpoch'> {
+): Omit<
+  LiveAgentIdentity,
+  'operationalCapPerEpoch' | 'operationalSpentThisEpoch' | 'acceptsWalrusExecution'
+> {
   return {
     id,
     owner: stringField(fields.owner, 'owner'),

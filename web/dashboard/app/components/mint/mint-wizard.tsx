@@ -15,7 +15,7 @@ import { buildMintPTB, generateSessionKeypair } from '@/lib/ptb';
 import { explorerTxUrl } from '@/lib/synapse-config';
 import { shortenAddress, shortenHash } from '@/lib/format';
 import { recordVault } from '@/lib/local-vaults';
-import { RISK_LABEL, type LiveStrategy } from '@/lib/strategies';
+import { RISK_LABEL, requiresWalrusConsent, type LiveStrategy } from '@/lib/strategies';
 import { useStrategies } from '../../hooks/use-strategies';
 
 const STEPS = [
@@ -71,6 +71,13 @@ interface MintForm {
   memwalAccountId: string;
   memwalDelegateKeyHex: string;
   skipMemWal: boolean;
+  /**
+   * Opt this vault into Walrus-loaded strategy execution at mint time.
+   * Required for any marketplace strategy whose runtime impl isn't in
+   * the seeded set. Defaulted ON when the user picks a non-seeded
+   * strategy so the happy path doesn't require an extra click.
+   */
+  acceptWalrusExecution: boolean;
 }
 
 export function MintWizard() {
@@ -87,6 +94,7 @@ export function MintWizard() {
     memwalAccountId: '',
     memwalDelegateKeyHex: '',
     skipMemWal: false,
+    acceptWalrusExecution: true,
   });
   const [mintResult, setMintResult] = useState<{
     digest: string;
@@ -166,6 +174,11 @@ export function MintWizard() {
     try {
       const { epoch } = await suiClient.getLatestSuiSystemState();
       const expiryEpoch = BigInt(epoch) + BigInt(form.expiryDays);
+      // Only emit set_walrus_consent in the mint PTB when the chosen
+      // strategy actually requires it (i.e., not a seeded strategy that
+      // has a hardcoded runtime impl). Saves one tx command + keeps the
+      // on-chain consent event meaningful as a signal.
+      const needsConsent = requiresWalrusConsent(form.strategyId);
       const tx = buildMintPTB({
         strategyId: form.strategyId,
         sessionAddr: session.address,
@@ -184,6 +197,7 @@ export function MintWizard() {
         fundingMist,
         sessionGasSeedMist,
         operationalCapMist,
+        acceptWalrusExecution: needsConsent && form.acceptWalrusExecution,
       });
 
       toast.push({
@@ -345,6 +359,7 @@ export function MintWizard() {
                       account={account?.address}
                       onSubmit={performMint}
                       onBack={back}
+                      onChange={setForm}
                       pending={signing}
                       result={mintResult}
                     />
@@ -737,6 +752,7 @@ function MintStep({
   account,
   onSubmit,
   onBack,
+  onChange,
   pending,
   result,
 }: {
@@ -745,9 +761,11 @@ function MintStep({
   account?: string;
   onSubmit: () => void;
   onBack: () => void;
+  onChange: (next: MintForm) => void;
   pending: boolean;
   result: { digest: string; agentId?: string; sessionAddress: string } | null;
 }) {
+  const needsConsent = strategy ? requiresWalrusConsent(strategy.id) : false;
   return (
     <motion.div
       initial={{ opacity: 0, y: 4 }}
@@ -780,6 +798,14 @@ function MintStep({
         value={form.skipMemWal ? 'skipped' : form.memwalAccountId || '—'}
       />
 
+      {needsConsent && strategy && (
+        <WalrusConsentPanel
+          strategy={strategy}
+          accept={form.acceptWalrusExecution}
+          onToggle={(accept) => onChange({ ...form, acceptWalrusExecution: accept })}
+        />
+      )}
+
       {result ? (
         <div className="rounded-sm border-l-2 border-state-active bg-paper-strong p-3 font-mono text-[11px]">
           <p className="text-state-active">● minted</p>
@@ -808,7 +834,13 @@ function MintStep({
           className="btn-flat"
           data-variant="accent"
           onClick={onSubmit}
-          disabled={pending || !account || !strategy || result !== null}
+          disabled={
+            pending ||
+            !account ||
+            !strategy ||
+            result !== null ||
+            (needsConsent && !form.acceptWalrusExecution)
+          }
         >
           {pending ? (
             <span className="flex items-center gap-2">
@@ -823,8 +855,66 @@ function MintStep({
         <button className="btn-flat" data-variant="ghost" onClick={onBack} disabled={pending}>
           Back
         </button>
+        {needsConsent && !form.acceptWalrusExecution && (
+          <span className="font-mono text-[10px] text-accent-orange">
+            consent required — see panel above
+          </span>
+        )}
       </div>
     </motion.div>
+  );
+}
+
+/**
+ * Inline consent panel shown in the final mint step when the chosen
+ * strategy isn't in the seeded set. Explains the trust decision in
+ * plain language and toggles `form.acceptWalrusExecution`. Mint is
+ * blocked until checked because a vault that hires a Walrus-bundled
+ * strategy without consent will silently fall back to the runtime's
+ * default at every tick — wrong code, wrong reputation, wrong royalty.
+ */
+function WalrusConsentPanel({
+  strategy,
+  accept,
+  onToggle,
+}: {
+  strategy: LiveStrategy;
+  accept: boolean;
+  onToggle: (accept: boolean) => void;
+}) {
+  return (
+    <div
+      className="rounded-sm border-2 border-ink bg-paper-strong p-4"
+      style={{ backgroundColor: accept ? 'var(--accent-green)' : undefined }}
+    >
+      <div className="flex items-start gap-3">
+        <input
+          id="walrus-consent"
+          type="checkbox"
+          checked={accept}
+          onChange={(e) => onToggle(e.target.checked)}
+          className="mt-1 h-4 w-4 accent-ink"
+        />
+        <label htmlFor="walrus-consent" className="grid gap-2">
+          <span className="font-display text-sm font-semibold text-ink">
+            Allow this vault to execute &ldquo;{strategy.name}&rdquo; from Walrus
+          </span>
+          <span className="text-xs leading-relaxed text-ink-soft">
+            This strategy isn&rsquo;t one of the runtime&rsquo;s built-in implementations.
+            The vault runtime will fetch the strategy&rsquo;s compiled bundle from
+            Walrus, verify its sha256 matches the on-chain commitment
+            (<code className="font-mono text-[10px]">{strategy.codeHashHex.slice(0, 14)}…</code>),
+            and execute it on every tick.
+          </span>
+          <span className="text-xs leading-relaxed text-ink-soft">
+            Strategist:{' '}
+            <code className="font-mono text-[10px]">{shortenAddress(strategy.strategist)}</code>
+            .{' '}
+            You can revoke consent later from the vault&rsquo;s Policy panel.
+          </span>
+        </label>
+      </div>
+    </div>
   );
 }
 

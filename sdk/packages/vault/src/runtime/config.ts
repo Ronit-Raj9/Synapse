@@ -65,15 +65,21 @@ export interface RuntimeConfig {
    */
   refuelAmountMist?: bigint;
   /**
-   * Opt in to dynamically loading marketplace-published strategy
-   * bundles from Walrus. When true and the on-chain `strategy_id`
-   * isn't in `KNOWN_STRATEGIES`, the runtime fetches the bundle from
-   * Walrus, verifies its sha256 matches the on-chain `code_hash`, and
-   * executes it via dynamic ESM import. Wired through
-   * `SYNAPSE_ALLOW_WALRUS_STRATEGIES`. Default false.
+   * Operator-level kill switch for Walrus-loaded strategies. When
+   * `false`, the runtime refuses to load any bundle from Walrus
+   * regardless of per-vault consent. When `true` (default), the
+   * runtime defers to each vault's on-chain consent flag
+   * (`AgentIdentity` dynamic field `WalrusConsentKey`). Wired through
+   * `SYNAPSE_ALLOW_WALRUS_STRATEGIES`; accepts the literals `0`,
+   * `false`, `no`, or `off` (case-insensitive) to disable.
+   *
+   * Trust model: the per-vault consent is the primary gate, set by
+   * the vault owner. This env flag exists so an operator can globally
+   * pause Walrus execution (e.g., during incident response) without
+   * editing every vault's on-chain state.
    *
    * SECURITY: loaded code runs with full Node privileges in this
-   * version. Enable only if you trust the marketplace publisher set.
+   * version. Sandboxing is a follow-up.
    */
   allowWalrusStrategies?: boolean;
 }
@@ -135,8 +141,10 @@ export function loadFromEnv(env: NodeJS.ProcessEnv = process.env): RuntimeConfig
     ...(env.SYNAPSE_REFUEL_AMOUNT_MIST
       ? { refuelAmountMist: BigInt(env.SYNAPSE_REFUEL_AMOUNT_MIST) }
       : {}),
-    ...(parseBooleanEnv(env.SYNAPSE_ALLOW_WALRUS_STRATEGIES)
-      ? { allowWalrusStrategies: true }
+    // Kill-switch semantics: default true (operator allows, per-vault
+    // consent gates). Set the env to a falsy literal to globally disable.
+    ...(parseDisableEnv(env.SYNAPSE_ALLOW_WALRUS_STRATEGIES)
+      ? { allowWalrusStrategies: false }
       : {}),
   };
 }
@@ -163,8 +171,14 @@ function numberFromEnv(value: string | undefined, fallback: number): number {
   return parsed;
 }
 
-function parseBooleanEnv(value: string | undefined): boolean {
+/**
+ * True when the env var is set to an explicit disable literal. Anything
+ * else (unset, empty, or affirmative) means "not disabled" — the
+ * kill-switch is OFF by default; only explicit `false`/`0`/`no`/`off`
+ * trips it.
+ */
+function parseDisableEnv(value: string | undefined): boolean {
   if (value === undefined) return false;
   const lowered = value.trim().toLowerCase();
-  return lowered === '1' || lowered === 'true' || lowered === 'yes' || lowered === 'on';
+  return lowered === '0' || lowered === 'false' || lowered === 'no' || lowered === 'off';
 }
