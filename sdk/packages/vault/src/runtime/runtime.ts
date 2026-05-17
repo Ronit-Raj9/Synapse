@@ -32,6 +32,23 @@ const DEFAULT_WALRUS_EPOCHS = 5;
 const DEFAULT_REFUEL_THRESHOLD_MIST = 20_000_000n;
 /** Default top-up size when refueling (0.05 SUI). */
 const DEFAULT_REFUEL_AMOUNT_MIST = 50_000_000n;
+/** Minimum positive-alpha USD to pay a royalty (avoid dust pulls). */
+const ROYALTY_MIN_ALPHA_USD = 0.0001;
+
+/**
+ * Snapshot of a vault's holdings at the end of a previous tick. Used to
+ * compute alpha-vs-hold the next time we tick. Kept in-memory only —
+ * losing it on runtime restart just means the first post-restart tick
+ * reports 0 alpha (genuinely unknown), not wrong alpha.
+ */
+interface PreviousTickSnapshot {
+  /** Each holding's atomic amount, decimals, and coin type at end of last tick. */
+  holdings: { coinTypeTag: string; amount: bigint; decimals: number; symbol: string }[];
+  /** Epoch the snapshot was taken in. */
+  epoch: bigint;
+  /** Wall-clock timestamp for staleness logging. */
+  recordedAtMs: number;
+}
 
 /**
  * Optional dependency overrides for testing. Production callers leave this
@@ -53,6 +70,8 @@ export class VaultRuntime {
   #loop: Promise<void> | null = null;
   #activeTick: Promise<ExecutionReceipt | null> | null = null;
   #consecutiveFailures = 0;
+  /** Last tick's holdings, used to compute alpha vs hold on the next tick. */
+  #previousTick: PreviousTickSnapshot | null = null;
 
   constructor(config: RuntimeConfig, deps: VaultRuntimeDeps = {}) {
     this.#config = config;
@@ -242,8 +261,23 @@ export class VaultRuntime {
       decision,
     });
 
+    // Compute realized alpha vs hold using last tick's snapshot. Positive
+    // alpha means the strategy outperformed a do-nothing baseline; that's
+    // what we record on-chain and what we pay royalty on.
+    const alpha = this.#computeAlpha(holdings, market.prices);
+    const royaltyMist = this.#computeRoyaltyMist(alpha, market.prices, activeStrategy);
+
     if (decision.kind === 'noop') {
-      return this.#executeNoop(report, currentEpoch, signer, agent.identity.strategyId);
+      const receipt = await this.#executeNoop(
+        report,
+        currentEpoch,
+        signer,
+        agent.identity.strategyId,
+        alpha,
+        royaltyMist,
+      );
+      this.#savePreviousTick(holdings, currentEpoch);
+      return receipt;
     }
 
     // Try to upload the rationale to Walrus, degrade gracefully if no WAL.
@@ -277,19 +311,34 @@ export class VaultRuntime {
       deepbookPkg: DEEPBOOK_PACKAGE_ID_TESTNET,
       swap: deepbookSwap,
     });
-    // Record performance for the on-chain reputation registry.
-    // Net alpha for this tick = (sum of executed-vs-expected outputs in bps).
-    // For v1 keep it simple: log 0/0 alpha and let the off-chain indexer
-    // compute realized alpha post-hoc from holdings deltas.
+    // Record performance for the on-chain reputation registry. Real alpha
+    // (in bps, split into pos/neg buckets) computed against last tick's
+    // snapshot; first post-restart tick reports 0/0 honestly.
     tx.moveCall({
       target: target(this.#config.packageId, 'agent', 'record_tick_performance'),
       arguments: [
         tx.object(this.#config.agentId),
         tx.object(agent.identity.strategyId),
-        tx.pure.u64(0),
-        tx.pure.u64(0),
+        tx.pure.u64(alpha.posBps),
+        tx.pure.u64(alpha.negBps),
       ],
     });
+
+    // If the strategy generated positive alpha, pay the strategist their
+    // cut atomically with the rebalance. Move VM bounds this by
+    // royalty_bps and treasury balance; if it would exceed, the whole
+    // PTB aborts cleanly (no half-paid state).
+    if (royaltyMist > 0n) {
+      tx.moveCall({
+        target: target(this.#config.packageId, 'agent', 'pay_strategist_royalty'),
+        typeArguments: ['0x2::sui::SUI'],
+        arguments: [
+          tx.object(this.#config.agentId),
+          tx.object(agent.identity.strategyId),
+          tx.pure.u64(royaltyMist),
+        ],
+      });
+    }
     const result = await this.#client.signAndExecuteTransaction({
       transaction: tx,
       signer,
@@ -308,12 +357,16 @@ export class VaultRuntime {
       executedAt: new Date().toISOString(),
     };
     await rememberStrategyOutcome({ memwal, namespace, plan: decision, receipt });
+    this.#savePreviousTick(holdings, currentEpoch);
     this.#logger.info(
       {
         txDigest: receipt.txDigest,
         walrusBlobId: receipt.reportWalrusBlobId,
         artifactSlot: receipt.artifactSlot.toString(),
         trades: receipt.trades.length,
+        alphaPosBps: alpha.posBps,
+        alphaNegBps: alpha.negBps,
+        royaltyMist: royaltyMist.toString(),
       },
       'rebalance executed',
     );
@@ -391,6 +444,8 @@ export class VaultRuntime {
     currentEpoch: bigint,
     signer: Awaited<ReturnType<typeof loadSessionKeypair>>,
     strategyId: string,
+    alpha: { posBps: number; negBps: number },
+    royaltyMist: bigint,
   ): Promise<ExecutionReceipt> {
     // Try to publish the rationale to Walrus, but degrade gracefully if
     // the session is out of WAL tokens or the Walrus publisher is down.
@@ -436,16 +491,33 @@ export class VaultRuntime {
     });
     // Record performance on the strategy registry so the dashboard's
     // Runtime Health + marketplace `LIVE α` columns reflect the tick.
-    // NOOP = 0 alpha (positive and negative both 0).
+    // Even on NOOP the alpha may be non-zero — a passive hold can
+    // outperform the strategy's last rebalance, generating negative alpha
+    // we want recorded honestly.
     tx.moveCall({
       target: target(this.#config.packageId, 'agent', 'record_tick_performance'),
       arguments: [
         tx.object(this.#config.agentId),
         tx.object(strategyId),
-        tx.pure.u64(0),
-        tx.pure.u64(0),
+        tx.pure.u64(alpha.posBps),
+        tx.pure.u64(alpha.negBps),
       ],
     });
+    // Same royalty hook on the NOOP path: if alpha > 0 since last tick
+    // (price moved in the strategy's favor since its last rebalance)
+    // the strategist still earns. The Move VM bounds the pull by
+    // royalty_bps and treasury.
+    if (royaltyMist > 0n) {
+      tx.moveCall({
+        target: target(this.#config.packageId, 'agent', 'pay_strategist_royalty'),
+        typeArguments: ['0x2::sui::SUI'],
+        arguments: [
+          tx.object(this.#config.agentId),
+          tx.object(strategyId),
+          tx.pure.u64(royaltyMist),
+        ],
+      });
+    }
     const result = await this.#client.signAndExecuteTransaction({
       transaction: tx,
       signer,
@@ -467,10 +539,100 @@ export class VaultRuntime {
         txDigest: receipt.txDigest,
         walrusBlobId: receipt.reportWalrusBlobId || '(skipped — no WAL)',
         artifactSlot: receipt.artifactSlot.toString(),
+        alphaPosBps: alpha.posBps,
+        alphaNegBps: alpha.negBps,
+        royaltyMist: royaltyMist.toString(),
       },
       'noop tick recorded on-chain',
     );
     return receipt;
+  }
+
+  /**
+   * Compare current holdings to the snapshot from the previous tick to
+   * isolate the strategy's contribution (alpha) from passive price
+   * movement. Returns alpha as bps split into positive/negative buckets
+   * so we can pass directly into `agent::record_tick_performance`.
+   *
+   * For the first tick after a runtime restart there is no previous
+   * snapshot, so we report 0 alpha honestly rather than guess.
+   *
+   * Formula:
+   *   nav_now   = sum(current_holdings[i].amount * current_price[i])
+   *   nav_hold  = sum(previous_holdings[i].amount * current_price[i])
+   *   alpha_usd = nav_now - nav_hold
+   *   alpha_bps = round(alpha_usd / nav_hold * 10_000)
+   *
+   * Capped at +/- 5000bps (50%) per tick to keep a single anomalous
+   * read from polluting the lifetime reputation counters.
+   */
+  #computeAlpha(
+    currentHoldings: HoldingSnapshot[],
+    prices: Record<string, number>,
+  ): { posBps: number; negBps: number; alphaUsd: number } {
+    if (!this.#previousTick) return { posBps: 0, negBps: 0, alphaUsd: 0 };
+    const navIfHeld = this.#previousTick.holdings.reduce((sum, h) => {
+      const priceUsd = prices[h.symbol] ?? prices[symbolFromTypeTag(h.coinTypeTag)] ?? 0;
+      const units = Number(h.amount) / Math.pow(10, h.decimals);
+      return sum + units * priceUsd;
+    }, 0);
+    if (navIfHeld <= 0) return { posBps: 0, negBps: 0, alphaUsd: 0 };
+    const navNow = currentHoldings.reduce((s, h) => s + h.valueUsd, 0);
+    const alphaUsd = navNow - navIfHeld;
+    const rawBps = Math.round((alphaUsd / navIfHeld) * 10_000);
+    const bounded = Math.max(-5000, Math.min(5000, rawBps));
+    return {
+      posBps: bounded > 0 ? bounded : 0,
+      negBps: bounded < 0 ? -bounded : 0,
+      alphaUsd,
+    };
+  }
+
+  /**
+   * Convert positive alpha-USD into the SUI MIST amount we pay the
+   * strategist this tick. Royalty math (alpha × royalty_bps / 10_000)
+   * is repeated on-chain by `pay_strategist_royalty` — we pass the
+   * full alpha as the "profit" basis and let the Move function apply
+   * the strategist's published royalty_bps.
+   *
+   * Returns 0 when alpha is negative, below the dust threshold, or
+   * when SUI's price is missing.
+   */
+  #computeRoyaltyMist(
+    alpha: { alphaUsd: number },
+    prices: Record<string, number>,
+    activeStrategy: Strategy,
+  ): bigint {
+    if (alpha.alphaUsd < ROYALTY_MIN_ALPHA_USD) return 0n;
+    const suiPriceUsd = prices.SUI ?? prices['SUI'] ?? 0;
+    if (suiPriceUsd <= 0) return 0n;
+    // Pay the *full* alpha as basis; the Move function multiplies by
+    // royalty_bps internally. So the strategist receives
+    //   alphaUsd / suiPrice * (royalty_bps / 10_000)
+    // worth of SUI.
+    const basisInSui = alpha.alphaUsd / suiPriceUsd;
+    const basisMist = BigInt(Math.max(0, Math.floor(basisInSui * 1e9)));
+    if (basisMist === 0n) return 0n;
+    void activeStrategy; // reserved for future per-strategy adjustments
+    return basisMist;
+  }
+
+  /**
+   * Save the post-tick holdings snapshot so the next tick can compute
+   * alpha vs hold. In-memory only; lost on runtime restart (first tick
+   * after restart reports 0 alpha honestly).
+   */
+  #savePreviousTick(holdings: HoldingSnapshot[], epoch: bigint): void {
+    this.#previousTick = {
+      holdings: holdings.map((h) => ({
+        coinTypeTag: h.coinTypeTag,
+        amount: h.amount,
+        decimals: h.decimals,
+        symbol: h.symbol,
+      })),
+      epoch,
+      recordedAtMs: Date.now(),
+    };
   }
 }
 

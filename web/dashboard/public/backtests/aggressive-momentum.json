@@ -1,28 +1,19 @@
 {
   "strategySlug": "aggressive-momentum",
   "strategyName": "Aggressive Momentum",
-  "startDate": "2026-02-16",
-  "endDate": "2026-05-16",
-  "startNavUsd": 2973.2297583619693,
-  "endNavUsd": 2893.009049668973,
-  "totalReturnPct": -2.6980998850620894,
-  "benchmarkReturnPct": 3.777714176183275,
-  "alphaPct": -6.475814061245364,
+  "startDate": "2026-02-17",
+  "endDate": "2026-05-17",
+  "startNavUsd": 2991.007037945835,
+  "endNavUsd": 2893.0090496689495,
+  "totalReturnPct": -3.276421186363653,
+  "benchmarkReturnPct": 2.0829457419752497,
+  "alphaPct": -5.359366928338902,
   "maxDrawdownPct": 8.19426368125388,
-  "volatilityPct": 16.158867108056874,
-  "sharpeAnnualized": -0.6068289604784769,
+  "volatilityPct": 16.108842325141808,
+  "sharpeAnnualized": -0.7592433503671816,
   "tradesExecuted": 10,
   "noops": 81,
   "series": [
-    {
-      "date": "2026-02-16",
-      "priceUsd": 0.9732297583619692,
-      "navUsd": 2973.2297583619693,
-      "suiUnits": 1000,
-      "usdcUnits": 2000,
-      "decision": "noop",
-      "rationale": "Momentum 0.00% inside [-1.00%, 2.00%]. Hold 32.73% base."
-    },
     {
       "date": "2026-02-17",
       "priceUsd": 0.9910070379458348,
@@ -84,7 +75,7 @@
       "suiUnits": 1000,
       "usdcUnits": 2000,
       "decision": "noop",
-      "rationale": "Pyth confidence 155bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
+      "rationale": "Momentum 0.00% inside [-1.00%, 2.00%]. Hold 31.57% base."
     },
     {
       "date": "2026-02-24",
@@ -825,14 +816,23 @@
       "rationale": "Pyth confidence 224bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
     },
     {
-      "date": "2026-05-16",
-      "priceUsd": 1.085549880434109,
-      "navUsd": 2893.009049668973,
+      "date": "2026-05-17",
+      "priceUsd": 1.060354710064308,
+      "navUsd": 2893.009049668955,
       "suiUnits": 7.26377180626514e-10,
       "usdcUnits": 2893.0090496681846,
       "decision": "noop",
-      "rationale": "Momentum 1.74% inside [-1.00%, 2.00%]. Hold 0.00% base."
+      "rationale": "Momentum -0.62% inside [-1.00%, 2.00%]. Hold 0.00% base."
+    },
+    {
+      "date": "2026-05-17",
+      "priceUsd": 1.0533080916849076,
+      "navUsd": 2893.0090496689495,
+      "suiUnits": 7.26377180626514e-10,
+      "usdcUnits": 2893.0090496681846,
+      "decision": "noop",
+      "rationale": "Pyth confidence 300bps exceeds 75bps gate. Refusing to trade against an uncertain oracle."
     }
   ],
-  "generatedAt": "2026-05-16T04:45:40.587Z"
+  "generatedAt": "2026-05-17T03:32:24.776Z"
 }

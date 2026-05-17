@@ -30,9 +30,7 @@ import type {
   HoldingSnapshot,
 } from '../sdk/packages/vault/src/types.js';
 
-const PACKAGE_ID =
-  process.env['PACKAGE_ID'] ??
-  '0x7b3f59e42edbf2189df644e63162d0b9a2c2984755bab9d3e9557c4ddd4aa67c';
+import { PACKAGE_ID } from './_config.js';
 
 const SUI_TYPE_TAG = '0x2::sui::SUI';
 const USDC_TYPE_TAG =

@@ -65,23 +65,29 @@ for images, IAM roles). You only do this once per account+region.
 
    ```bash
    ./scripts/push-secrets.sh \
-     0x80c1270145b11a15838414326e6137ca406a367f91fc8b34d4b7f72533321209 \
-     ~/keys/vault-80c12701.key \
-     ~/keys/vault-80c12701.memwal     # optional
+     <your-vault-id> \
+     ~/keys/<your-vault>.key \
+     ~/keys/<your-vault>.memwal      # optional
    ```
 
-   The script prints the names of the secrets it created/updated.
+   Substitute `<your-vault-id>` with your AgentIdentity object ID (find
+   it in the dashboard's banner under `/dashboard`). The script prints
+   the names of the secrets it created/updated.
 
 4. **Deploy the stack**:
 
    ```bash
    npx cdk deploy \
-     -c agentId=0x80c1270145b11a15838414326e6137ca406a367f91fc8b34d4b7f72533321209 \
-     -c packageId=0x7b3f59e42edbf2189df644e63162d0b9a2c2984755bab9d3e9557c4ddd4aa67c \
-     -c sessionSecretName=synapse/vault/80c12701/session-key \
-     -c memwalSecretName=synapse/vault/80c12701/memwal-delegate \
+     -c agentId=<your-vault-id> \
+     -c packageId=0x5da36d892956a4659415e245126a3964dd5aa6cf19ec2fdf6332bf828a4c58ed \
+     -c sessionSecretName=synapse/vault/<short>/session-key \
+     -c memwalSecretName=synapse/vault/<short>/memwal-delegate \
      -c tickIntervalMinutes=10
    ```
+
+   The package ID above is the current v2 (with operational budget +
+   auto-refuel). Confirm the active value in
+   `web/dashboard/lib/synapse-config.ts` if you're on a newer rev.
 
    First deploy takes ~5 minutes (Docker build + ECR push + Fargate
    provisioning). Subsequent deploys are faster.

@@ -12,7 +12,7 @@ npm --workspace @synapse-core/vault run typecheck
 ## Required Environment
 
 ```bash
-export SYNAPSE_PACKAGE_ID=0x70db8ce760ac41322284f1fab73016438639e4f5ab5ae2ad6f5362cb3f50ec16
+export SYNAPSE_PACKAGE_ID=0x5da36d892956a4659415e245126a3964dd5aa6cf19ec2fdf6332bf828a4c58ed
 export SYNAPSE_AGENT_ID=0x...
 export SYNAPSE_FULLNODE_URL=https://fullnode.testnet.sui.io:443
 export SYNAPSE_WALRUS_NETWORK=testnet

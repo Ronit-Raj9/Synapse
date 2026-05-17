@@ -150,6 +150,7 @@ export function MintWizard() {
     // signs ticks with; without it the vault is unrunnable.
     downloadSessionKeyFile({
       address: session.address,
+      suiPrivateKey: session.suiPrivateKey,
       secretBase64: session.secretBase64,
       strategyId: form.strategyId ?? '',
       ownerAddress: account.address,
@@ -889,10 +890,14 @@ function Spinner() {
 /**
  * Trigger a browser download of the freshly-generated session keypair so
  * the user has the secret persistently before the mint PTB ever fires.
- * The file is JSON so it round-trips into scripts/live-vaults.json cleanly.
+ * Both serialisations are saved: `suiPrivateKey` (canonical Sui CLI
+ * format, what the runtime's loadSessionKeypair expects) and
+ * `secretBase64` (raw 32-byte secret base64-encoded, kept for
+ * convenience with custom storage).
  */
 function downloadSessionKeyFile(payload: {
   address: string;
+  suiPrivateKey: string;
   secretBase64: string;
   strategyId: string;
   ownerAddress: string;
@@ -901,11 +906,12 @@ function downloadSessionKeyFile(payload: {
   const body = JSON.stringify(
     {
       address: payload.address,
+      suiPrivateKey: payload.suiPrivateKey,
       secretBase64: payload.secretBase64,
       strategyId: payload.strategyId,
       ownerAddress: payload.ownerAddress,
       mintedAtMs: payload.mintedAtMs,
-      note: 'Session secret for a Synapse Vault. Keep private. Use with scripts/run-live-tick.ts.',
+      note: 'Session secret for a Synapse Vault. Keep private. To run the agent, set SYNAPSE_SESSION_KEY=<suiPrivateKey> in the runtime env.',
     },
     null,
     2,

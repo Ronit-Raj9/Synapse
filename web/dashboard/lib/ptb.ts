@@ -12,6 +12,8 @@
 
 import { Transaction } from '@mysten/sui/transactions';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
+import { decodeSuiPrivateKey } from '@mysten/sui/cryptography';
+import { toBase64 } from '@mysten/sui/utils';
 import { synapseTarget } from './synapse-config';
 
 /**
@@ -142,13 +144,32 @@ export function buildRevokePTB(args: { agentId: string; strategyId: string }): T
  * uses this to sign transactions on behalf of the agent; the human owner
  * never needs to hold it past the mint PTB.
  *
- * Returns the keypair, address, and a base64-encoded 32-byte secret so
- * downstream code can persist it (Seal-encrypted, or via the agent runtime).
+ * Returns the keypair, address, and two persistence-friendly serialisations:
+ *   - `suiprivkey`: the canonical Sui CLI / SDK format (`suiprivkey1q…`).
+ *     This is what `loadSessionKeypair` in @synapse-core/vault expects when
+ *     SYNAPSE_SESSION_KEY is set. Round-trips losslessly via
+ *     `Ed25519Keypair.fromSecretKey(suiprivkey)`.
+ *   - `secretBase64`: raw 32-byte secret base64-encoded (no flag prefix).
+ *     Convenient for places that want the bare bytes (Seal, custom
+ *     storage). Pass through `fromBase64` then `Ed25519Keypair.fromSecretKey`
+ *     to reconstruct.
+ *
+ * Previous versions misnamed the bech32 string as `secretBase64`. That
+ * field now contains real base64 of the 32-byte secret. Any consumer
+ * reading the old field can fall back to detecting the `suiprivkey` prefix.
  */
-export function generateSessionKeypair(): { keypair: Ed25519Keypair; address: string; secretBase64: string } {
+export function generateSessionKeypair(): {
+  keypair: Ed25519Keypair;
+  address: string;
+  suiPrivateKey: string;
+  secretBase64: string;
+} {
   const keypair = new Ed25519Keypair();
   const address = keypair.toSuiAddress();
-  const secret = keypair.getSecretKey();
-  const base64 = secret.replace(/^suiprivkey/, '');
-  return { keypair, address, secretBase64: base64 };
+  const suiPrivateKey = keypair.getSecretKey();
+  // Sui SDK returns the raw 32-byte secret via decodeSuiPrivateKey, but
+  // we already have the keypair — re-derive bytes from the BCS form.
+  const decoded = decodeSuiPrivateKey(suiPrivateKey);
+  const secretBase64 = toBase64(decoded.secretKey);
+  return { keypair, address, suiPrivateKey, secretBase64 };
 }

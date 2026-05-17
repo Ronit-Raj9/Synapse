@@ -161,7 +161,7 @@ Located at `move/synapse_core/sources/`:
 | `deepbook_adapter.move` | The bridge to DeepBookV3 pools. Routes swap PTBs with slippage guards. |
 
 **14 Move tests, all passing.** Deployed to Sui testnet at:
-`0x7b3f59e42edbf2189df644e63162d0b9a2c2984755bab9d3e9557c4ddd4aa67c`
+`0x5da36d892956a4659415e245126a3964dd5aa6cf19ec2fdf6332bf828a4c58ed`
 
 ### TypeScript SDK (`sdk/packages/`)
 

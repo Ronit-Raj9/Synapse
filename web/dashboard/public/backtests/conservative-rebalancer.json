@@ -1,838 +1,838 @@
 {
   "strategySlug": "conservative-rebalancer",
   "strategyName": "Conservative Rebalancer",
-  "startDate": "2026-02-16",
-  "endDate": "2026-05-16",
-  "startNavUsd": 2971.9462955619692,
-  "endNavUsd": 3192.889025858575,
-  "totalReturnPct": 7.434277349713267,
-  "benchmarkReturnPct": 3.777714176183275,
-  "alphaPct": 3.656563173529992,
-  "maxDrawdownPct": 11.119895451961758,
-  "volatilityPct": 40.9914647651977,
-  "sharpeAnnualized": 0.9052517960783506,
+  "startDate": "2026-02-17",
+  "endDate": "2026-05-17",
+  "startNavUsd": 2989.7457967433347,
+  "endNavUsd": 3135.1434451750038,
+  "totalReturnPct": 4.863211065972483,
+  "benchmarkReturnPct": 2.0829457419752497,
+  "alphaPct": 2.7802653239972335,
+  "maxDrawdownPct": 11.024183863485034,
+  "volatilityPct": 40.741190527755364,
+  "sharpeAnnualized": 0.6672007694936678,
   "tradesExecuted": 3,
   "noops": 88,
   "series": [
     {
-      "date": "2026-02-16",
-      "priceUsd": 0.9732297583619692,
-      "navUsd": 2971.9462955619692,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "rebalance",
-      "rationale": "Drift 17.27%; rebalance quote->base on `0xb663828d…` to restore 50/50 target."
-    },
-    {
       "date": "2026-02-17",
       "priceUsd": 0.9910070379458348,
-      "navUsd": 2999.077763360063,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.43% is below threshold 5.00%. No rebalance needed."
+      "navUsd": 2989.7457967433347,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "rebalance",
+      "rationale": "Drift 16.87%; rebalance quote->base on `0xb663828d…` to restore 50/50 target."
     },
     {
       "date": "2026-02-18",
       "priceUsd": 0.9676825915878824,
-      "navUsd": 2963.4802771258082,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
+      "navUsd": 2954.5771526081217,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
       "decision": "noop",
-      "rationale": "Drift 0.16% is below threshold 5.00%. No rebalance needed."
+      "rationale": "Drift 0.62% is below threshold 5.00%. No rebalance needed."
     },
     {
       "date": "2026-02-19",
       "priceUsd": 0.9295649840717041,
-      "navUsd": 2905.3056483257888,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
+      "navUsd": 2897.1033522250673,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
       "decision": "noop",
-      "rationale": "Drift 1.17% is below threshold 5.00%. No rebalance needed."
+      "rationale": "Drift 1.62% is below threshold 5.00%. No rebalance needed."
     },
     {
       "date": "2026-02-20",
       "priceUsd": 0.9271039591183934,
-      "navUsd": 2901.549661986256,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.24% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-02-21",
-      "priceUsd": 0.9536714450255065,
-      "navUsd": 2942.0966357211655,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.53% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-02-22",
-      "priceUsd": 0.9499696675526216,
-      "navUsd": 2936.4470279829575,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.63% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-02-23",
-      "priceUsd": 0.922900312104958,
-      "navUsd": 2895.1341070616945,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.35% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-02-24",
-      "priceUsd": 0.8794056589696074,
-      "navUsd": 2828.7530966622166,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 2.55% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-02-25",
-      "priceUsd": 0.8602457663946909,
-      "navUsd": 2799.5115017399503,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 3.10% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-02-26",
-      "priceUsd": 0.9630896304467979,
-      "navUsd": 2956.4705557165594,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.28% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-02-27",
-      "priceUsd": 0.9377875383423598,
-      "navUsd": 2917.8548106067738,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.95% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-02-28",
-      "priceUsd": 0.8990680386573332,
-      "navUsd": 2858.7615813021043,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 2.00% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-01",
-      "priceUsd": 0.9050316699675918,
-      "navUsd": 2867.8632028460906,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.84% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-02",
-      "priceUsd": 0.8877958551949485,
-      "navUsd": 2841.5581120546804,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 2.32% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-03",
-      "priceUsd": 0.9228546808282773,
-      "navUsd": 2895.064465162437,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.35% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-04",
-      "priceUsd": 0.91046901129627,
-      "navUsd": 2876.161607023756,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
+      "navUsd": 2893.392614166697,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
       "decision": "noop",
       "rationale": "Drift 1.69% is below threshold 5.00%. No rebalance needed."
     },
     {
-      "date": "2026-03-05",
-      "priceUsd": 0.9587186694311188,
-      "navUsd": 2949.799648197546,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
+      "date": "2026-02-21",
+      "priceUsd": 0.9536714450255065,
+      "navUsd": 2933.451119440328,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
       "decision": "noop",
-      "rationale": "Drift 0.40% is below threshold 5.00%. No rebalance needed."
+      "rationale": "Drift 0.98% is below threshold 5.00%. No rebalance needed."
     },
     {
-      "date": "2026-03-06",
-      "priceUsd": 0.9536902555808823,
-      "navUsd": 2942.1253441619046,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.53% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-07",
-      "priceUsd": 0.9016052826927989,
-      "navUsd": 2862.6338922774357,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.93% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-08",
-      "priceUsd": 0.895099012962997,
-      "navUsd": 2852.7041025800268,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 2.11% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-09",
-      "priceUsd": 0.8801523827195284,
-      "navUsd": 2829.8927373636793,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 2.53% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-10",
-      "priceUsd": 0.9402654166149893,
-      "navUsd": 2921.63651827719,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.88% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-11",
-      "priceUsd": 0.9559290546236457,
-      "navUsd": 2945.542172020666,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.47% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-12",
-      "priceUsd": 0.9794108840442053,
-      "navUsd": 2981.3798543701323,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.14% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-13",
-      "priceUsd": 0.9945488082671659,
-      "navUsd": 3004.4831701304356,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.52% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-14",
-      "priceUsd": 0.9950458523734486,
-      "navUsd": 3005.2417527977227,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.53% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-15",
-      "priceUsd": 1.000673497224434,
-      "navUsd": 3013.8305958956394,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.67% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-16",
-      "priceUsd": 1.020321831360292,
-      "navUsd": 3043.8176443851635,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.16% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-17",
-      "priceUsd": 1.0730227097882756,
-      "navUsd": 3124.2490838106755,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 2.42% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-18",
-      "priceUsd": 1.0293149045929044,
-      "navUsd": 3057.5427633306954,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.38% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-19",
-      "priceUsd": 0.9868857818742657,
-      "navUsd": 2992.787952488496,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.33% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-20",
-      "priceUsd": 0.9572038694902889,
-      "navUsd": 2947.487778958988,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.44% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-21",
-      "priceUsd": 0.9676394536650341,
-      "navUsd": 2963.4144405528327,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.17% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-22",
-      "priceUsd": 0.9427932724168709,
-      "navUsd": 2925.494501044656,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.82% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-23",
-      "priceUsd": 0.9046397475174524,
-      "navUsd": 2867.265055571355,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.85% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-24",
-      "priceUsd": 0.9518188241577402,
-      "navUsd": 2939.269188294311,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.58% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-25",
-      "priceUsd": 0.9533223254865549,
-      "navUsd": 2941.563813728685,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.54% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-26",
-      "priceUsd": 0.9669588709398655,
-      "navUsd": 2962.375743478585,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.18% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-27",
-      "priceUsd": 0.926735797269567,
-      "navUsd": 2900.9877778521395,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.25% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-28",
-      "priceUsd": 0.878719382432186,
-      "navUsd": 2827.705709760987,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 2.57% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-29",
-      "priceUsd": 0.8573271378978067,
-      "navUsd": 2795.0571264400487,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 3.19% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-30",
-      "priceUsd": 0.845388060663364,
-      "navUsd": 2776.8358520320553,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 3.54% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-03-31",
-      "priceUsd": 0.8621406703727409,
-      "navUsd": 2802.4034811352453,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 3.05% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-01",
-      "priceUsd": 0.8774928886772642,
-      "navUsd": 2825.8338499154333,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 2.61% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-02",
-      "priceUsd": 0.8825469928036337,
-      "navUsd": 2833.547362137925,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 2.46% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-03",
-      "priceUsd": 0.8609529161829852,
-      "navUsd": 2800.5907451426892,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 3.08% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-04",
-      "priceUsd": 0.873844727959917,
-      "navUsd": 2820.2660714171525,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 2.71% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-05",
-      "priceUsd": 0.8704605309728328,
-      "navUsd": 2815.101151152254,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 2.81% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-06",
-      "priceUsd": 0.8690470049811657,
-      "navUsd": 2812.9438449826703,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 2.85% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-07",
-      "priceUsd": 0.872872269845857,
-      "navUsd": 2818.781917675735,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 2.74% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-08",
-      "priceUsd": 0.9633107613083076,
-      "navUsd": 2956.8080429468137,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.28% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-09",
-      "priceUsd": 0.9137437441357932,
-      "navUsd": 2881.1594644385386,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.60% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-10",
-      "priceUsd": 0.9295787174656264,
-      "navUsd": 2905.3266080644935,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.17% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-11",
-      "priceUsd": 0.9448455400352535,
-      "navUsd": 2928.626646913124,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.76% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-12",
-      "priceUsd": 0.9413430700280516,
-      "navUsd": 2923.281219803994,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.85% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-13",
-      "priceUsd": 0.9011813667202858,
-      "navUsd": 2861.9869168781306,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.94% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-14",
-      "priceUsd": 0.9585360313186201,
-      "navUsd": 2949.5209081324765,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.40% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-15",
-      "priceUsd": 0.9330443574439188,
-      "navUsd": 2910.6158256316266,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
+      "date": "2026-02-22",
+      "priceUsd": 0.9499696675526216,
+      "navUsd": 2927.8695723967794,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
       "decision": "noop",
       "rationale": "Drift 1.08% is below threshold 5.00%. No rebalance needed."
     },
     {
-      "date": "2026-04-16",
-      "priceUsd": 0.9588449508873953,
-      "navUsd": 2949.9923774196013,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
+      "date": "2026-02-23",
+      "priceUsd": 0.922900312104958,
+      "navUsd": 2887.054347284956,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
       "decision": "noop",
-      "rationale": "Drift 0.39% is below threshold 5.00%. No rebalance needed."
+      "rationale": "Drift 1.80% is below threshold 5.00%. No rebalance needed."
     },
     {
-      "date": "2026-04-17",
-      "priceUsd": 1.0023833534135655,
-      "navUsd": 3016.440157607033,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
+      "date": "2026-02-24",
+      "priceUsd": 0.8794056589696074,
+      "navUsd": 2821.4730273930836,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
       "decision": "noop",
-      "rationale": "Drift 0.72% is below threshold 5.00%. No rebalance needed."
+      "rationale": "Drift 3.00% is below threshold 5.00%. No rebalance needed."
     },
     {
-      "date": "2026-04-18",
-      "priceUsd": 1.0003279670882421,
-      "navUsd": 3013.303252005978,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
+      "date": "2026-02-25",
+      "priceUsd": 0.8602457663946909,
+      "navUsd": 2792.583705293208,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
       "decision": "noop",
-      "rationale": "Drift 0.66% is below threshold 5.00%. No rebalance needed."
+      "rationale": "Drift 3.55% is below threshold 5.00%. No rebalance needed."
     },
     {
-      "date": "2026-04-19",
-      "priceUsd": 0.9586529749961317,
-      "navUsd": 2949.699386150197,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.40% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-20",
-      "priceUsd": 0.9228836557698356,
-      "navUsd": 2895.1086863656947,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.35% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-21",
-      "priceUsd": 0.9441053852367924,
-      "navUsd": 2927.4970316654535,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.78% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-22",
-      "priceUsd": 0.9489979215789234,
-      "navUsd": 2934.963961101496,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.65% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-23",
-      "priceUsd": 0.9457467760084505,
-      "navUsd": 2930.0021022897427,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
+      "date": "2026-02-26",
+      "priceUsd": 0.9630896304467979,
+      "navUsd": 2947.651877151686,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
       "decision": "noop",
       "rationale": "Drift 0.74% is below threshold 5.00%. No rebalance needed."
     },
     {
-      "date": "2026-04-24",
-      "priceUsd": 0.9461364526800224,
-      "navUsd": 2930.5968220845543,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.73% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-25",
-      "priceUsd": 0.9460359300866927,
-      "navUsd": 2930.4434057257104,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.73% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-26",
-      "priceUsd": 0.9387241354726268,
-      "navUsd": 2919.28423375106,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.92% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-27",
-      "priceUsd": 0.9473450450963309,
-      "navUsd": 2932.4413611249292,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 0.70% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-28",
-      "priceUsd": 0.9339270091275784,
-      "navUsd": 2911.9629178916757,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.05% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-29",
-      "priceUsd": 0.9251513194174399,
-      "navUsd": 2898.5695670331575,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.29% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-04-30",
-      "priceUsd": 0.9066080468194128,
-      "navUsd": 2870.269050016974,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.79% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-05-01",
-      "priceUsd": 0.9080851037005839,
-      "navUsd": 2872.5233162571144,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.75% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-05-02",
-      "priceUsd": 0.9179997962396172,
-      "navUsd": 2887.654999374419,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.48% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-05-03",
-      "priceUsd": 0.9274048164034547,
-      "navUsd": 2902.0088267140736,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
-      "decision": "noop",
-      "rationale": "Drift 1.23% is below threshold 5.00%. No rebalance needed."
-    },
-    {
-      "date": "2026-05-04",
-      "priceUsd": 0.9208531336825088,
-      "navUsd": 2892.0097282621373,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
+      "date": "2026-02-27",
+      "priceUsd": 0.9377875383423598,
+      "navUsd": 2909.5013350362897,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
       "decision": "noop",
       "rationale": "Drift 1.40% is below threshold 5.00%. No rebalance needed."
     },
     {
-      "date": "2026-05-05",
-      "priceUsd": 0.9290173938724879,
-      "navUsd": 2904.4699228264794,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
+      "date": "2026-02-28",
+      "priceUsd": 0.8990680386573332,
+      "navUsd": 2851.1200005077662,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
       "decision": "noop",
-      "rationale": "Drift 1.18% is below threshold 5.00%. No rebalance needed."
+      "rationale": "Drift 2.45% is below threshold 5.00%. No rebalance needed."
     },
     {
-      "date": "2026-05-06",
-      "priceUsd": 0.9665393769336927,
-      "navUsd": 2961.735516830504,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
+      "date": "2026-03-01",
+      "priceUsd": 0.9050316699675918,
+      "navUsd": 2860.1119750260636,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
       "decision": "noop",
-      "rationale": "Drift 0.19% is below threshold 5.00%. No rebalance needed."
+      "rationale": "Drift 2.29% is below threshold 5.00%. No rebalance needed."
     },
     {
-      "date": "2026-05-07",
-      "priceUsd": 0.9920312952280548,
-      "navUsd": 3000.6409723616657,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
+      "date": "2026-03-02",
+      "priceUsd": 0.8877958551949485,
+      "navUsd": 2834.123781059227,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
       "decision": "noop",
-      "rationale": "Drift 0.46% is below threshold 5.00%. No rebalance needed."
+      "rationale": "Drift 2.77% is below threshold 5.00%. No rebalance needed."
     },
     {
-      "date": "2026-05-08",
-      "priceUsd": 0.968524643543785,
-      "navUsd": 2964.7654065753463,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
+      "date": "2026-03-03",
+      "priceUsd": 0.9228546808282773,
+      "navUsd": 2886.985544360059,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
       "decision": "noop",
-      "rationale": "Drift 0.14% is below threshold 5.00%. No rebalance needed."
+      "rationale": "Drift 1.80% is below threshold 5.00%. No rebalance needed."
     },
     {
-      "date": "2026-05-09",
-      "priceUsd": 1.02228556717935,
-      "navUsd": 3046.814674098703,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
+      "date": "2026-03-04",
+      "priceUsd": 0.91046901129627,
+      "navUsd": 2868.3104085192035,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 2.14% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-05",
+      "priceUsd": 0.9587186694311188,
+      "navUsd": 2941.061333902333,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.85% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-06",
+      "priceUsd": 0.9536902555808823,
+      "navUsd": 2933.4794820311413,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.98% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-07",
+      "priceUsd": 0.9016052826927989,
+      "navUsd": 2854.94566184172,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 2.38% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-08",
+      "priceUsd": 0.895099012962997,
+      "navUsd": 2845.135496092722,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 2.56% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-09",
+      "priceUsd": 0.8801523827195284,
+      "navUsd": 2822.5989388691914,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 2.98% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-10",
+      "priceUsd": 0.9402654166149893,
+      "navUsd": 2913.2374845612608,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.33% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-11",
+      "priceUsd": 0.9559290546236457,
+      "navUsd": 2936.855147443168,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.92% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-12",
+      "priceUsd": 0.9794108840442053,
+      "navUsd": 2972.261094056511,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.32% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-13",
+      "priceUsd": 0.9945488082671659,
+      "navUsd": 2995.0860847024996,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.07% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-14",
+      "priceUsd": 0.9950458523734486,
+      "navUsd": 2995.835528741817,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.08% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-15",
+      "priceUsd": 1.000673497224434,
+      "navUsd": 3004.320902244207,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.22% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-16",
+      "priceUsd": 1.020321831360292,
+      "navUsd": 3033.9466974493375,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.71% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-17",
+      "priceUsd": 1.0730227097882756,
+      "navUsd": 3113.409181171485,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.97% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-18",
+      "priceUsd": 1.0293149045929044,
+      "navUsd": 3047.506470202178,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.93% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-19",
+      "priceUsd": 0.9868857818742657,
+      "navUsd": 2983.53175907887,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.13% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-20",
+      "priceUsd": 0.9572038694902889,
+      "navUsd": 2938.7773156993917,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.89% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-21",
+      "priceUsd": 0.9676394536650341,
+      "navUsd": 2954.512109166828,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.62% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-22",
+      "priceUsd": 0.9427932724168709,
+      "navUsd": 2917.0489902989393,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.27% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-23",
+      "priceUsd": 0.9046397475174524,
+      "navUsd": 2859.521033617808,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 2.30% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-24",
+      "priceUsd": 0.9518188241577402,
+      "navUsd": 2930.6577342076826,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.03% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-25",
+      "priceUsd": 0.9533223254865549,
+      "navUsd": 2932.9247163421533,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.99% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-26",
+      "priceUsd": 0.9669588709398655,
+      "navUsd": 2953.485925252376,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.64% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-27",
+      "priceUsd": 0.926735797269567,
+      "navUsd": 2892.837499037839,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.70% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-28",
+      "priceUsd": 0.878719382432186,
+      "navUsd": 2820.438258337796,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 3.02% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-29",
+      "priceUsd": 0.8573271378978067,
+      "navUsd": 2788.1829917502337,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 3.64% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-30",
+      "priceUsd": 0.845388060663364,
+      "navUsd": 2770.181228616517,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 3.99% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-03-31",
+      "priceUsd": 0.8621406703727409,
+      "navUsd": 2795.4408450791525,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 3.50% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-01",
+      "priceUsd": 0.8774928886772642,
+      "navUsd": 2818.5889487448076,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 3.06% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-02",
+      "priceUsd": 0.8825469928036337,
+      "navUsd": 2826.209536462724,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 2.92% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-03",
+      "priceUsd": 0.8609529161829852,
+      "navUsd": 2793.649947075463,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 3.53% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-04",
+      "priceUsd": 0.873844727959917,
+      "navUsd": 2813.0882451462116,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 3.16% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-05",
+      "priceUsd": 0.8704605309728328,
+      "navUsd": 2807.985546557113,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 3.26% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-06",
+      "priceUsd": 0.8690470049811657,
+      "navUsd": 2805.8542294054046,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 3.30% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-07",
+      "priceUsd": 0.872872269845857,
+      "navUsd": 2811.6219709708284,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 3.19% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-08",
+      "priceUsd": 0.9633107613083076,
+      "navUsd": 2947.9852986810292,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.73% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-09",
+      "priceUsd": 0.9137437441357932,
+      "navUsd": 2873.2480568605033,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 2.05% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-10",
+      "priceUsd": 0.9295787174656264,
+      "navUsd": 2897.1240594622814,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.62% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-11",
+      "priceUsd": 0.9448455400352535,
+      "navUsd": 2920.143403278071,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
       "decision": "noop",
       "rationale": "Drift 1.21% is below threshold 5.00%. No rebalance needed."
     },
     {
+      "date": "2026-04-12",
+      "priceUsd": 0.9413430700280516,
+      "navUsd": 2914.862372406548,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.31% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-13",
+      "priceUsd": 0.9011813667202858,
+      "navUsd": 2854.3064805401896,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 2.39% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-14",
+      "priceUsd": 0.9585360313186201,
+      "navUsd": 2940.785951812425,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.85% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-15",
+      "priceUsd": 0.9330443574439188,
+      "navUsd": 2902.349557946869,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.53% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-16",
+      "priceUsd": 0.9588449508873953,
+      "navUsd": 2941.251741319877,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.85% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-17",
+      "priceUsd": 1.0023833534135655,
+      "navUsd": 3006.899026625601,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.26% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-18",
+      "priceUsd": 1.0003279670882421,
+      "navUsd": 3003.799911254271,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.21% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-19",
+      "priceUsd": 0.9586529749961317,
+      "navUsd": 2940.962279709566,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.85% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-20",
+      "priceUsd": 0.9228836557698356,
+      "navUsd": 2887.0292328314963,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.80% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-21",
+      "priceUsd": 0.9441053852367924,
+      "navUsd": 2919.027396479343,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.23% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-22",
+      "priceUsd": 0.9489979215789234,
+      "navUsd": 2926.4043719879746,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.10% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-23",
+      "priceUsd": 0.9457467760084505,
+      "navUsd": 2921.5022885753597,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.19% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-24",
+      "priceUsd": 0.9461364526800224,
+      "navUsd": 2922.0898437944634,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.18% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-25",
+      "priceUsd": 0.9460359300866927,
+      "navUsd": 2921.9382756389705,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.18% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-26",
+      "priceUsd": 0.9387241354726268,
+      "navUsd": 2910.9135379527884,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.38% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-27",
+      "priceUsd": 0.9473450450963309,
+      "navUsd": 2923.9121617153846,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.15% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-28",
+      "priceUsd": 0.9339270091275784,
+      "navUsd": 2903.680421817402,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.50% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-29",
+      "priceUsd": 0.9251513194174399,
+      "navUsd": 2890.44842034905,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.74% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-04-30",
+      "priceUsd": 0.9066080468194128,
+      "navUsd": 2862.4888390113383,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 2.24% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-05-01",
+      "priceUsd": 0.9080851037005839,
+      "navUsd": 2864.715948157861,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 2.20% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-05-02",
+      "priceUsd": 0.9179997962396172,
+      "navUsd": 2879.6653402362044,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.93% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-05-03",
+      "priceUsd": 0.9274048164034547,
+      "navUsd": 2893.8462473475847,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.68% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-05-04",
+      "priceUsd": 0.9208531336825088,
+      "navUsd": 2883.9676078050343,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.86% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-05-05",
+      "priceUsd": 0.9290173938724879,
+      "navUsd": 2896.277694691653,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 1.64% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-05-06",
+      "priceUsd": 0.9665393769336927,
+      "navUsd": 2952.8534114000195,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.65% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-05-07",
+      "priceUsd": 0.9920312952280548,
+      "navUsd": 2991.290173802,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.00% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-05-08",
+      "priceUsd": 0.968524643543785,
+      "navUsd": 2955.8468001326983,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.59% is below threshold 5.00%. No rebalance needed."
+    },
+    {
+      "date": "2026-05-09",
+      "priceUsd": 1.02228556717935,
+      "navUsd": 3036.9076220147554,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
+      "decision": "noop",
+      "rationale": "Drift 0.76% is below threshold 5.00%. No rebalance needed."
+    },
+    {
       "date": "2026-05-10",
       "priceUsd": 1.0669606756050047,
-      "navUsd": 3114.9972809992023,
-      "suiUnits": 1526.1878326264004,
-      "usdcUnits": 1486.61488,
+      "navUsd": 3104.268834615981,
+      "suiUnits": 1507.8018828611036,
+      "usdcUnits": 1495.5035189999999,
       "decision": "noop",
-      "rationale": "Drift 2.28% is below threshold 5.00%. No rebalance needed."
+      "rationale": "Drift 1.82% is below threshold 5.00%. No rebalance needed."
     },
     {
       "date": "2026-05-11",
       "priceUsd": 1.33224329767164,
-      "navUsd": 3519.1850927157748,
-      "suiUnits": 1321.0306244954004,
-      "usdcUnits": 1759.2508972127966,
+      "navUsd": 3503.620902366314,
+      "suiUnits": 1315.1736164801036,
+      "usdcUnits": 1751.4896665361239,
       "decision": "rebalance",
-      "rationale": "Drift 7.77%; rebalance base->quote on `0xb663828d…` to restore 50/50 target."
+      "rationale": "Drift 7.32%; rebalance base->quote on `0xb663828d…` to restore 50/50 target."
     },
     {
       "date": "2026-05-12",
       "priceUsd": 1.2920297413907635,
-      "navUsd": 3466.0617533488676,
-      "suiUnits": 1321.0306244954004,
-      "usdcUnits": 1759.2508972127966,
+      "navUsd": 3450.7330941208675,
+      "suiUnits": 1315.1736164801036,
+      "usdcUnits": 1751.4896665361239,
       "decision": "noop",
       "rationale": "Drift 0.76% is below threshold 5.00%. No rebalance needed."
     },
     {
       "date": "2026-05-13",
       "priceUsd": 1.2376067535238557,
-      "navUsd": 3394.167319700141,
-      "suiUnits": 1321.0306244954004,
-      "usdcUnits": 1759.2508972127966,
+      "navUsd": 3379.1574163482937,
+      "suiUnits": 1315.1736164801036,
+      "usdcUnits": 1751.4896665361239,
       "decision": "noop",
       "rationale": "Drift 1.83% is below threshold 5.00%. No rebalance needed."
     },
     {
       "date": "2026-05-14",
       "priceUsd": 1.2094298026836416,
-      "navUsd": 3356.944704735317,
-      "suiUnits": 1321.0306244954004,
-      "usdcUnits": 1759.2508972127966,
+      "navUsd": 3342.099834010387,
+      "suiUnits": 1315.1736164801036,
+      "usdcUnits": 1751.4896665361239,
       "decision": "noop",
       "rationale": "Drift 2.41% is below threshold 5.00%. No rebalance needed."
     },
     {
       "date": "2026-05-15",
       "priceUsd": 1.1892455759551313,
-      "navUsd": 3330.2807230951958,
-      "suiUnits": 1321.0306244954004,
-      "usdcUnits": 1759.2508972127966,
+      "navUsd": 3315.5540715479974,
+      "suiUnits": 1315.1736164801036,
+      "usdcUnits": 1751.4896665361239,
       "decision": "noop",
       "rationale": "Drift 2.83% is below threshold 5.00%. No rebalance needed."
     },
     {
       "date": "2026-05-16",
       "priceUsd": 1.0987151618746516,
-      "navUsd": 3210.6872736466325,
-      "suiUnits": 1321.0306244954004,
-      "usdcUnits": 1759.2508972127966,
+      "navUsd": 3196.490859460332,
+      "suiUnits": 1315.1736164801036,
+      "usdcUnits": 1751.4896665361239,
       "decision": "noop",
       "rationale": "Drift 4.79% is below threshold 5.00%. No rebalance needed."
     },
     {
-      "date": "2026-05-16",
-      "priceUsd": 1.085549880434109,
-      "navUsd": 3192.889025858575,
-      "suiUnits": 1470.4448753726958,
-      "usdcUnits": 1596.6477672127967,
+      "date": "2026-05-17",
+      "priceUsd": 1.060354710064308,
+      "navUsd": 3145.5940314156114,
+      "suiUnits": 1483.064028436404,
+      "usdcUnits": 1573.0201035361238,
       "decision": "rebalance",
-      "rationale": "Drift 5.09%; rebalance quote->base on `0xb663828d…` to restore 50/50 target."
+      "rationale": "Drift 5.67%; rebalance quote->base on `0xb663828d…` to restore 50/50 target."
+    },
+    {
+      "date": "2026-05-17",
+      "priceUsd": 1.0533080916849076,
+      "navUsd": 3135.1434451750038,
+      "suiUnits": 1483.064028436404,
+      "usdcUnits": 1573.0201035361238,
+      "decision": "noop",
+      "rationale": "Drift 0.17% is below threshold 5.00%. No rebalance needed."
     }
   ],
-  "generatedAt": "2026-05-16T04:45:40.580Z"
+  "generatedAt": "2026-05-17T03:32:24.755Z"
 }

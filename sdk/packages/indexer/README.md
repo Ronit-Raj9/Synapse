@@ -11,7 +11,7 @@ direct `queryEvents` calls allow (pagination, cross-agent joins, etc.).
 
 ```bash
 # From the repo root
-export SYNAPSE_PACKAGE_ID=0x70db8ce760ac41322284f1fab73016438639e4f5ab5ae2ad6f5362cb3f50ec16
+export SYNAPSE_PACKAGE_ID=0x5da36d892956a4659415e245126a3964dd5aa6cf19ec2fdf6332bf828a4c58ed
 export SYNAPSE_NETWORK=testnet
 npx -w @synapse-core/indexer tsx sdk/packages/indexer/src/bin/serve.ts
 ```
@@ -25,7 +25,7 @@ to get the Yoga interactive playground.
 cd sdk/packages/indexer
 fly launch --copy-config --name synapse-indexer-testnet
 fly secrets set \
-  SYNAPSE_PACKAGE_ID=0x70db8ce760ac41322284f1fab73016438639e4f5ab5ae2ad6f5362cb3f50ec16 \
+  SYNAPSE_PACKAGE_ID=0x5da36d892956a4659415e245126a3964dd5aa6cf19ec2fdf6332bf828a4c58ed \
   SYNAPSE_NETWORK=testnet
 fly deploy
 ```

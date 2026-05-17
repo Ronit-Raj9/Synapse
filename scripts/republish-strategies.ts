@@ -36,9 +36,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const REPO_ROOT = resolve(__dirname, '..');
 
-const PACKAGE_ID =
-  process.env['PACKAGE_ID'] ??
-  '0x7b3f59e42edbf2189df644e63162d0b9a2c2984755bab9d3e9557c4ddd4aa67c';
+import { PACKAGE_ID } from './_config.js';
 
 const NETWORK: 'testnet' | 'mainnet' =
   (process.env['SYNAPSE_NETWORK'] as 'testnet' | 'mainnet') ?? 'testnet';
