@@ -134,8 +134,12 @@ async function loadWalrusConsent(
       const obj = await client.getDynamicFieldObject({
         parentId: vaultId,
         name: {
+          // Sui auto-inserts `dummy_field: bool` into unit-struct keys
+          // (Move forbids zero-field structs). The RPC rejects
+          // `value: {}` with "missing field dummy_field" — must pass
+          // the synthetic field explicitly.
           type: `${pkg}::agent::WalrusConsentKey`,
-          value: {},
+          value: { dummy_field: false },
         },
       });
       const content = obj.data?.content;
@@ -162,38 +166,49 @@ async function loadWalrusConsent(
  * Read the dynamic-field-stored OperationalBudget (added in package v2).
  * Returns zeros when the field is absent (legacy vault, or v2+ vault
  * whose owner never called `set_operational_cap`).
+ *
+ * Two subtleties this loader handles:
+ *  1. The dynamic-field name is namespaced by the package version
+ *     that *defined* OperationalBudgetKey (v2), not the latest. After
+ *     the v3 upgrade we can't hardcode `SYNAPSE_PACKAGE_ID` here —
+ *     we walk SYNAPSE_PACKAGE_HISTORY to find whichever version
+ *     introduced the field.
+ *  2. Move forbids zero-field structs, so Sui auto-inserts a
+ *     `dummy_field: bool` into unit-struct keys to satisfy BCS. The
+ *     RPC rejects `value: {}` with "missing field dummy_field" — we
+ *     must pass `{ dummy_field: false }` explicitly.
  */
 async function loadOperationalBudget(
   client: SuiJsonRpcClient,
   vaultId: string,
 ): Promise<{ capPerEpoch: bigint; spentThisEpoch: bigint }> {
-  try {
-    // Move dynamic field key is OperationalBudgetKey {} — a unit struct.
-    // The RPC accepts the BCS-encoded struct via name.value = {}.
-    const fieldName = {
-      type: `${SYNAPSE_PACKAGE_ID}::agent::OperationalBudgetKey`,
-      value: {},
-    };
-    const obj = await client.getDynamicFieldObject({
-      parentId: vaultId,
-      name: fieldName,
-    });
-    const content = obj.data?.content;
-    if (!content || content.dataType !== 'moveObject') {
-      return { capPerEpoch: 0n, spentThisEpoch: 0n };
+  const packages =
+    SYNAPSE_PACKAGE_HISTORY.length > 0 ? SYNAPSE_PACKAGE_HISTORY : [SYNAPSE_PACKAGE_ID];
+  for (const pkg of packages) {
+    try {
+      const obj = await client.getDynamicFieldObject({
+        parentId: vaultId,
+        name: {
+          type: `${pkg}::agent::OperationalBudgetKey`,
+          value: { dummy_field: false },
+        },
+      });
+      const content = obj.data?.content;
+      if (!content || content.dataType !== 'moveObject') continue;
+      const moveFields = (content as { fields: unknown }).fields;
+      const valueFields = asRecord(
+        (moveFields as { value?: unknown }).value ?? moveFields,
+        'OperationalBudget.value',
+      );
+      return {
+        capPerEpoch: bigintField(valueFields.cap_per_epoch, 'cap_per_epoch'),
+        spentThisEpoch: bigintField(valueFields.spent_this_epoch, 'spent_this_epoch'),
+      };
+    } catch {
+      // Try the next package version; absence is the common case, not an error.
     }
-    const moveFields = (content as { fields: unknown }).fields;
-    const valueFields = asRecord(
-      (moveFields as { value?: unknown }).value ?? moveFields,
-      'OperationalBudget.value',
-    );
-    return {
-      capPerEpoch: bigintField(valueFields.cap_per_epoch, 'cap_per_epoch'),
-      spentThisEpoch: bigintField(valueFields.spent_this_epoch, 'spent_this_epoch'),
-    };
-  } catch {
-    return { capPerEpoch: 0n, spentThisEpoch: 0n };
   }
+  return { capPerEpoch: 0n, spentThisEpoch: 0n };
 }
 
 async function loadTreasuryBalances(

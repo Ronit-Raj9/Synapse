@@ -130,8 +130,12 @@ async function loadWalrusConsent(
       const field = await client.getDynamicFieldObject({
         parentId: agentId,
         name: {
+          // Sui auto-inserts `dummy_field: bool` into unit-struct keys
+          // (Move forbids zero-field structs). The RPC rejects
+          // `value: {}` with "missing field dummy_field" — must pass
+          // the synthetic field explicitly.
           type: `${pkg}::agent::WalrusConsentKey`,
-          value: {},
+          value: { dummy_field: false },
         },
       });
       if (field.error) continue;
