@@ -3,15 +3,32 @@
   "version": "0.1.0",
   "description": "Synapse Core TypeScript client — Sui + Walrus + MemWal + Seal + Sui Stack Messaging",
   "type": "module",
-  "main": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./agent": "./src/agent.ts",
-    "./wallet": "./src/wallet.ts",
-    "./artifacts": "./src/artifacts.ts",
-    "./zklogin": "./src/zklogin.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./agent": {
+      "types": "./dist/agent.d.ts",
+      "default": "./dist/agent.js"
+    },
+    "./wallet": {
+      "types": "./dist/wallet.d.ts",
+      "default": "./dist/wallet.js"
+    },
+    "./artifacts": {
+      "types": "./dist/artifacts.d.ts",
+      "default": "./dist/artifacts.js"
+    },
+    "./zklogin": {
+      "types": "./dist/zklogin.d.ts",
+      "default": "./dist/zklogin.js"
+    }
   },
   "files": [
+    "dist",
     "src"
   ],
   "scripts": {
