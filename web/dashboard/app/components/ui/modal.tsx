@@ -3,6 +3,16 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
+type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+
+const SIZE_TO_CLASS: Record<ModalSize, string> = {
+  sm: 'max-w-md',
+  md: 'max-w-lg',
+  lg: 'max-w-xl',
+  xl: 'max-w-2xl',
+  '2xl': 'max-w-3xl',
+};
+
 interface ModalProps {
   open: boolean;
   onClose: () => void;
@@ -10,13 +20,31 @@ interface ModalProps {
   children: ReactNode;
   footer?: ReactNode;
   accent?: string;
+  /**
+   * Max width. Defaults to `md` (max-w-lg). Use `xl`/`2xl` when the
+   * body embeds wide content like the strategy bundler textarea.
+   */
+  size?: ModalSize;
 }
 
 /**
  * Y2K flat-shadow modal with escape-key dismiss, scrim click-out, and
  * focus return to the previously focused element on close.
+ *
+ * Layout: pinned header + pinned footer + scrollable body. The dialog
+ * is capped at `min(90vh, viewport - 2rem)` so the footer (action
+ * buttons) is ALWAYS reachable regardless of body height. Long bodies
+ * scroll inside the modal instead of pushing the footer off-screen.
  */
-export function Modal({ open, onClose, title, children, footer, accent }: ModalProps) {
+export function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  footer,
+  accent,
+  size = 'md',
+}: ModalProps) {
   const lastFocused = useRef<HTMLElement | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -60,7 +88,7 @@ export function Modal({ open, onClose, title, children, footer, accent }: ModalP
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 8, opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            className="relative z-10 w-full max-w-lg overflow-hidden rounded-md border-2 border-ink bg-paper-strong shadow-[6px_6px_0_0_var(--ink)]"
+            className={`relative z-10 flex max-h-[calc(100vh-2rem)] w-full ${SIZE_TO_CLASS[size]} flex-col overflow-hidden rounded-md border-2 border-ink bg-paper-strong shadow-[6px_6px_0_0_var(--ink)]`}
           >
             {accent && (
               <span
@@ -69,12 +97,12 @@ export function Modal({ open, onClose, title, children, footer, accent }: ModalP
                 aria-hidden
               />
             )}
-            <div className="border-b-2 border-ink px-6 py-4">
+            <div className="shrink-0 border-b-2 border-ink px-6 py-4">
               <h2 className="font-display text-2xl font-bold tracking-tight">{title}</h2>
             </div>
-            <div className="px-6 py-5">{children}</div>
+            <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">{children}</div>
             {footer && (
-              <div className="flex flex-wrap items-center justify-end gap-3 border-t border-divider bg-paper/50 px-6 py-4">
+              <div className="flex shrink-0 flex-wrap items-center justify-end gap-3 border-t border-divider bg-paper/50 px-6 py-4">
                 {footer}
               </div>
             )}

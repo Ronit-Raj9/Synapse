@@ -85,6 +85,7 @@ export function VersionModal({
       onClose={onClose}
       title={digest ? `Strategy is now v${(strategy.version + 1n).toString()}` : 'Publish new version'}
       accent="var(--accent-blue)"
+      size="xl"
       footer={
         digest ? (
           <button type="button" className="btn-flat" data-variant="primary" onClick={onClose}>
