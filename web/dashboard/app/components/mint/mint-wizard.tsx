@@ -9,7 +9,7 @@ import {
   useSignPersonalMessage,
   useSuiClient,
 } from '@mysten/dapp-kit';
-import { addDelegateKey } from '@mysten-incubation/memwal/account';
+import { addDelegateKey, createAccount } from '@mysten-incubation/memwal/account';
 import { CodeTag } from '../ui/code-tag';
 import { WalletButton } from '../ui/wallet-button';
 import { useToast } from '../ui/toast';
@@ -18,7 +18,12 @@ import {
   generateSessionKeypair,
   generateMemwalDelegateKeypair,
 } from '@/lib/ptb';
-import { explorerTxUrl, MEMWAL_PACKAGE_ID, NETWORK } from '@/lib/synapse-config';
+import {
+  explorerTxUrl,
+  MEMWAL_PACKAGE_ID,
+  MEMWAL_REGISTRY_ID,
+  NETWORK,
+} from '@/lib/synapse-config';
 import { shortenAddress, shortenHash } from '@/lib/format';
 import { recordVault } from '@/lib/local-vaults';
 import { RISK_LABEL, requiresWalrusConsent, type LiveStrategy } from '@/lib/strategies';
@@ -98,6 +103,58 @@ export function MintWizard() {
   const { mutateAsync: signAndExecute, isPending: signing } = useSignAndExecuteTransaction();
   const { mutateAsync: signPersonalMessage } = useSignPersonalMessage();
   const toast = useToast();
+
+  /**
+   * One-click "Create a MemWal account on testnet" for users who
+   * don't already have one. Reuses the same wallet hooks we use for
+   * `addDelegateKey`. The MemWal contract enforces one-account-per-
+   * address, so calling this twice from the same wallet aborts on
+   * the second call — the SDK error surfaces in the toast.
+   */
+  async function createMemwalAccount(): Promise<string | null> {
+    if (!account) {
+      toast.push({
+        variant: 'warn',
+        title: 'Connect a wallet first',
+        body: 'Account creation requires a wallet signature.',
+      });
+      return null;
+    }
+    try {
+      const result = await createAccount({
+        packageId: MEMWAL_PACKAGE_ID,
+        registryId: MEMWAL_REGISTRY_ID,
+        suiClient,
+        suiNetwork: NETWORK === 'mainnet' ? 'mainnet' : 'testnet',
+        walletSigner: {
+          address: account.address,
+          signAndExecuteTransaction: async ({ transaction }) => {
+            const r = await signAndExecute({ transaction });
+            return { digest: r.digest };
+          },
+          signPersonalMessage: async ({ message }) => {
+            const r = await signPersonalMessage({ message });
+            return { signature: r.signature };
+          },
+        },
+      });
+      toast.push({
+        variant: 'success',
+        title: 'MemWal account created',
+        body: `Account ${shortenHash(result.accountId)} · tx ${shortenHash(result.digest)}`,
+        durationMs: 8000,
+      });
+      return result.accountId;
+    } catch (err) {
+      toast.push({
+        variant: 'danger',
+        title: 'MemWal account creation failed',
+        body: (err instanceof Error ? err.message : String(err)).slice(0, 220),
+        durationMs: 10_000,
+      });
+      return null;
+    }
+  }
   const [activeStep, setActiveStep] = useState(0);
   const [form, setForm] = useState<MintForm>({
     strategyId: null,
@@ -440,6 +497,8 @@ export function MintWizard() {
                       onChange={setForm}
                       onAdvance={advance}
                       onBack={back}
+                      onCreateAccount={createMemwalAccount}
+                      walletConnected={!!account}
                     />
                   )}
                   {state === 'active' && i === 5 && (
@@ -773,14 +832,31 @@ function MemWalStep({
   onChange,
   onAdvance,
   onBack,
+  onCreateAccount,
+  walletConnected,
 }: {
   form: MintForm;
   onChange: (f: MintForm) => void;
   onAdvance: () => void;
   onBack: () => void;
+  onCreateAccount: () => Promise<string | null>;
+  walletConnected: boolean;
 }) {
   const canContinue =
     form.skipMemWal || form.memwalAccountId.trim().startsWith('0x');
+  const [creating, setCreating] = useState(false);
+
+  async function handleCreate() {
+    setCreating(true);
+    try {
+      const accountId = await onCreateAccount();
+      if (accountId) {
+        onChange({ ...form, memwalAccountId: accountId });
+      }
+    } finally {
+      setCreating(false);
+    }
+  }
 
   return (
     <motion.div
@@ -790,16 +866,28 @@ function MemWalStep({
       className="mt-4 grid gap-4 rounded-sm border border-divider bg-paper p-4"
     >
       <label className="grid gap-1.5">
-        <span className="font-display text-sm font-semibold">MemWal account ID</span>
+        <span className="flex items-baseline justify-between gap-3">
+          <span className="font-display text-sm font-semibold">MemWal account ID</span>
+          <button
+            type="button"
+            onClick={handleCreate}
+            disabled={form.skipMemWal || creating || !walletConnected}
+            className="font-mono text-[10px] text-accent-blue hover:underline disabled:cursor-not-allowed disabled:text-ink-mute disabled:no-underline"
+          >
+            {creating ? 'creating…' : "don't have one? create one →"}
+          </button>
+        </span>
         <input
           value={form.memwalAccountId}
           onChange={(e) => onChange({ ...form, memwalAccountId: e.target.value })}
           placeholder="0x…"
-          disabled={form.skipMemWal}
+          disabled={form.skipMemWal || creating}
           className="rounded-sm border border-divider bg-paper-strong px-3 py-2 font-mono text-xs outline-none focus:border-ink"
         />
         <span className="font-mono text-[10px] text-ink-mute">
-          Your MemWal tenant ID. Copied from the MemWal dashboard after signup.
+          Existing MemWal tenant ID, or click &ldquo;create one&rdquo; to provision a
+          fresh one on the current network with a wallet signature. (One account per
+          address, enforced on-chain.)
         </span>
       </label>
       <div className="grid gap-1.5 rounded-sm border border-divider bg-paper-strong p-3">
