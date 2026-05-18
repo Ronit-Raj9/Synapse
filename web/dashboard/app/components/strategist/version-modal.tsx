@@ -11,6 +11,10 @@ import { useToast } from '../ui/toast';
 import { synapseTarget, explorerTxUrl } from '@/lib/synapse-config';
 import { shortenHash } from '@/lib/format';
 import type { LiveStrategy } from '@/lib/strategies';
+import {
+  StrategyBundlerPanel,
+  type BundlerCallbackArgs,
+} from '../marketplace/strategy-bundler-panel';
 
 export function VersionModal({
   strategy,
@@ -26,33 +30,21 @@ export function VersionModal({
   const suiClient = useSuiClient();
   const { mutateAsync: signAndExecute, isPending } = useSignAndExecuteTransaction();
   const toast = useToast();
-  const [newSource, setNewSource] = useState('');
-  const [newWalrusBlob, setNewWalrusBlob] = useState(strategy.sourceWalrusBlob);
+  const [newWalrusBlob, setNewWalrusBlob] = useState('');
   const [newCodeHashHex, setNewCodeHashHex] = useState('');
+  const [bundleSizeBytes, setBundleSizeBytes] = useState<number | null>(null);
   const [digest, setDigest] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const canSubmit =
     /^0x[0-9a-fA-F]{64}$/.test(newCodeHashHex.trim()) &&
-    newWalrusBlob.trim().length > 0;
+    newWalrusBlob.trim().length > 0 &&
+    newCodeHashHex.trim().slice(2) !== strategy.codeHashHex.toLowerCase().replace(/^0x/, '');
 
-  async function deriveHash() {
-    if (!newSource.trim()) {
-      toast.push({
-        variant: 'warn',
-        title: 'Paste source first',
-        body: 'Paste the canonical bundle bytes to derive a sha256 commitment.',
-      });
-      return;
-    }
-    const bytes = new TextEncoder().encode(newSource);
-    const digest = await crypto.subtle.digest('SHA-256', bytes);
-    const hex =
-      '0x' +
-      Array.from(new Uint8Array(digest))
-        .map((b) => b.toString(16).padStart(2, '0'))
-        .join('');
-    setNewCodeHashHex(hex);
+  function onBundled(result: BundlerCallbackArgs) {
+    setNewWalrusBlob(result.walrusBlobId);
+    setNewCodeHashHex(result.codeHashHex);
+    setBundleSizeBytes(result.sizeBytes);
   }
 
   async function submit() {
@@ -142,55 +134,30 @@ export function VersionModal({
           <p className="text-ink-soft">
             Bumps the on-chain version from{' '}
             <span className="font-mono">v{strategy.version.toString()}</span> to{' '}
-            <span className="font-mono">v{(strategy.version + 1n).toString()}</span>. Existing
-            vaults keep their current behavior until the operator's runtime opts into the new
-            bundle.
+            <span className="font-mono">v{(strategy.version + 1n).toString()}</span>. Same on-chain
+            Strategy ID, new <code className="font-mono text-[11px]">code_hash</code> + Walrus
+            pointer. Vaults hiring this strategy pick up the new bundle on their next runtime tick.
           </p>
-          <Field
-            label="Canonical bundle text"
-            hint="Paste your strategy source / manifest. Used to derive sha256 below."
-          >
-            <textarea
-              value={newSource}
-              onChange={(e) => setNewSource(e.target.value)}
-              rows={4}
-              placeholder="// canonical bundle bytes — typically a manifest JSON…"
-              className="w-full resize-y rounded-sm border border-divider bg-paper-strong px-3 py-2 font-mono text-[11px] outline-none focus:border-ink"
-            />
-            <button
-              type="button"
-              className="btn-flat mt-2"
-              data-variant="ghost"
-              onClick={deriveHash}
-            >
-              Derive sha256
-            </button>
-          </Field>
-          <Field
-            label="New code_hash (sha256, 32 bytes hex)"
-            hint="Auto-fills after Derive sha256. Edit if you computed it elsewhere."
-          >
-            <input
-              type="text"
-              value={newCodeHashHex}
-              onChange={(e) => setNewCodeHashHex(e.target.value)}
-              placeholder="0x…"
-              maxLength={66}
-              className="w-full rounded-sm border border-divider bg-paper-strong px-3 py-2 font-mono text-[11px] outline-none focus:border-ink"
-            />
-          </Field>
-          <Field
-            label="New Walrus blob ID"
-            hint="Upload the bundle to Walrus, paste the returned blob ID here."
-          >
-            <input
-              type="text"
-              value={newWalrusBlob}
-              onChange={(e) => setNewWalrusBlob(e.target.value)}
-              placeholder="-bQnLAEmESM3z88M…"
-              className="w-full rounded-sm border border-divider bg-paper-strong px-3 py-2 font-mono text-[11px] outline-none focus:border-ink"
-            />
-          </Field>
+          <StrategyBundlerPanel onBundled={onBundled} disabled={isPending} />
+          {bundleSizeBytes !== null && (
+            <dl className="grid gap-1.5 rounded-sm border border-divider bg-paper p-3 text-[11px]">
+              <Row label="New Walrus blob" value={shortenHash(newWalrusBlob)} />
+              <Row
+                label="New code_hash"
+                value={`${newCodeHashHex.slice(0, 12)}…${newCodeHashHex.slice(-6)}`}
+              />
+              <Row label="Bundle size" value={`${bundleSizeBytes} bytes`} />
+              <Row
+                label="Differs from current"
+                value={
+                  newCodeHashHex.trim().slice(2) ===
+                  strategy.codeHashHex.toLowerCase().replace(/^0x/, '')
+                    ? '⚠ same as v' + strategy.version.toString() + ' — change something first'
+                    : '✓ yes — safe to bump'
+                }
+              />
+            </dl>
+          )}
           {error && (
             <pre className="overflow-x-auto rounded-sm border border-divider bg-paper p-3 font-mono text-[10px] text-ink-soft">
               {error}
@@ -202,21 +169,14 @@ export function VersionModal({
   );
 }
 
-function Field({
-  label,
-  hint,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
+function Row({ label, value }: { label: string; value: string }) {
   return (
-    <label className="grid gap-1.5">
-      <span className="font-display text-sm font-semibold">{label}</span>
-      {children}
-      {hint && <span className="font-mono text-[10px] text-ink-mute">{hint}</span>}
-    </label>
+    <div className="flex items-baseline justify-between gap-3 border-b border-divider/50 pb-1 last:border-0">
+      <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-ink-mute">
+        {label}
+      </span>
+      <span className="num font-mono text-[10px] text-ink">{value}</span>
+    </div>
   );
 }
 
