@@ -141,9 +141,18 @@ async function loadWalrusConsent(
       if (field.error) continue;
       const content = field.data?.content;
       if (!content || content.dataType !== 'moveObject') continue;
-      const fields = asRecord(content.fields, 'WalrusConsent.fields');
-      const inner = asRecord(fields.value ?? fields, 'WalrusConsent.value');
-      const accept = inner['accept'] ?? inner['Accept'];
+      // Unwrap two layers: Dynamic Field returns `content.fields.value`
+      // as `{ type, fields: { <real fields> } }` — must drill into
+      // `.value.fields` to read the actual Move struct members.
+      const outer = asRecord(content.fields, 'WalrusConsent.outer');
+      const valueWrapper = outer.value !== undefined
+        ? asRecord(outer.value, 'WalrusConsent.value')
+        : outer;
+      const valueFields =
+        'fields' in valueWrapper && typeof valueWrapper.fields === 'object' && valueWrapper.fields !== null
+          ? asRecord(valueWrapper.fields, 'WalrusConsent.value.fields')
+          : valueWrapper;
+      const accept = valueFields['accept'];
       if (typeof accept === 'boolean') return accept;
     } catch {
       // Try the next package version; absence is the common case, not an error.

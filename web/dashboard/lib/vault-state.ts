@@ -144,10 +144,9 @@ async function loadWalrusConsent(
       });
       const content = obj.data?.content;
       if (!content || content.dataType !== 'moveObject') continue;
-      const moveFields = (content as { fields: unknown }).fields;
-      const inner = asRecord(
-        (moveFields as { value?: unknown }).value ?? moveFields,
-        'WalrusConsent.value',
+      const inner = unwrapMoveValue(
+        (content as { fields: unknown }).fields,
+        'WalrusConsent',
       );
       const accept = inner['accept'];
       if (typeof accept === 'boolean') return accept;
@@ -195,10 +194,9 @@ async function loadOperationalBudget(
       });
       const content = obj.data?.content;
       if (!content || content.dataType !== 'moveObject') continue;
-      const moveFields = (content as { fields: unknown }).fields;
-      const valueFields = asRecord(
-        (moveFields as { value?: unknown }).value ?? moveFields,
-        'OperationalBudget.value',
+      const valueFields = unwrapMoveValue(
+        (content as { fields: unknown }).fields,
+        'OperationalBudget',
       );
       return {
         capPerEpoch: bigintField(valueFields.cap_per_epoch, 'cap_per_epoch'),
@@ -433,6 +431,32 @@ function findFieldValue(record: Record<string, unknown>, key: string): unknown {
 
 function symbolFromTypeTag(typeTag: string): string {
   return typeTag.split('::').at(-1) ?? typeTag;
+}
+
+/**
+ * Pull the inner Move-struct field map out of a `0x2::dynamic_field::Field`
+ * response. The wire shape from `getDynamicFieldObject` is:
+ *
+ *   content.fields = {
+ *     id: { id: '0x…' },
+ *     name: { type: '<pkg>::…::Key', fields: { dummy_field: false } },
+ *     value: { type: '<pkg>::…::Value', fields: { <real fields> } }
+ *   }
+ *
+ * Two layers of unwrapping needed: `content.fields.value` then
+ * `.fields` again to get the actual struct members. Accepts either
+ * shape — some SDK versions flatten the typed wrapper.
+ */
+function unwrapMoveValue(rawFields: unknown, label: string): Record<string, unknown> {
+  const outer = asRecord(rawFields, `${label}.outer`);
+  const value = (outer as { value?: unknown }).value;
+  const wrapper = value !== undefined ? asRecord(value, `${label}.value`) : outer;
+  // If wrapper has its own `.fields` (typed Move struct shape), use that.
+  // Otherwise, treat wrapper itself as the field map (flattened shape).
+  if ('fields' in wrapper && typeof wrapper.fields === 'object' && wrapper.fields !== null) {
+    return asRecord(wrapper.fields, `${label}.value.fields`);
+  }
+  return wrapper;
 }
 
 function isAgentIdentityType(typeStr: string, currentPackageId: string): boolean {
