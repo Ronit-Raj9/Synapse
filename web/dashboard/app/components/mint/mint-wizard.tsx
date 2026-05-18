@@ -11,7 +11,11 @@ import {
 import { CodeTag } from '../ui/code-tag';
 import { WalletButton } from '../ui/wallet-button';
 import { useToast } from '../ui/toast';
-import { buildMintPTB, generateSessionKeypair } from '@/lib/ptb';
+import {
+  buildMintPTB,
+  generateSessionKeypair,
+  generateMemwalDelegateKeypair,
+} from '@/lib/ptb';
 import { explorerTxUrl } from '@/lib/synapse-config';
 import { shortenAddress, shortenHash } from '@/lib/format';
 import { recordVault } from '@/lib/local-vaults';
@@ -69,6 +73,12 @@ interface MintForm {
   expiryDays: number;
   fundingSui: number;
   memwalAccountId: string;
+  /**
+   * @deprecated The mint flow now auto-generates an Ed25519 delegate
+   * keypair locally and bundles the private key into the downloaded
+   * .key file. This field is kept temporarily for backward compat
+   * with stale form state in localStorage; no UI references it.
+   */
   memwalDelegateKeyHex: string;
   skipMemWal: boolean;
   /**
@@ -140,6 +150,13 @@ export function MintWizard() {
     }
 
     const session = generateSessionKeypair();
+    // Generate the MemWal delegate keypair locally — same lifecycle as
+    // the session key. Public bytes go on-chain as
+    // `memwal_delegate_key_id`; private hex gets bundled into the
+    // .key download so the runtime can load it from one file.
+    // Skipping MemWal means an empty on-chain field + no delegate
+    // section in the downloaded file.
+    const memwalDelegate = form.skipMemWal ? null : generateMemwalDelegateKeypair();
     const fundingMist = BigInt(Math.round(form.fundingSui * 1_000_000_000));
     const spendPerEpochMist = (fundingMist * BigInt(Math.round(form.spendPct * 100))) / 10_000n;
 
@@ -163,11 +180,21 @@ export function MintWizard() {
       strategyId: form.strategyId ?? '',
       ownerAddress: account.address,
       mintedAtMs: Date.now(),
+      ...(memwalDelegate
+        ? {
+            memwalDelegate: {
+              suiPrivateKeyHex: memwalDelegate.privateKeyHex,
+              publicKeyHex: memwalDelegate.publicKeyHex,
+            },
+          }
+        : {}),
     });
     toast.push({
       variant: 'info',
       title: 'Session key saved to Downloads',
-      body: 'Keep this .key file safe — the agent runtime signs with it.',
+      body: memwalDelegate
+        ? 'Keep this .key file safe — it now bundles both the session key AND the MemWal delegate.'
+        : 'Keep this .key file safe — the agent runtime signs with it.',
       durationMs: 6000,
     });
 
@@ -191,9 +218,11 @@ export function MintWizard() {
         memwalAccountId: form.skipMemWal
           ? new Uint8Array()
           : new TextEncoder().encode(form.memwalAccountId.trim()),
-        memwalDelegateKeyId: form.skipMemWal
-          ? new Uint8Array()
-          : new TextEncoder().encode(form.memwalDelegateKeyHex.trim()),
+        // Send the delegate PUBLIC key bytes (32B) — never the private
+        // material. Empty array when MemWal is skipped.
+        memwalDelegateKeyId: memwalDelegate
+          ? memwalDelegate.publicKeyBytes
+          : new Uint8Array(),
         memwalNamespace: form.skipMemWal
           ? new Uint8Array()
           : new TextEncoder().encode(`synapse:vault:${account.address}`),
@@ -239,12 +268,10 @@ export function MintWizard() {
           memwalAccountId: form.skipMemWal ? null : form.memwalAccountId.trim(),
           mintedAtMs: Date.now(),
         });
-        if (!form.skipMemWal) {
-          window.localStorage.setItem(
-            `synapse:memwal:${agentId}`,
-            form.memwalDelegateKeyHex.trim(),
-          );
-        }
+        // No longer mirror the delegate key into localStorage — the
+        // runtime now reads it directly from the downloaded .key
+        // file, and localStorage was an unnecessary copy of secret
+        // material in browser-persistent storage.
       }
 
       toast.push({
@@ -693,8 +720,7 @@ function MemWalStep({
   onBack: () => void;
 }) {
   const canContinue =
-    form.skipMemWal ||
-    (form.memwalAccountId.trim().startsWith('0x') && form.memwalDelegateKeyHex.trim().length > 0);
+    form.skipMemWal || form.memwalAccountId.trim().startsWith('0x');
 
   return (
     <motion.div
@@ -712,17 +738,22 @@ function MemWalStep({
           disabled={form.skipMemWal}
           className="rounded-sm border border-divider bg-paper-strong px-3 py-2 font-mono text-xs outline-none focus:border-ink"
         />
+        <span className="font-mono text-[10px] text-ink-mute">
+          Your MemWal tenant ID. Copied from the MemWal dashboard after signup.
+        </span>
       </label>
-      <label className="grid gap-1.5">
-        <span className="font-display text-sm font-semibold">Delegate key (hex)</span>
-        <input
-          type="password"
-          value={form.memwalDelegateKeyHex}
-          onChange={(e) => onChange({ ...form, memwalDelegateKeyHex: e.target.value })}
-          disabled={form.skipMemWal}
-          className="rounded-sm border border-divider bg-paper-strong px-3 py-2 font-mono text-xs outline-none focus:border-ink"
-        />
-      </label>
+      <div className="grid gap-1.5 rounded-sm border border-divider bg-paper-strong p-3">
+        <span className="font-display text-sm font-semibold">Delegate key</span>
+        <span className="text-xs leading-relaxed text-ink-soft">
+          Generated automatically in your browser when you mint. The public
+          half is committed on-chain as{' '}
+          <code className="font-mono text-[10px]">memwal_delegate_key_id</code>; the
+          private half is bundled into the session{' '}
+          <code className="font-mono text-[10px]">.key</code> file you&rsquo;ll
+          download — the same file the runtime already loads for the session key.
+          Nothing for you to paste, nothing to copy.
+        </span>
+      </div>
       <label className="flex items-center gap-2 font-mono text-[11px] text-ink-soft">
         <input
           type="checkbox"
@@ -995,6 +1026,15 @@ function downloadSessionKeyFile(payload: {
   strategyId: string;
   ownerAddress: string;
   mintedAtMs: number;
+  /**
+   * Optional MemWal delegate keypair. When present, the runtime
+   * loads `memwalDelegate.privateKeyHex` automatically and uses it
+   * to sign MemWal API calls — no separate env var required.
+   */
+  memwalDelegate?: {
+    suiPrivateKeyHex: string;
+    publicKeyHex: string;
+  };
 }): void {
   const body = JSON.stringify(
     {
@@ -1004,7 +1044,18 @@ function downloadSessionKeyFile(payload: {
       strategyId: payload.strategyId,
       ownerAddress: payload.ownerAddress,
       mintedAtMs: payload.mintedAtMs,
-      note: 'Session secret for a Synapse Vault. Keep private. To run the agent, set SYNAPSE_SESSION_KEY=<suiPrivateKey> in the runtime env.',
+      ...(payload.memwalDelegate
+        ? {
+            memwalDelegate: {
+              privateKeyHex: payload.memwalDelegate.suiPrivateKeyHex,
+              publicKeyHex: payload.memwalDelegate.publicKeyHex,
+              note: 'Ed25519 delegate keypair for MemWal. Public key is also committed on-chain; private key signs API calls from the runtime.',
+            },
+          }
+        : {}),
+      note: payload.memwalDelegate
+        ? 'Session + MemWal delegate secrets for a Synapse Vault. Keep private. The runtime loads both from this file via SYNAPSE_SESSION_KEY_PATH — no MEMWAL_DELEGATE_KEY env var needed.'
+        : 'Session secret for a Synapse Vault. Keep private. To run the agent, set SYNAPSE_SESSION_KEY=<suiPrivateKey> in the runtime env.',
     },
     null,
     2,

@@ -17,7 +17,7 @@ import {
 } from './memory.js';
 import { uploadReportBlob, parseArtifactSlot } from './publisher.js';
 import { deepbookSwap, DEEPBOOK_PACKAGE_ID_TESTNET } from './deepbook.js';
-import { loadSessionKeypair } from './keypair.js';
+import { loadSessionKeypair, loadMemwalDelegateFromKeyFile } from './keypair.js';
 import { createLogger, type VaultLogger } from './logger.js';
 import type { RuntimeConfig } from './config.js';
 import { resolveStrategyWithWalrus } from './strategy-resolver.js';
@@ -271,10 +271,25 @@ export class VaultRuntime {
     const holdings = priceHoldings(agent.holdings, market.prices);
     const navUsd = holdings.reduce((sum, holding) => sum + holding.valueUsd, 0);
     const namespace = namespaceFromIdentity(agent.identity);
+    // Resolve the MemWal delegate key. Order:
+    //   1. Explicit env (`MEMWAL_DELEGATE_KEY` → `config.memwal.delegateKeyHex`)
+    //   2. Bundled in the session .key file (new mints since the
+    //      "treat delegate like session" fix)
+    //   3. None → memwal disabled
+    let memwalConfig = this.#config.memwal;
+    if (memwalConfig === undefined) {
+      const delegateFromFile = await loadMemwalDelegateFromKeyFile({
+        ...(this.#config.sessionKeyPath ? { sessionKeyPath: this.#config.sessionKeyPath } : {}),
+        ...(this.#config.sessionKeyEnv ? { sessionKeyEnv: this.#config.sessionKeyEnv } : {}),
+      });
+      if (delegateFromFile) {
+        memwalConfig = { delegateKeyHex: delegateFromFile };
+      }
+    }
     const memwal =
-      this.#config.memwal === undefined
+      memwalConfig === undefined
         ? null
-        : createRuntimeMemWalClient({ identity: agent.identity, config: this.#config.memwal });
+        : createRuntimeMemWalClient({ identity: agent.identity, config: memwalConfig });
     const memory = memwal
       ? await recallStrategyMemory({
           client: memwal,

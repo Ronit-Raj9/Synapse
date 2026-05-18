@@ -1,13 +1,25 @@
 import { readFile } from 'node:fs/promises';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 
+/**
+ * Read + parse the raw bytes of a session-key source. Used by both
+ * `loadSessionKeypair` and `loadMemwalDelegateFromKeyFile` so they
+ * agree on parsing semantics (suiprivkey, base64, JSON wrapper).
+ */
+async function readKeySource(args: {
+  sessionKeyPath?: string;
+  sessionKeyEnv?: string;
+}): Promise<string> {
+  const raw =
+    args.sessionKeyEnv ?? (args.sessionKeyPath ? await readFile(args.sessionKeyPath, 'utf8') : '');
+  return raw.trim();
+}
+
 export async function loadSessionKeypair(args: {
   sessionKeyPath?: string;
   sessionKeyEnv?: string;
 }): Promise<Ed25519Keypair> {
-  const raw =
-    args.sessionKeyEnv ?? (args.sessionKeyPath ? await readFile(args.sessionKeyPath, 'utf8') : '');
-  const value = raw.trim();
+  const value = await readKeySource(args);
   if (!value) {
     throw new Error('Session key is required. Set SYNAPSE_SESSION_KEY or SYNAPSE_SESSION_KEY_PATH.');
   }
@@ -53,4 +65,34 @@ export async function loadSessionKeypair(args: {
     );
   }
   return Ed25519Keypair.fromSecretKey(new Uint8Array(bytes));
+}
+
+/**
+ * Extract the MemWal delegate private key (hex, 64 chars, no `0x`)
+ * from the same session `.key` JSON file the dashboard downloads at
+ * mint time. Returns `null` when the file is plain-text (not JSON)
+ * or has no `memwalDelegate` section — supports both old and new
+ * `.key` formats without breaking existing operator setups.
+ *
+ * Call sites should prefer an explicit `MEMWAL_DELEGATE_KEY` env
+ * value when both sources are present; this loader is the fallback.
+ */
+export async function loadMemwalDelegateFromKeyFile(args: {
+  sessionKeyPath?: string;
+  sessionKeyEnv?: string;
+}): Promise<string | null> {
+  const value = await readKeySource(args);
+  if (!value || !value.startsWith('{')) return null;
+  try {
+    const parsed = JSON.parse(value) as {
+      memwalDelegate?: { privateKeyHex?: unknown };
+    };
+    const hex = parsed.memwalDelegate?.privateKeyHex;
+    if (typeof hex !== 'string') return null;
+    const cleaned = hex.trim().replace(/^0x/, '').toLowerCase();
+    if (!/^[0-9a-f]{64}$/.test(cleaned)) return null;
+    return cleaned;
+  } catch {
+    return null;
+  }
 }

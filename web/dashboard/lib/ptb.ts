@@ -212,3 +212,41 @@ export function generateSessionKeypair(): {
   const secretBase64 = toBase64(decoded.secretKey);
   return { keypair, address, suiPrivateKey, secretBase64 };
 }
+
+/**
+ * Generate a fresh MemWal delegate Ed25519 keypair locally. Mirrors
+ * `generateSessionKeypair` exactly — same lifecycle, same trust
+ * boundary. The PUBLIC key bytes go on-chain as
+ * `AgentIdentity.memwal_delegate_key_id`; the PRIVATE key gets
+ * bundled into the same downloaded `.key` file the runtime already
+ * loads.
+ *
+ * Returned shape:
+ *   - `publicKeyBytes`: 32 raw bytes. Pass to the mint PTB as
+ *     `memwalDelegateKeyId`. The mint wizard sends these as a
+ *     `vector<u8>` arg; the on-chain length tells future readers
+ *     "this is a public key" (32B) vs the legacy footgun "this is
+ *     an ASCII-hex of a private key" (64B).
+ *   - `privateKeyHex`: 64 hex chars (no `0x` prefix). This is what
+ *     the runtime needs as its MemWal signing credential.
+ *   - `publicKeyHex`: 64 hex chars (no `0x` prefix). Convenience for
+ *     audit / display.
+ */
+export function generateMemwalDelegateKeypair(): {
+  privateKeyHex: string;
+  publicKeyHex: string;
+  publicKeyBytes: Uint8Array;
+} {
+  const keypair = new Ed25519Keypair();
+  const decoded = decodeSuiPrivateKey(keypair.getSecretKey());
+  const privateKeyHex = bytesToHex(decoded.secretKey);
+  const publicKeyBytes = keypair.getPublicKey().toRawBytes();
+  const publicKeyHex = bytesToHex(publicKeyBytes);
+  return { privateKeyHex, publicKeyHex, publicKeyBytes };
+}
+
+function bytesToHex(bytes: Uint8Array): string {
+  return Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}

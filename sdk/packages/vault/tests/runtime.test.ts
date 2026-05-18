@@ -58,6 +58,7 @@ vi.mock('../src/runtime/publisher.js', () => ({
 }));
 vi.mock('../src/runtime/keypair.js', () => ({
   loadSessionKeypair: vi.fn(),
+  loadMemwalDelegateFromKeyFile: vi.fn(async () => null),
 }));
 
 import { loadAgentState } from '../src/runtime/state.js';
