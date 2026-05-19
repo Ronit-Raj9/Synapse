@@ -858,6 +858,8 @@ function MemWalStep({
     }
   }
 
+  const onTestnet = NETWORK !== 'mainnet';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 4 }}
@@ -865,6 +867,34 @@ function MemWalStep({
       exit={{ opacity: 0 }}
       className="mt-4 grid gap-4 rounded-sm border border-divider bg-paper p-4"
     >
+      {onTestnet && (
+        <div
+          className="rounded-sm border-2 border-ink bg-paper-strong p-3 text-xs leading-relaxed"
+          style={{ borderColor: 'var(--accent-orange)' }}
+        >
+          <p className="font-display text-sm font-semibold text-ink">
+            ⚠ MemWal has no public testnet relayer
+          </p>
+          <p className="mt-1.5 text-ink-soft">
+            The hosted relayer at{' '}
+            <code className="font-mono text-[10px]">relayer.memwal.ai</code> is
+            mainnet-only (its <code className="font-mono text-[10px]">/config</code>{' '}
+            returns <code className="font-mono text-[10px]">network: &quot;mainnet&quot;</code>).
+            On testnet you can mint an account + register a delegate on-chain and the
+            wiring works end-to-end, but every <code className="font-mono text-[10px]">recall</code>{' '}
+            and <code className="font-mono text-[10px]">remember</code> the runtime makes
+            will hit a 401 from the relayer.
+          </p>
+          <p className="mt-2 text-ink-soft">
+            <strong>Recommended for this demo:</strong> check{' '}
+            <em>&ldquo;Skip — no memory&rdquo;</em> below. The runtime degrades gracefully:
+            DCA fires every tick instead of every Nth (no counter persistence), and
+            every other system (Walrus loader, DeepBook swap, royalty, on-chain audit)
+            stays fully functional. On mainnet, the same wizard + runtime light up
+            MemWal automatically with zero code changes.
+          </p>
+        </div>
+      )}
       <label className="grid gap-1.5">
         <span className="flex items-baseline justify-between gap-3">
           <span className="font-display text-sm font-semibold">MemWal account ID</span>
