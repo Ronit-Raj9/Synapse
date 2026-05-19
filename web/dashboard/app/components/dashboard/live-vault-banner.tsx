@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useCurrentAccount } from '@mysten/dapp-kit';
 import { CodeTag } from '../ui/code-tag';
@@ -13,6 +14,13 @@ import { shortenHash, timeAgo } from '@/lib/format';
 interface LiveVaultBannerProps {
   /** Called whenever the active vault changes (or clears). */
   onVaultDetected?: (record: LocalVaultRecord | null) => void;
+  /**
+   * When non-null, the URL dictates which vault is active and the
+   * banner just renders metadata for it. When null (the `/dashboard`
+   * no-id entry), the banner falls back to auto-picking the newest
+   * owned vault and surfacing a dropdown for switching.
+   */
+  activeVaultId?: string | null;
 }
 
 /**
@@ -21,21 +29,29 @@ interface LiveVaultBannerProps {
  * vault the wallet owns — independent of localStorage. When the wallet
  * owns more than one, the user picks which to focus the dashboard on.
  */
-export function LiveVaultBanner({ onVaultDetected }: LiveVaultBannerProps) {
+export function LiveVaultBanner({
+  onVaultDetected,
+  activeVaultId,
+}: LiveVaultBannerProps) {
   const account = useCurrentAccount();
+  const router = useRouter();
   const query = useOwnedVaults();
   const owned = useMemo(() => query.data ?? [], [query.data]);
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const [internalActiveId, setInternalActiveId] = useState<string | null>(null);
 
-  // Default to the newest vault unless the user picks a different one.
+  // URL-driven mode (activeVaultId provided) wins. Otherwise fall
+  // back to internal-state picker (newest owned vault).
+  const activeId = activeVaultId ?? internalActiveId;
+
   useEffect(() => {
+    if (activeVaultId !== undefined && activeVaultId !== null) return; // URL drives, no auto-pick
     if (!owned.length) {
-      setActiveId(null);
+      setInternalActiveId(null);
       return;
     }
-    if (activeId && owned.some((v) => v.agentId === activeId)) return;
-    setActiveId(owned[0]!.agentId);
-  }, [owned, activeId]);
+    if (internalActiveId && owned.some((v) => v.agentId === internalActiveId)) return;
+    setInternalActiveId(owned[0]!.agentId);
+  }, [owned, internalActiveId, activeVaultId]);
 
   // Bridge to the existing `LocalVaultRecord` consumer shape so the
   // downstream dashboard components don't need to change.
@@ -100,7 +116,11 @@ export function LiveVaultBanner({ onVaultDetected }: LiveVaultBannerProps) {
             vault
             <select
               value={active.agentId}
-              onChange={(e) => setActiveId(e.target.value)}
+              onChange={(e) => {
+                // Always navigate via URL — keeps the active vault
+                // shareable, bookmarkable, and back-button friendly.
+                router.push(`/dashboard/${e.target.value}`);
+              }}
               className="rounded-sm border border-divider bg-paper-strong px-2 py-1.5 font-mono text-xs text-ink outline-none focus:border-ink"
             >
               {owned.map((v) => (

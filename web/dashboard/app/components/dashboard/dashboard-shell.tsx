@@ -26,14 +26,45 @@ import { useLiveNavHistory } from '../../hooks/use-live-nav-history';
 import { useStrategies } from '../../hooks/use-strategies';
 import { requiresWalrusConsent } from '@/lib/strategies';
 
+interface DashboardShellProps {
+  /**
+   * When present, overrides the LiveVaultBanner's auto-detect of the
+   * connected wallet's newest vault. Wired by the dynamic route at
+   * `/dashboard/[vaultId]` so each vault has its own shareable URL.
+   */
+  forcedVaultId?: string;
+}
+
 /**
  * Top-level dashboard client island. Detects the user's live vault, fetches
  * live on-chain state + Pyth prices for it, and threads that data into every
  * panel. Falls back to sample data only when there's no live vault to show.
+ *
+ * When `forcedVaultId` is passed (via the `/dashboard/[vaultId]` dynamic
+ * route), that vault is loaded directly — no auto-detect, no picker
+ * default. Without it, the original LiveVaultBanner picker behavior
+ * applies so `/dashboard` remains a no-id entry point.
  */
-export function DashboardShell() {
-  const [liveVault, setLiveVault] = useState<LocalVaultRecord | null>(null);
-  const liveQuery = useLiveVault(liveVault?.agentId);
+export function DashboardShell({ forcedVaultId }: DashboardShellProps = {}) {
+  // Banner-detected vault (no URL param) OR forced-from-URL ID. The
+  // effective `vaultId` we hand to every downstream query is the
+  // forced one when present, else whatever the banner surfaces.
+  const [detectedVault, setDetectedVault] = useState<LocalVaultRecord | null>(null);
+  const effectiveVaultId = forcedVaultId ?? detectedVault?.agentId;
+  // Synthesize a minimal LocalVaultRecord when we're URL-driven —
+  // downstream components that take `liveVault` only need .agentId
+  // plus a few cosmetic fields, all populatable from on-chain state.
+  const liveVault: LocalVaultRecord | null = forcedVaultId
+    ? {
+        agentId: forcedVaultId,
+        ownerAddress: '',
+        digest: '',
+        sessionAddress: '',
+        memwalAccountId: null,
+        mintedAtMs: Date.now(),
+      }
+    : detectedVault;
+  const liveQuery = useLiveVault(effectiveVaultId);
   const live = liveQuery.data ?? null;
   const historyQuery = useLiveNavHistory(liveVault?.agentId, live);
   const liveHistory = historyQuery.data ?? null;
@@ -49,7 +80,10 @@ export function DashboardShell() {
     <>
       <DashboardToolbar />
       <div className="mt-5">
-        <LiveVaultBanner onVaultDetected={setLiveVault} />
+        <LiveVaultBanner
+          onVaultDetected={setDetectedVault}
+          activeVaultId={forcedVaultId ?? null}
+        />
       </div>
 
       <div className="mt-6">
