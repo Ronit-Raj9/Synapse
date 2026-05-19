@@ -8,6 +8,36 @@ import {
   type WalrusUploadResult,
 } from '@synapse-core/client';
 import type { AuditReport } from '../types.js';
+import { uploadViaPublisher } from './walrus-publisher.js';
+
+/**
+ * Pattern matches against errors that should trigger the HTTP
+ * publisher fallback. Everything that isn't a permanent WAL balance
+ * issue is fair game — the publisher's job is to absorb transient
+ * pain (consensus, network, DNS) that the direct path can't.
+ *
+ * The one thing we explicitly DON'T fall through on: "insufficient
+ * balance" errors. Those mean WAL is exhausted on the caller — the
+ * publisher would charge the same to its own balance, so falling
+ * back hides the real problem. Better to surface it cleanly.
+ */
+function isTransientWalrusError(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : String(err);
+  const lower = message.toLowerCase();
+  if (lower.includes('insufficient balance')) return false;
+  return (
+    lower.includes('too many failures') ||
+    lower.includes('too many invalid confirmations') ||
+    lower.includes('fetch failed') ||
+    lower.includes('network') ||
+    lower.includes('timeout') ||
+    lower.includes('econnrefused') ||
+    lower.includes('enotfound') ||
+    lower.includes('etimedout') ||
+    lower.includes('econnreset') ||
+    lower.includes('socket hang up')
+  );
+}
 
 export interface PublishReportArgs {
   suiClient: SuiJsonRpcClient;
@@ -33,19 +63,44 @@ export async function uploadReportBlob(args: {
   report: AuditReport;
   epochs: number;
 }): Promise<WalrusUploadResult> {
+  const payload = new TextEncoder().encode(args.report.markdown);
+
+  // Path 1: direct write via @mysten/walrus SDK. Cheaper (caller's
+  // session pays storage), preserves caller sovereignty (no third-
+  // party publisher in the trust chain), and works perfectly on
+  // mainnet. On testnet the storage-node quorum is unreliable —
+  // every few attempts fails with "Too many failures while writing
+  // blob …" because not enough nodes accept the chunk.
   const walrus = createWalrusClient({ network: args.walrusNetwork, suiClient: args.suiClient });
-  return uploadBlob({
-    walrus,
-    signer: args.signer,
-    payload: new TextEncoder().encode(args.report.markdown),
-    epochs: args.epochs,
-    deletable: false,
-    attributes: {
-      'synapse.report.plan_id': args.report.planId,
-      'synapse.report.strategy_id': args.report.strategyId,
-      'synapse.report.vault_id': args.report.vaultId,
-    },
-  });
+  try {
+    return await uploadBlob({
+      walrus,
+      signer: args.signer,
+      payload,
+      epochs: args.epochs,
+      deletable: false,
+      attributes: {
+        'synapse.report.plan_id': args.report.planId,
+        'synapse.report.strategy_id': args.report.strategyId,
+        'synapse.report.vault_id': args.report.vaultId,
+      },
+    });
+  } catch (err) {
+    // Path 2: HTTP publisher fallback. Triggered only on transient
+    // storage-node failures (we don't want to fall through on real
+    // problems like insufficient WAL — those should surface up).
+    // The publisher handles fan-out + retries server-side and is
+    // far more reliable on testnet. Drawback: publisher pays storage
+    // (caller pays nothing for WAL) and is a centralized service —
+    // both acceptable trade-offs for "every tick on Walrus" demos
+    // and for testnet operation.
+    if (!isTransientWalrusError(err)) throw err;
+    return uploadViaPublisher({
+      bytes: payload,
+      network: args.walrusNetwork,
+      epochs: args.epochs,
+    });
+  }
 }
 
 export async function publishReport(args: PublishReportArgs): Promise<PublishReportResult> {

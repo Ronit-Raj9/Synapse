@@ -63,20 +63,42 @@ export async function recallStrategyMemory(args: {
     limit: 16,
   });
 
-  const decisions: Array<{ entry: PastDecision; epoch: bigint; raw: ParsedOutcome }> = [];
+  const decisions: Array<{
+    entry: PastDecision;
+    epoch: bigint;
+    executedAtMs: number;
+    raw: ParsedOutcome;
+  }> = [];
   const freeformFacts: string[] = [];
 
   for (const memory of result.results) {
     const parsed = parseOutcome(memory.text);
     if (parsed) {
-      decisions.push({ entry: parsed.decision, epoch: parsed.decision.epoch, raw: parsed });
+      const executedAtMs = parsed.executedAtMs;
+      decisions.push({
+        entry: parsed.decision,
+        epoch: parsed.decision.epoch,
+        executedAtMs,
+        raw: parsed,
+      });
     } else {
       freeformFacts.push(memory.text);
     }
   }
 
   // Sort oldest → newest so iteration order is predictable for strategies.
-  decisions.sort((a, b) => Number(a.epoch - b.epoch));
+  // Within a single Sui epoch (testnet epochs are ~24h, so dozens of
+  // ticks can share an epoch), the `epoch` field alone doesn't
+  // disambiguate. Use the per-tick `executedAt` ISO timestamp as the
+  // tiebreaker — without this, MemWal's relevance-ordered recall can
+  // return entries out of chronological order and the "latest" pick
+  // becomes non-deterministic, stalling stateful counters like the
+  // DCA `dca_tick_index`.
+  decisions.sort((a, b) => {
+    const epochDiff = Number(a.epoch - b.epoch);
+    if (epochDiff !== 0) return epochDiff;
+    return a.executedAtMs - b.executedAtMs;
+  });
   const latest = decisions[decisions.length - 1] ?? null;
 
   // Latest outcome's counters/facts become the active state. Merge with
@@ -113,10 +135,16 @@ export async function rememberStrategyOutcome(args: {
   if (!args.memwal) return;
   const payload: PersistedOutcome = {
     type: 'synapse.strategy.outcome',
+    // Noop decisionIds must be unique across ticks in the same epoch
+    // (testnet epochs span ~24h and easily hold dozens of noops).
+    // Without uniqueness, MemWal stores many entries sharing the same
+    // primary key, and semantic recall returns them in arbitrary
+    // order. The `executedAt` millisecond timestamp gives a stable
+    // unique suffix without changing the on-chain receipt shape.
     decisionId:
       args.decision.kind === 'rebalance'
         ? args.decision.planId
-        : `noop-${args.receipt.epoch.toString()}`,
+        : `noop-${args.receipt.epoch.toString()}-${Date.parse(args.receipt.executedAt) || Date.now()}`,
     epoch: args.receipt.epoch.toString(),
     kind: args.decision.kind,
     rationale:
@@ -169,6 +197,8 @@ interface ParsedOutcome {
   decision: PastDecision;
   counters: Record<string, number>;
   facts: string[];
+  /** Millisecond timestamp from the payload's `executedAt` ISO field — used as the within-epoch sort tiebreaker. */
+  executedAtMs: number;
 }
 
 function parseOutcome(text: string): ParsedOutcome | null {
@@ -186,9 +216,12 @@ function parseOutcome(text: string): ParsedOutcome | null {
 
     const counters = sanitizeNumberMap(record.counters);
     const facts = sanitizeStringArray(record.facts);
+    const executedAtRaw = stringValue(record.executedAt);
+    const executedAtMs = executedAtRaw ? Date.parse(executedAtRaw) || 0 : 0;
 
     return {
       decision: { decisionId, epoch: BigInt(epochText), kind, rationale },
+      executedAtMs,
       counters,
       facts,
     };

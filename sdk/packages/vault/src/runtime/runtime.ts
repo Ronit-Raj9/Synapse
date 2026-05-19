@@ -385,9 +385,10 @@ export class VaultRuntime {
         epochs: this.#config.walrusEpochs ?? DEFAULT_WALRUS_EPOCHS,
       });
     } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
       this.#logger.warn(
-        { err: err instanceof Error ? err.message : String(err) },
-        'walrus upload skipped (no WAL?); proceeding with rebalance + on-chain audit only',
+        { err: message, hint: walrusFailureHint(message) },
+        'walrus upload failed; proceeding with rebalance + on-chain audit only',
       );
     }
     const tx = new Transaction();
@@ -558,9 +559,10 @@ export class VaultRuntime {
         epochs: this.#config.walrusEpochs ?? DEFAULT_WALRUS_EPOCHS,
       });
     } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
       this.#logger.warn(
-        { err: err instanceof Error ? err.message : String(err) },
-        'walrus upload skipped (no WAL?); recording on-chain tick anyway',
+        { err: message, hint: walrusFailureHint(message) },
+        'walrus upload failed; recording on-chain tick anyway',
       );
     }
 
@@ -786,4 +788,26 @@ function parseExecutedTrades(
 
 function symbolFromTypeTag(typeTag: string): string {
   return typeTag.split('::').at(-1) ?? typeTag;
+}
+
+/**
+ * Classify Walrus upload failures so the warn log surfaces the actual
+ * root cause instead of always blaming WAL balance. Several distinct
+ * failure modes share the same code path but have very different fixes:
+ *   - genuine WAL exhaustion (fund the session with WAL)
+ *   - testnet storage-node consensus failure (transient; retry next tick)
+ *   - publisher / aggregator network errors (likely transient)
+ */
+function walrusFailureHint(errorMessage: string): string {
+  const m = errorMessage.toLowerCase();
+  if (m.includes('insufficient balance') && m.includes('wal')) {
+    return 'session has no WAL — fund it with `walrus get-wal --amount <MIST>` after importing the session key';
+  }
+  if (m.includes('too many failures') || m.includes('too many invalid confirmations')) {
+    return 'transient testnet Walrus storage-node consensus failure — WAL may have been partially spent; next tick will retry';
+  }
+  if (m.includes('timeout') || m.includes('econnrefused') || m.includes('enotfound')) {
+    return 'network reach to Walrus publisher / aggregator failed — check connectivity, will retry next tick';
+  }
+  return 'unclassified Walrus failure — see `err` field for full message';
 }
