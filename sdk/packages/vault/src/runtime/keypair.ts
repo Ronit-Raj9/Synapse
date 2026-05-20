@@ -1,18 +1,25 @@
-import { readFile } from 'node:fs/promises';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 
 /**
  * Read + parse the raw bytes of a session-key source. Used by both
  * `loadSessionKeypair` and `loadMemwalDelegateFromKeyFile` so they
  * agree on parsing semantics (suiprivkey, base64, JSON wrapper).
+ *
+ * `node:fs/promises` is imported dynamically and only when a
+ * `sessionKeyPath` is actually given — this keeps the Node-only
+ * filesystem module out of browser bundles (the in-browser runtime
+ * passes file contents via `sessionKeyEnv`, never a path).
  */
 async function readKeySource(args: {
   sessionKeyPath?: string;
   sessionKeyEnv?: string;
 }): Promise<string> {
-  const raw =
-    args.sessionKeyEnv ?? (args.sessionKeyPath ? await readFile(args.sessionKeyPath, 'utf8') : '');
-  return raw.trim();
+  if (args.sessionKeyEnv !== undefined) return args.sessionKeyEnv.trim();
+  if (args.sessionKeyPath) {
+    const { readFile } = await import('node:fs/promises');
+    return (await readFile(args.sessionKeyPath, 'utf8')).trim();
+  }
+  return '';
 }
 
 export async function loadSessionKeypair(args: {

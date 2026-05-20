@@ -13,6 +13,22 @@ import { RunTickButton } from './run-tick-button';
 import { SessionKeyPanel } from './session-key-panel';
 import { DepositPanel } from './deposit-panel';
 import { RuntimeHealthPanel } from './runtime-health-panel';
+import dynamic from 'next/dynamic';
+
+// The in-browser runtime pulls in @synapse-core/vault → @mysten/walrus,
+// which loads a Node WASM blob at module-eval time and explodes during
+// SSR/prerender. It's a client-only feature (File API, live ticking)
+// so load it with ssr:false — keeps the heavy SDK out of the server
+// bundle entirely.
+const InBrowserRuntimePanel = dynamic(
+  () => import('./in-browser-runtime-panel').then((m) => m.InBrowserRuntimePanel),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="card-flat p-6 text-sm text-ink-soft">Loading runtime…</div>
+    ),
+  },
+);
 import { CodeTag } from '../ui/code-tag';
 import {
   SAMPLE_REBALANCE_HISTORY,
@@ -183,6 +199,7 @@ export function DashboardShell({ forcedVaultId }: DashboardShellProps = {}) {
             />
           )}
           {liveVault && <ArtifactsPanel vaultId={liveVault.agentId} />}
+          {liveVault && <InBrowserRuntimePanel vaultId={liveVault.agentId} />}
           <DangerZone
             {...(liveVault ? { vaultId: liveVault.agentId } : {})}
             {...(live?.identity.strategyId ? { strategyId: live.identity.strategyId } : {})}

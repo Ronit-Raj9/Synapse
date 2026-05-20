@@ -3,18 +3,35 @@
   "version": "0.1.0",
   "description": "Synapse Vault — autonomous AI treasury manager. Strategy engine, rebalance executor, audit-report generator. Built on Synapse Core.",
   "type": "module",
-  "main": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./strategies": "./src/strategies/index.ts",
-    "./executor": "./src/executor.ts",
-    "./report": "./src/report.ts",
-    "./runtime": "./src/runtime/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./strategies": {
+      "types": "./dist/strategies/index.d.ts",
+      "default": "./dist/strategies/index.js"
+    },
+    "./executor": {
+      "types": "./dist/executor.d.ts",
+      "default": "./dist/executor.js"
+    },
+    "./report": {
+      "types": "./dist/report.d.ts",
+      "default": "./dist/report.js"
+    },
+    "./runtime": {
+      "types": "./dist/runtime/index.d.ts",
+      "default": "./dist/runtime/index.js"
+    }
   },
   "bin": {
-    "synapse-vault-runtime": "./src/runtime/bin/run.ts"
+    "synapse-vault-runtime": "./dist/runtime/bin/run.js"
   },
   "files": [
+    "dist",
     "src"
   ],
   "scripts": {
