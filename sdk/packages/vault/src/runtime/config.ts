@@ -49,6 +49,18 @@ export interface RuntimeConfig {
   sessionKeyEnv?: string;
   /** MemWal credentials. If absent, runtime runs without memory recall. */
   memwal?: { delegateKeyHex: string; relayerUrl?: string };
+  /**
+   * Override for the MemWal relayer base URL used when the delegate key
+   * is bundled in the session `.key` file (i.e. `memwal` above is unset).
+   * The in-browser runtime sets this to a SAME-ORIGIN proxy path
+   * (`/api/memwal-proxy`) because the public relayer doesn't send CORS
+   * headers — a direct browser `fetch` fails with `TypeError: Failed to
+   * fetch`. Server-side (CLI/container) callers leave this unset and get
+   * the network-aware default (testnet → staging relayer). The MemWal
+   * SDK signs over the request PATH only, never the host, so routing
+   * through a verbatim-suffix proxy keeps signatures valid.
+   */
+  memwalRelayerUrlOverride?: string;
   /** Tick interval in milliseconds. Default 600_000 (10 min). */
   tickIntervalMs?: number;
   /** Max consecutive tick failures before exit. Default 5. */

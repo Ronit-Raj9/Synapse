@@ -288,15 +288,21 @@ export class VaultRuntime {
         ...(this.#config.sessionKeyEnv ? { sessionKeyEnv: this.#config.sessionKeyEnv } : {}),
       });
       if (delegateFromFile) {
-        // Apply the same network-aware relayer URL default as
-        // loadFromEnv (testnet → staging endpoint, mainnet → SDK
-        // default). Without this, the file-bundled delegate would
-        // sign API calls for the WRONG relayer and quietly fail
-        // every recall/remember on testnet.
+        // Resolve the relayer base URL. Precedence:
+        //   1. `memwalRelayerUrlOverride` — set by the in-browser
+        //      runtime to a same-origin proxy path (`/api/memwal-proxy`)
+        //      because the public relayer sends no CORS headers and a
+        //      direct browser fetch fails with "Failed to fetch".
+        //   2. Network-aware default, matching loadFromEnv (testnet →
+        //      staging endpoint, mainnet → SDK default). Without a
+        //      relayer URL the file-bundled delegate would sign API
+        //      calls for the WRONG relayer and quietly fail every
+        //      recall/remember on testnet.
         const defaultRelayerUrl =
-          this.#config.walrusNetwork === 'testnet'
+          this.#config.memwalRelayerUrlOverride ??
+          (this.#config.walrusNetwork === 'testnet'
             ? 'https://relayer.staging.memwal.ai'
-            : undefined;
+            : undefined);
         memwalConfig = {
           delegateKeyHex: delegateFromFile,
           ...(defaultRelayerUrl !== undefined ? { relayerUrl: defaultRelayerUrl } : {}),

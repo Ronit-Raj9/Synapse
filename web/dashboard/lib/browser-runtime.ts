@@ -98,6 +98,13 @@ export async function startBrowserRuntime(
     sessionKeyEnv: args.sessionKeyFileContents,
     // The runtime will auto-detect the MemWal delegate inside the
     // same JSON; no env config needed.
+    //
+    // Route MemWal calls through the same-origin proxy. The public
+    // relayer doesn't send CORS headers, so a direct browser fetch
+    // dies with "TypeError: Failed to fetch" — which aborts the whole
+    // tick before it can write on-chain. `/api/memwal-proxy` (a Next
+    // route handler) relays to the relayer server-side, with no CORS.
+    memwalRelayerUrlOverride: '/api/memwal-proxy',
     tickIntervalMs: args.tickIntervalMs ?? 60_000,
     maxConsecutiveFailures: 5,
     walrusEpochs: 12,
