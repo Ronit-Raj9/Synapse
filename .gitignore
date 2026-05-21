@@ -19,6 +19,13 @@ out/
 .env.*.local
 .envrc
 
+# Key material (CRITICAL — never commit). The dashboard downloads vault
+# session/delegate keys as .key files; keep them out of git permanently.
+*.key
+*.key.json
+*-session-*.key
+secrets/
+
 # Sui local config
 .sui/
 sui_config/
