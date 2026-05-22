@@ -23,6 +23,8 @@ import {
   MEMWAL_PACKAGE_ID,
   MEMWAL_REGISTRY_ID,
   NETWORK,
+  SUI_FULLNODE_URL,
+  SYNAPSE_PACKAGE_ID,
 } from '@/lib/synapse-config';
 import { shortenAddress, shortenHash } from '@/lib/format';
 import { recordVault } from '@/lib/local-vaults';
@@ -803,7 +805,7 @@ function TreasuryStep({
       className="mt-4 grid gap-4 rounded-sm border border-divider bg-paper p-4"
     >
       <Slider
-        label="Funding (SUI from your wallet)"
+        label="Initial treasury (SUI from your wallet)"
         value={form.fundingSui}
         onChange={(v) => onChange({ ...form, fundingSui: v })}
         min={0.01}
@@ -812,8 +814,10 @@ function TreasuryStep({
         suffix=" SUI"
       />
       <p className="font-mono text-[11px] text-ink-mute">
-        Demo seed amount. The full mint PTB will split this off your wallet's gas coin
-        and deposit it into the AgentIdentity treasury.
+        Testnet starter amount — the mint PTB splits this off your wallet&rsquo;s gas
+        coin and deposits it into the AgentIdentity treasury. Production DAO vaults
+        typically seed $100K&ndash;$10M equivalent and top up via the same{' '}
+        <code>wallet::deposit</code> path post-mint.
       </p>
       <div className="flex items-center gap-3 pt-2">
         <button className="btn-flat" data-variant="primary" onClick={onAdvance}>
@@ -1016,21 +1020,26 @@ function MintStep({
       )}
 
       {result ? (
-        <div className="rounded-sm border-l-2 border-state-active bg-paper-strong p-3 font-mono text-[11px]">
-          <p className="text-state-active">● minted</p>
+        <>
+          <div className="rounded-sm border-l-2 border-state-active bg-paper-strong p-3 font-mono text-[11px]">
+            <p className="text-state-active">● minted</p>
+            {result.agentId && (
+              <p className="mt-1 text-ink">AgentIdentity: {shortenHash(result.agentId)}</p>
+            )}
+            <p className="mt-1 text-ink-soft">tx: {shortenHash(result.digest)}</p>
+            <a
+              href={explorerTxUrl(result.digest)}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-block text-accent-blue underline"
+            >
+              view on suiscan →
+            </a>
+          </div>
           {result.agentId && (
-            <p className="mt-1 text-ink">AgentIdentity: {shortenHash(result.agentId)}</p>
+            <RunYourAgent agentId={result.agentId} memwalSkipped={form.skipMemWal} />
           )}
-          <p className="mt-1 text-ink-soft">tx: {shortenHash(result.digest)}</p>
-          <a
-            href={explorerTxUrl(result.digest)}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-2 inline-block text-accent-blue underline"
-          >
-            view on suiscan →
-          </a>
-        </div>
+        </>
       ) : (
         <p className="rounded-sm border-l-2 border-accent-orange bg-paper p-3 font-mono text-[11px] text-ink-soft">
           <span className="text-accent-orange">!</span> Submitting will prompt your wallet
@@ -1244,4 +1253,258 @@ function downloadSessionKeyFile(payload: {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+// ============================================================================
+// Headless self-host bootstrap
+// ============================================================================
+
+const SELF_HOSTING_DOCS_URL =
+  'https://github.com/suyashagrawal2003/Synapse/blob/main/docs/self-hosting.md';
+
+/** Web compose file that mirrors the in-repo docker-compose.yml exactly. */
+function renderDockerCompose(agentShort: string): string {
+  return `# Synapse Vault runtime — generated for agent ${agentShort}.
+#
+# This file is identical to the repo's docker-compose.yml — kept side-by-side
+# with your downloaded .env so you can \`docker compose up\` without checking
+# out the repo. The image is built from
+# sdk/packages/vault/Dockerfile; pull the Synapse source the first time, then
+# this single folder is everything you need to run the vault forever.
+#
+# Layout:
+#   .                     ← this folder
+#   ├── .env              (downloaded — vault-specific config)
+#   ├── docker-compose.yml(this file)
+#   └── secrets/
+#       ├── session-key   (your downloaded .key file, renamed)
+#       └── memwal-delegate (optional, only if you use MemWal)
+
+services:
+  runtime:
+    build:
+      context: ./synapse-src
+      dockerfile: sdk/packages/vault/Dockerfile
+    image: synapse-vault-runtime:local
+    restart: unless-stopped
+    command: ["--secrets-dir", "/run/secrets"]
+    env_file:
+      - .env
+    secrets:
+      - session-key
+      - memwal-delegate
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+secrets:
+  session-key:
+    file: ./secrets/session-key
+  memwal-delegate:
+    file: ./secrets/memwal-delegate
+`;
+}
+
+function renderEnvFile(args: {
+  agentId: string;
+  memwalSkipped: boolean;
+}): string {
+  const memwalSection = args.memwalSkipped
+    ? `# MemWal was skipped at mint time — no delegate file is required.
+#   Leave secrets/memwal-delegate empty (the runtime falls back to
+#   no-memory mode). Re-enable later via the dashboard if you want
+#   strategy memory recall across ticks.`
+    : `# MemWal is enabled. The runtime auto-reads the delegate from your
+# downloaded .key file (the same file used as session-key) under the
+# \`memwalDelegate.privateKeyHex\` field — no extra env required.
+# If you want to override, drop 64-char hex into secrets/memwal-delegate.`;
+
+  return `# Synapse Vault runtime — generated for this vault.
+# https://github.com/suyashagrawal2003/Synapse/blob/main/docs/self-hosting.md
+#
+# Boot:
+#   1. cd into this folder.
+#   2. Move your downloaded .key file to ./secrets/session-key:
+#        mkdir -p secrets && mv ~/Downloads/synapse-session-*.key secrets/session-key
+#   3. Clone the Synapse repo next to this file (for the Dockerfile):
+#        git clone https://github.com/suyashagrawal2003/Synapse.git synapse-src
+#   4. Bring it up:
+#        docker compose up --build
+#
+# Once \`tick #1 ok\` shows in the logs, you can close the dashboard tab —
+# the agent ticks every 10 minutes from the container.
+
+# -- On-chain identity (immutable for the life of this vault) ----------------
+SYNAPSE_PACKAGE_ID=${SYNAPSE_PACKAGE_ID}
+SYNAPSE_AGENT_ID=${args.agentId}
+
+# -- Session key (read from the mounted file under /run/secrets) -------------
+# FileSecretsProvider parses both raw suiprivkey… and the dashboard's
+# .key JSON, so just rename the downloaded file to ./secrets/session-key.
+
+# -- MemWal memory recall ----------------------------------------------------
+${memwalSection}
+
+# -- Network -----------------------------------------------------------------
+SYNAPSE_FULLNODE_URL=${SUI_FULLNODE_URL}
+SYNAPSE_WALRUS_NETWORK=${NETWORK === 'mainnet' ? 'mainnet' : 'testnet'}
+
+# -- Tick schedule -----------------------------------------------------------
+SYNAPSE_TICK_INTERVAL_MS=600000    # 10 minutes
+SYNAPSE_MAX_FAILURES=5             # auto-shutdown after N consecutive failures
+
+# -- Operator alerting (recommended) -----------------------------------------
+# Drop a Discord/Slack incoming webhook here to get pinged on runtime
+# start, max-failure crash, and top-level crash.
+# SYNAPSE_ALERT_WEBHOOK_URL=https://discord.com/api/webhooks/...
+
+# -- Marketplace strategy hardening (recommended) ----------------------------
+# Comma-separated lowercase 64-char hex code_hashes the runtime is allowed
+# to load from Walrus. Leave empty to allow whatever the vault opted into
+# on-chain. See docs/self-hosting.md → "Marketplace strategy allowlist".
+# SYNAPSE_ALLOWED_STRATEGY_HASHES=
+# SYNAPSE_ALLOWED_STRATEGY_PUBLISHERS=
+
+# -- Logging -----------------------------------------------------------------
+SYNAPSE_LOG_LEVEL=info
+`;
+}
+
+function downloadText(filename: string, contents: string, mime: string): void {
+  const blob = new Blob([contents], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Single-screen production proof. Renders below the mint result with three
+ * mutually-exclusive deployment options — same vault, different operator
+ * comfort levels. Each branch reuses artifacts that already exist in the
+ * repo (Dockerfile + docker-compose.yml + docs/self-hosting.md) so what we
+ * hand the user is byte-identical to what `docker compose up` would do
+ * against this codebase.
+ */
+function RunYourAgent({
+  agentId,
+  memwalSkipped,
+}: {
+  agentId: string;
+  memwalSkipped: boolean;
+}) {
+  const agentShort = shortenHash(agentId);
+  return (
+    <div className="mt-3 grid gap-3 rounded-sm border border-divider bg-paper p-3">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-mute">
+          <CodeTag>run this vault</CodeTag>
+        </p>
+        <a
+          href={SELF_HOSTING_DOCS_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="font-mono text-[10px] text-accent-blue hover:underline"
+        >
+          full self-hosting runbook ↗
+        </a>
+      </div>
+
+      <div className="grid gap-2 rounded-sm border-l-2 border-state-active bg-paper-strong p-3">
+        <p className="font-display text-sm font-semibold">A · Use it in this tab</p>
+        <p className="font-mono text-[11px] text-ink-soft">
+          Same vault, runtime runs in the browser. Zero ops — closes when you close
+          the tab. Recommended for the first 1&ndash;2 ticks while you watch it
+          settle.
+        </p>
+        <Link
+          href={`/dashboard/${agentId}`}
+          className="btn-flat w-fit"
+          data-variant="primary"
+        >
+          Open dashboard →
+        </Link>
+      </div>
+
+      <div className="grid gap-2 rounded-sm border-l-2 border-accent-blue bg-paper-strong p-3">
+        <p className="font-display text-sm font-semibold">
+          B · Run it 24/7 on your own box
+        </p>
+        <p className="font-mono text-[11px] text-ink-soft">
+          Two files + your downloaded <code>.key</code> + Docker. The same Dockerfile
+          ships to Fly.io, Railway, and AWS Fargate without modification — see the
+          runbook for the per-platform one-pagers.
+        </p>
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          <button
+            type="button"
+            className="btn-flat"
+            data-variant="accent"
+            onClick={() =>
+              downloadText(
+                `synapse-vault-${agentShort}.env`,
+                renderEnvFile({ agentId, memwalSkipped }),
+                'text/plain',
+              )
+            }
+          >
+            ⬇ .env (prefilled)
+          </button>
+          <button
+            type="button"
+            className="btn-flat"
+            data-variant="ghost"
+            onClick={() =>
+              downloadText(
+                'docker-compose.yml',
+                renderDockerCompose(agentShort),
+                'application/yaml',
+              )
+            }
+          >
+            ⬇ docker-compose.yml
+          </button>
+        </div>
+        <pre className="mt-1 overflow-x-auto rounded-sm border border-divider bg-paper p-2 font-mono text-[10px] leading-relaxed text-ink-soft">
+{`my-vault/
+├── .env                 ← downloaded above
+├── docker-compose.yml   ← downloaded above
+├── secrets/
+│   └── session-key      ← mv ~/Downloads/synapse-session-*.key
+└── synapse-src/         ← git clone https://github.com/suyashagrawal2003/Synapse.git synapse-src
+
+$ docker compose up --build    # then close this tab`}
+        </pre>
+      </div>
+
+      <div className="grid gap-1 rounded-sm border-l-2 border-divider bg-paper p-3">
+        <p className="font-display text-xs font-semibold text-ink-soft">
+          C · Hand it to a cloud (Fargate / Fly / Railway)
+        </p>
+        <p className="font-mono text-[11px] text-ink-mute">
+          Identical image, secrets injected per-platform.{' '}
+          <a
+            href={SELF_HOSTING_DOCS_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="text-accent-blue underline"
+          >
+            docs/self-hosting.md
+          </a>{' '}
+          covers each in &lt;10 lines of config.
+        </p>
+      </div>
+    </div>
+  );
 }
