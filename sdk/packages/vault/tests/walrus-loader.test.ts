@@ -17,6 +17,7 @@ import { createHash } from 'node:crypto';
 import {
   clearWalrusStrategyCache,
   loadStrategyFromWalrus,
+  parseWalrusAllowlistFromEnv,
   WalrusStrategyError,
 } from '../src/runtime/walrus-loader.js';
 
@@ -196,6 +197,37 @@ describe('loadStrategyFromWalrus', () => {
     expect(loaded).toBeNull();
   });
 
+  it('refuses to load when the operator allowlist does not include the code_hash', async () => {
+    const { client } = makeStubClient({ bundleSource: VALID_STRATEGY_SOURCE });
+    mockWalrusFetch(VALID_STRATEGY_SOURCE);
+    const wrongHashes = new Set(['0'.repeat(64)]);
+
+    await expect(
+      loadStrategyFromWalrus({
+        client: client as unknown as Parameters<typeof loadStrategyFromWalrus>[0]['client'],
+        packageId: PACKAGE_ID,
+        strategyId: STRATEGY_ID,
+        network: 'testnet',
+        allowlist: { hashes: wrongHashes },
+      }),
+    ).rejects.toThrow(/operator allowlist/);
+  });
+
+  it('loads when the allowlist contains the on-chain code_hash', async () => {
+    const { client } = makeStubClient({ bundleSource: VALID_STRATEGY_SOURCE });
+    mockWalrusFetch(VALID_STRATEGY_SOURCE);
+    const allowedHash = Buffer.from(sha256Bytes(VALID_STRATEGY_SOURCE)).toString('hex');
+
+    const loaded = await loadStrategyFromWalrus({
+      client: client as unknown as Parameters<typeof loadStrategyFromWalrus>[0]['client'],
+      packageId: PACKAGE_ID,
+      strategyId: STRATEGY_ID,
+      network: 'testnet',
+      allowlist: { hashes: new Set([allowedHash]) },
+    });
+    expect(loaded?.strategy.id).toBe('walrus-test-strategy');
+  });
+
   it('caches by code_hash so repeat loads skip Walrus fetch', async () => {
     const { client } = makeStubClient({ bundleSource: VALID_STRATEGY_SOURCE });
     const fetchMock = vi.fn(async () => ({
@@ -223,5 +255,48 @@ describe('loadStrategyFromWalrus', () => {
     // getObject is still called twice (cheap RPC; we always want a fresh
     // hash) but fetch should only fire on the first miss.
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('parseWalrusAllowlistFromEnv', () => {
+  it('returns undefined when neither env var is set (legacy behavior)', () => {
+    expect(parseWalrusAllowlistFromEnv({})).toBeUndefined();
+  });
+
+  it('parses a comma-separated list of lowercased hashes', () => {
+    const h1 = 'a'.repeat(64);
+    const h2 = 'b'.repeat(64);
+    const al = parseWalrusAllowlistFromEnv({
+      SYNAPSE_ALLOWED_STRATEGY_HASHES: ` ${h1.toUpperCase()} , ${h2} `,
+    } as NodeJS.ProcessEnv);
+    expect(al?.hashes?.size).toBe(2);
+    expect(al?.hashes?.has(h1)).toBe(true);
+    expect(al?.hashes?.has(h2)).toBe(true);
+  });
+
+  it('strips 0x prefixes and rejects malformed hashes', () => {
+    const h1 = 'c'.repeat(64);
+    const al = parseWalrusAllowlistFromEnv({
+      SYNAPSE_ALLOWED_STRATEGY_HASHES: `0x${h1}`,
+    } as NodeJS.ProcessEnv);
+    expect(al?.hashes?.has(h1)).toBe(true);
+    expect(() =>
+      parseWalrusAllowlistFromEnv({
+        SYNAPSE_ALLOWED_STRATEGY_HASHES: 'not-a-hex',
+      } as NodeJS.ProcessEnv),
+    ).toThrow(/SYNAPSE_ALLOWED_STRATEGY_HASHES/);
+  });
+
+  it('parses publishers and rejects non-addresses', () => {
+    const al = parseWalrusAllowlistFromEnv({
+      SYNAPSE_ALLOWED_STRATEGY_PUBLISHERS: '0xABCD,0xdeadbeef',
+    } as NodeJS.ProcessEnv);
+    expect(al?.publishers?.size).toBe(2);
+    expect(al?.publishers?.has('0xabcd')).toBe(true);
+    expect(() =>
+      parseWalrusAllowlistFromEnv({
+        SYNAPSE_ALLOWED_STRATEGY_PUBLISHERS: 'noprefix',
+      } as NodeJS.ProcessEnv),
+    ).toThrow(/SYNAPSE_ALLOWED_STRATEGY_PUBLISHERS/);
   });
 });

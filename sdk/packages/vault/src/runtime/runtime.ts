@@ -231,6 +231,9 @@ export class VaultRuntime {
               client: this.#client,
               packageId: this.#config.packageId,
               network: this.#config.walrusNetwork,
+              ...(this.#config.walrusAllowlist
+                ? { allowlist: this.#config.walrusAllowlist }
+                : {}),
             },
           }
         : {}),

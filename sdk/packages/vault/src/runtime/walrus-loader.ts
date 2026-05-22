@@ -50,6 +50,26 @@ export interface LoadedWalrusStrategy {
   byteSize: number;
 }
 
+/**
+ * Optional operator-supplied allowlist applied AFTER the on-chain
+ * consent flag but BEFORE the dynamic import. Use this to lock the
+ * runtime down to a known set of audited bundles even when the vault
+ * has consented to Walrus loading.
+ *
+ * Trust model: per-vault on-chain consent + operator allowlist =
+ * defense in depth. The vault owner says "I'm OK with marketplace
+ * strategies"; the operator says "and only these specific
+ * code_hashes/publishers". A code_hash entry binds bit-for-bit to a
+ * compiled bundle — bumping a strategy's version requires explicit
+ * allowlist update.
+ */
+export interface WalrusStrategyAllowlist {
+  /** Lowercase 64-char hex `code_hash` values. Empty / undefined = "any". */
+  hashes?: ReadonlySet<string>;
+  /** 0x-prefixed Sui addresses. Empty / undefined = "any". Currently advisory; the on-chain Strategy publisher field is not yet parsed. */
+  publishers?: ReadonlySet<string>;
+}
+
 interface CachedEntry extends LoadedWalrusStrategy {}
 
 /**
@@ -75,10 +95,17 @@ export async function loadStrategyFromWalrus(args: {
   strategyId: string;
   network: WalrusNetwork;
   signal?: AbortSignal;
+  /** Operator-supplied allowlist; when set, gates execution. */
+  allowlist?: WalrusStrategyAllowlist;
 }): Promise<LoadedWalrusStrategy | null> {
   const meta = await fetchStrategyMeta(args.client, args.strategyId);
   if (meta === null) return null;
   if (meta.sourceWalrusBlob.length === 0) return null;
+
+  // Operator allowlist gate #1 — refuse before any network fetch when
+  // the on-chain code_hash isn't in the allowlist. Saves the bandwidth
+  // and provides the earliest possible failure signal.
+  assertHashAllowed(meta.codeHashHex, args.allowlist, args.strategyId);
 
   const cached = cache.get(meta.codeHashHex);
   if (cached && cached.sourceWalrusBlob === meta.sourceWalrusBlob) {
@@ -102,6 +129,11 @@ export async function loadStrategyFromWalrus(args: {
         `does not match on-chain code_hash ${meta.codeHashHex}. Refusing to execute.`,
     );
   }
+
+  // Operator allowlist gate #2 — re-check after the hash verification.
+  // Belt-and-braces against a future code path that resolves the hash
+  // from the bundle itself rather than the on-chain object.
+  assertHashAllowed(actualHashHex, args.allowlist, args.strategyId);
 
   const strategy = await importStrategyBundle({
     bundleBytes: bytes,
@@ -327,4 +359,71 @@ function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes)
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
+}
+
+/**
+ * Throws a `WalrusStrategyError` if the allowlist is configured and
+ * `hash` is not in it. No-op when the allowlist is undefined / empty
+ * (back-compat: existing operators get the legacy "any consented
+ * strategy" behavior).
+ */
+function assertHashAllowed(
+  hash: string,
+  allowlist: WalrusStrategyAllowlist | undefined,
+  strategyId: string,
+): void {
+  if (!allowlist?.hashes || allowlist.hashes.size === 0) return;
+  if (allowlist.hashes.has(hash.toLowerCase())) return;
+  throw new WalrusStrategyError(
+    `Strategy ${strategyId}: code_hash ${hash} is not in the operator allowlist. Refusing to execute.`,
+  );
+}
+
+/**
+ * Parse `SYNAPSE_ALLOWED_STRATEGY_HASHES` (comma-separated lowercase
+ * 64-char hex) and `SYNAPSE_ALLOWED_STRATEGY_PUBLISHERS` (comma-separated
+ * 0x-prefixed Sui addresses) into a `WalrusStrategyAllowlist`. Returns
+ * `undefined` when neither env var is configured — meaning no allowlist
+ * gate (legacy behavior). Throws on malformed entries so a typo in
+ * config fails loudly at boot rather than silently allowing everything.
+ */
+export function parseWalrusAllowlistFromEnv(
+  env: NodeJS.ProcessEnv = process.env,
+): WalrusStrategyAllowlist | undefined {
+  const hashes = parseHashList(env.SYNAPSE_ALLOWED_STRATEGY_HASHES);
+  const publishers = parsePublisherList(env.SYNAPSE_ALLOWED_STRATEGY_PUBLISHERS);
+  if (!hashes && !publishers) return undefined;
+  const out: WalrusStrategyAllowlist = {};
+  if (hashes) out.hashes = hashes;
+  if (publishers) out.publishers = publishers;
+  return out;
+}
+
+function parseHashList(raw: string | undefined): ReadonlySet<string> | undefined {
+  if (!raw) return undefined;
+  const out = new Set<string>();
+  for (const entry of raw.split(',').map((e) => e.trim()).filter(Boolean)) {
+    const cleaned = entry.replace(/^0x/, '').toLowerCase();
+    if (!/^[0-9a-f]{64}$/.test(cleaned)) {
+      throw new Error(
+        `SYNAPSE_ALLOWED_STRATEGY_HASHES: "${entry}" is not a 64-char hex sha256`,
+      );
+    }
+    out.add(cleaned);
+  }
+  return out.size > 0 ? out : undefined;
+}
+
+function parsePublisherList(raw: string | undefined): ReadonlySet<string> | undefined {
+  if (!raw) return undefined;
+  const out = new Set<string>();
+  for (const entry of raw.split(',').map((e) => e.trim()).filter(Boolean)) {
+    if (!/^0x[0-9a-fA-F]{1,64}$/.test(entry)) {
+      throw new Error(
+        `SYNAPSE_ALLOWED_STRATEGY_PUBLISHERS: "${entry}" is not a 0x-prefixed Sui address`,
+      );
+    }
+    out.add(entry.toLowerCase());
+  }
+  return out.size > 0 ? out : undefined;
 }

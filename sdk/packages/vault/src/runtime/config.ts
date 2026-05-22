@@ -7,6 +7,10 @@ import {
   SUI_USDC_POOL_ID_TESTNET,
   USDC_TYPE_TAG_TESTNET,
 } from './deepbook.js';
+import {
+  parseWalrusAllowlistFromEnv,
+  type WalrusStrategyAllowlist,
+} from './walrus-loader.js';
 
 export interface RuntimeConfig {
   /**
@@ -113,6 +117,15 @@ export interface RuntimeConfig {
    * version. Sandboxing is a follow-up.
    */
   allowWalrusStrategies?: boolean;
+  /**
+   * Operator-supplied allowlist for Walrus-loaded marketplace strategies.
+   * Applied on top of the per-vault on-chain consent gate. When set, the
+   * runtime refuses to load any bundle whose `code_hash` (or publisher,
+   * once parsed) isn't in the list — defense in depth against a malicious
+   * or compromised strategist post-consent. Wired from
+   * `SYNAPSE_ALLOWED_STRATEGY_HASHES` / `SYNAPSE_ALLOWED_STRATEGY_PUBLISHERS`.
+   */
+  walrusAllowlist?: WalrusStrategyAllowlist;
 }
 
 export function loadFromEnv(env: NodeJS.ProcessEnv = process.env): RuntimeConfig {
@@ -189,6 +202,9 @@ export function loadFromEnv(env: NodeJS.ProcessEnv = process.env): RuntimeConfig
     // consent gates). Set the env to a falsy literal to globally disable.
     ...(parseDisableEnv(env.SYNAPSE_ALLOW_WALRUS_STRATEGIES)
       ? { allowWalrusStrategies: false }
+      : {}),
+    ...(parseWalrusAllowlistFromEnv(env)
+      ? { walrusAllowlist: parseWalrusAllowlistFromEnv(env) as WalrusStrategyAllowlist }
       : {}),
   };
 }

@@ -32,6 +32,7 @@ import {
   loadStrategyFromWalrus,
   WalrusStrategyError,
   type WalrusNetwork,
+  type WalrusStrategyAllowlist,
 } from './walrus-loader.js';
 
 /** Strategy slug returned by `resolveStrategySlug`. */
@@ -199,6 +200,8 @@ export async function resolveStrategyWithWalrus(args: {
     client: SuiJsonRpcClient;
     packageId: string;
     network: WalrusNetwork;
+    /** Optional operator allowlist (code_hash / publisher). */
+    allowlist?: WalrusStrategyAllowlist;
   };
 }): Promise<ResolvedStrategy> {
   // 1) Cheap path: hardcoded slug map.
@@ -221,6 +224,7 @@ export async function resolveStrategyWithWalrus(args: {
         packageId: args.walrus.packageId,
         strategyId: args.strategyId,
         network: args.walrus.network,
+        ...(args.walrus.allowlist ? { allowlist: args.walrus.allowlist } : {}),
       });
       if (loaded) {
         return {
