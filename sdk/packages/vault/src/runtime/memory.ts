@@ -60,7 +60,7 @@ export async function recallStrategyMemory(args: {
     client: args.client,
     namespace: args.namespace,
     query: `recent ${args.strategyId} Synapse Vault rebalance decisions, counters, and outcomes`,
-    limit: 16,
+    limit: 32,
   });
 
   const decisions: Array<{
@@ -86,24 +86,25 @@ export async function recallStrategyMemory(args: {
     }
   }
 
-  // Sort oldest → newest so iteration order is predictable for strategies.
-  // Within a single Sui epoch (testnet epochs are ~24h, so dozens of
-  // ticks can share an epoch), the `epoch` field alone doesn't
-  // disambiguate. Use the per-tick `executedAt` ISO timestamp as the
-  // tiebreaker — without this, MemWal's relevance-ordered recall can
-  // return entries out of chronological order and the "latest" pick
-  // becomes non-deterministic, stalling stateful counters like the
-  // DCA `dca_tick_index`.
   decisions.sort((a, b) => {
     const epochDiff = Number(a.epoch - b.epoch);
     if (epochDiff !== 0) return epochDiff;
     return a.executedAtMs - b.executedAtMs;
   });
-  const latest = decisions[decisions.length - 1] ?? null;
 
-  // Latest outcome's counters/facts become the active state. Merge with
-  // free-form facts so strategies see both (the freeze-flag pattern lives
-  // in free-form facts).
+  // Identify the "latest" entry for counter/fact recovery. MemWal's
+  // semantic recall returns entries by relevance, NOT chronological order,
+  // and the recall window (limit=32) may still miss the absolute newest
+  // entry. Sorting by (epoch, executedAtMs) is necessary but not
+  // sufficient — two entries with the same epoch+timestamp can have
+  // different counter values if the previous persist was slow.
+  //
+  // Robust tiebreaker: among entries sharing the max epoch, pick the one
+  // whose counter values are highest (monotonically increasing counters
+  // like dca_tick_index are the canonical state-advancement signal).
+  // This prevents a stale MemWal recall from stalling the counter.
+  const latest = pickLatestOutcome(decisions);
+
   const counters = latest?.raw.counters ?? {};
   const taggedFacts = latest?.raw.facts ?? [];
   const facts = [...taggedFacts, ...freeformFacts];
@@ -113,6 +114,54 @@ export async function recallStrategyMemory(args: {
     counters: { ...counters, recalled: result.total },
     facts,
   };
+}
+
+/**
+ * Among all recalled outcomes, pick the one with the most advanced state.
+ * Primary key: highest epoch. Tiebreaker: highest executedAtMs. Final
+ * tiebreaker: highest sum of counter values (catches the case where
+ * MemWal recall returns two entries from the same millisecond but only
+ * one has the incremented counter).
+ */
+function pickLatestOutcome(
+  decisions: Array<{
+    entry: PastDecision;
+    epoch: bigint;
+    executedAtMs: number;
+    raw: ParsedOutcome;
+  }>,
+): (typeof decisions)[number] | null {
+  if (decisions.length === 0) return null;
+
+  let best = decisions[0];
+  for (let i = 1; i < decisions.length; i++) {
+    const candidate = decisions[i];
+    const epochCmp = Number(candidate.epoch - best.epoch);
+    if (epochCmp > 0) {
+      best = candidate;
+      continue;
+    }
+    if (epochCmp < 0) continue;
+
+    // Same epoch — prefer later timestamp
+    if (candidate.executedAtMs > best.executedAtMs) {
+      best = candidate;
+      continue;
+    }
+    if (candidate.executedAtMs < best.executedAtMs) continue;
+
+    // Same epoch AND timestamp — prefer higher counter sum
+    if (counterSum(candidate.raw.counters) > counterSum(best.raw.counters)) {
+      best = candidate;
+    }
+  }
+  return best;
+}
+
+function counterSum(counters: Record<string, number>): number {
+  let s = 0;
+  for (const v of Object.values(counters)) s += v;
+  return s;
 }
 
 /**

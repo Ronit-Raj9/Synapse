@@ -126,6 +126,31 @@ export interface RuntimeConfig {
    * `SYNAPSE_ALLOWED_STRATEGY_HASHES` / `SYNAPSE_ALLOWED_STRATEGY_PUBLISHERS`.
    */
   walrusAllowlist?: WalrusStrategyAllowlist;
+  /**
+   * Walrus exchange object IDs for the active network. Used by
+   * auto-WAL-refuel to swap SUI → WAL when the session runs low.
+   * Wired from `SYNAPSE_WAL_EXCHANGE_IDS` (comma-separated) or
+   * hard-coded testnet defaults.
+   */
+  walExchangeIds?: readonly string[];
+  /**
+   * Package ID of the `wal_exchange` module (derived at runtime from
+   * the exchange object's type). Wired from `SYNAPSE_WAL_EXCHANGE_PKG`;
+   * when unset, the runtime inspects the first exchange object on-chain.
+   */
+  walExchangePkg?: string;
+  /**
+   * Trigger auto-WAL-refuel when session WAL balance drops below this
+   * many FROST (1 WAL = 1_000_000_000 FROST). Override via
+   * `SYNAPSE_WAL_REFUEL_THRESHOLD`. Default 0.1 WAL.
+   */
+  walRefuelThreshold?: bigint;
+  /**
+   * Amount of SUI MIST to exchange for WAL when refueling.
+   * Override via `SYNAPSE_WAL_REFUEL_AMOUNT`. Default 0.5 SUI
+   * (≈ 0.5 WAL at 1:1 testnet rate — enough for dozens of uploads).
+   */
+  walRefuelAmount?: bigint;
 }
 
 export function loadFromEnv(env: NodeJS.ProcessEnv = process.env): RuntimeConfig {
@@ -206,6 +231,7 @@ export function loadFromEnv(env: NodeJS.ProcessEnv = process.env): RuntimeConfig
     ...(parseWalrusAllowlistFromEnv(env)
       ? { walrusAllowlist: parseWalrusAllowlistFromEnv(env) as WalrusStrategyAllowlist }
       : {}),
+    ...parseWalExchangeEnv(env, walrusNetwork),
   };
 }
 
@@ -273,4 +299,32 @@ function parseDisableEnv(value: string | undefined): boolean {
   if (value === undefined) return false;
   const lowered = value.trim().toLowerCase();
   return lowered === '0' || lowered === 'false' || lowered === 'no' || lowered === 'off';
+}
+
+const TESTNET_WAL_EXCHANGE_IDS = [
+  '0xf4d164ea2def5fe07dc573992a029e010dba09b1a8dcbc44c5c2e79567f39073',
+  '0x19825121c52080bb1073662231cfea5c0e4d905fd13e95f21e9a018f2ef41862',
+  '0x83b454e524c71f30803f4d6c302a86fb6a39e96cdfb873c2d1e93bc1c26a3bc5',
+  '0x8d63209cf8589ce7aef8f262437163c67577ed09f3e636a9d8e0813843fb8bf1',
+] as const;
+
+function parseWalExchangeEnv(
+  env: NodeJS.ProcessEnv,
+  network: 'testnet' | 'mainnet',
+): Partial<RuntimeConfig> {
+  const ids = env.SYNAPSE_WAL_EXCHANGE_IDS
+    ? env.SYNAPSE_WAL_EXCHANGE_IDS.split(',').map((s) => s.trim()).filter(Boolean)
+    : network === 'testnet'
+      ? [...TESTNET_WAL_EXCHANGE_IDS]
+      : undefined;
+  return {
+    ...(ids ? { walExchangeIds: ids } : {}),
+    ...(env.SYNAPSE_WAL_EXCHANGE_PKG ? { walExchangePkg: env.SYNAPSE_WAL_EXCHANGE_PKG } : {}),
+    ...(env.SYNAPSE_WAL_REFUEL_THRESHOLD
+      ? { walRefuelThreshold: BigInt(env.SYNAPSE_WAL_REFUEL_THRESHOLD) }
+      : {}),
+    ...(env.SYNAPSE_WAL_REFUEL_AMOUNT
+      ? { walRefuelAmount: BigInt(env.SYNAPSE_WAL_REFUEL_AMOUNT) }
+      : {}),
+  };
 }

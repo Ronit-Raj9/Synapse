@@ -82,7 +82,15 @@ Every item below is merged to `main` and tested.
 | `strategy-allowlist.ts` (dashboard-side classifier) | [`strategy-allowlist.ts`](../web/dashboard/lib/strategy-allowlist.ts) · `3ab0668` |
 | Tests for allowlist parsing + enforcement | [`tests/walrus-loader.test.ts`](../tests/walrus-loader.test.ts) · `f5c2b53` |
 
-### 5. Webhook alerts + self-hosting docs
+### 5. Walrus Sites deployment
+
+| What | File / commit |
+|---|---|
+| Marketing site deployed to Walrus Sites (testnet) | [`web/site/`](../web/site/) — Site Object `0x55c33a…001a` |
+| `dashboard-link.js` — portable dashboard URL rewriter | [`web/site/dashboard-link.js`](../web/site/dashboard-link.js) |
+| `ws-resources.json` — routes, headers, metadata | [`web/site/ws-resources.json`](../web/site/ws-resources.json) |
+
+### 6. Webhook alerts + self-hosting docs
 
 | What | File / commit |
 |---|---|
@@ -137,7 +145,7 @@ Forbidden-pattern scan:      clean
 | No third-party security audit | Judges expect audit-awareness, not a completed audit. Threat model + allowlist + CI cover the intent. |
 | Mainnet not published | Testnet-only; mainnet publish costs real SUI and is planned for Phase 6. |
 | DEEP fee path tested with zero-DEEP workaround | DeepBook testnet pool accepts the swap; the `pay_with_deep = true` path is exercised but with a zero-balance edge case. Documented in code. |
-| Marketing site not deployed to Walrus Sites yet | Site is complete and deployable; `walrus sites publish` is the only remaining step. |
+| Marketing site on testnet only | Deployed to Walrus Sites testnet (`0x55c33a39757a4487ca8cebdaffd5b7b9f9ba9601456a82ef5f031c689ae0001a`). Mainnet deploy is a single `site-builder` command with a mainnet wallet. |
 
 ---
 

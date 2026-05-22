@@ -191,9 +191,10 @@ Next.js 16 app, Sui Overflow 2026 theme, all live on-chain reads:
 
 ### Marketing site (`web/site/`)
 
-Static HTML/CSS/JS for Walrus Sites deployment. Includes the same backtest
-JSONs as the dashboard so the landing page can show the real performance
-numbers without a backend.
+Static HTML/CSS/JS deployed to Walrus Sites (testnet).
+Site Object: `0x55c33a39757a4487ca8cebdaffd5b7b9f9ba9601456a82ef5f031c689ae0001a`.
+Includes the same backtest JSONs as the dashboard so the landing page can
+show the real performance numbers without a backend.
 
 ### Scripts (`scripts/`)
 

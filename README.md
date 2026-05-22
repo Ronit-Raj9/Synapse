@@ -206,7 +206,7 @@ Sui Overflow 2026 theme captured as code: cream + ink palette, vibrant accents, 
 | **Week 1 (May 13–19)** | ✅ `@synapse-core/memwal-bridge` real implementation · LangGraph adapter · Vault runtime loop · DeepBookV3 swap composition · Walrus artifact reports |
 | **Week 2 (May 20–26)** | ✅ Runtime hardening (headless secrets seam · redacting logger · Walrus code-hash allowlist · fail-safe liveness · webhook alerts · CI · self-hosting docs) · funded-vault testnet rehearsal |
 | **Week 3 (May 27–Jun 2)** | ✅ Vault Next.js dashboard (mint flow, holdings, audit timeline, revoke) · Indexer with Vault GraphQL views |
-| **Week 4 (Jun 3–9)** | ✅ Landing site with pricing calculator (Walrus Sites deployable) · Demo video script and rehearsals |
+| **Week 4 (Jun 3–9)** | ✅ Landing site with pricing calculator (deployed to Walrus Sites — `0x55c33a…001a`) · Demo video script and rehearsals |
 | **Week 5 (Jun 10–16)** | Demo video recording · Threat model finalization · Final submission package |
 | **Buffer (Jun 17–21)** | Bug fixes · Submission |
 | **Phase 5 (Jul 8–20, if shortlisted)** | Live Demo Day pitch prep |
@@ -277,7 +277,7 @@ synapse-core/                              monorepo root
 │   └── indexer/                           ✅ GraphQL indexer
 ├── web/
 │   ├── dashboard/                         ✅ Vault product UI
-│   └── site/                              ✅ Marketing + pricing calculator (Walrus Sites-ready)
+│   └── site/                              ✅ Marketing + pricing calculator (deployed to Walrus Sites)
 └── docs/superpowers/plans/                ✅ Implementation plan
 ```
 

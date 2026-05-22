@@ -551,12 +551,21 @@ html {
   .btn-flat,
   button[aria-label='Close modal'],
   .marquee,
+  .noise,
+  .live-dot {
+    display: none !important;
+  }
+  /* Strip decorative backgrounds but keep the container visible */
   .blueprint-grid,
   .blueprint-grid-dense,
   .crosshatch,
-  .dot-grid,
-  .noise,
-  .live-dot {
+  .dot-grid {
+    background-image: none !important;
+    background: #ffffff !important;
+  }
+  .blueprint-grid > [aria-hidden],
+  .crosshatch > [aria-hidden],
+  .dot-grid > [aria-hidden] {
     display: none !important;
   }
   /* Force backgrounds to print */
@@ -573,7 +582,7 @@ html {
     color: #000 !important;
   }
   main {
-    padding: 0 !important;
+    padding: 12px !important;
   }
   a {
     text-decoration: none !important;
@@ -582,6 +591,17 @@ html {
     content: ' (' attr(href) ')';
     font-size: 0.7em;
     color: #555;
+  }
+  /* Ensure grid children are visible */
+  [class*='grid-cols'] {
+    display: block !important;
+  }
+  [class*='grid-cols'] > * {
+    margin-bottom: 8px;
+  }
+  /* Page breaks */
+  section, .card-flat {
+    break-inside: avoid;
   }
 }
 

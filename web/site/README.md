@@ -13,32 +13,32 @@ npx --yes serve -p 4321 .
 
 Or just `open index.html` — there's no bundler.
 
-## Deploy to Walrus Sites
+## Deployed to Walrus Sites (testnet)
+
+| | |
+|---|---|
+| **Site Object ID** | `0x55c33a39757a4487ca8cebdaffd5b7b9f9ba9601456a82ef5f031c689ae0001a` |
+| **Base36** | `24y93b3an65e8kuksi0o1wpehgq55msa4163bjdq88ayycgx7e` |
+
+> On testnet, `wal.app` portal only serves mainnet sites. To browse
+> the testnet site, self-host a portal or use a third-party testnet portal.
+
+### Re-deploy after edits
 
 Prerequisites: the `site-builder` CLI from
-<https://docs.wal.app/walrus-sites/intro.html>, and a funded Sui wallet
-with WAL tokens.
+<https://docs.wal.app/docs/sites/getting-started/installing-the-site-builder>,
+and a funded Sui testnet wallet with SUI + WAL tokens.
 
 ```bash
 cd web/site
-site-builder publish --epochs 100 .
+site-builder --context testnet deploy --epochs 5 .
 ```
 
-The `ws-resources.json` in this directory pins:
+The `ws-resources.json` already contains the `object_id` from the
+initial deployment, so `deploy` will update the existing site.
 
-- routes (`/`, `/styles.css`, `/calculator.js`, `/favicon.svg`)
-- cache headers (immutable for static assets, short TTL for HTML)
-- site metadata for the on-chain `Site` object
-
-After publishing, the CLI prints a `*.wal.app` subdomain. To bind a
-custom domain, register a SuiNS name and point it at the site object
-ID per the Walrus Sites docs.
-
-To re-publish after content edits:
-
-```bash
-site-builder update --epochs 100 <site-object-id> .
-```
+To publish a brand-new site instead, delete the `object_id` field from
+`ws-resources.json` before running `deploy`.
 
 ## File layout
 

@@ -112,6 +112,16 @@ export class TickSkippedError extends Error {
 const DEFAULT_REFUEL_THRESHOLD_MIST = 20_000_000n;
 /** Default top-up size when refueling (0.05 SUI). */
 const DEFAULT_REFUEL_AMOUNT_MIST = 50_000_000n;
+
+/** Trigger WAL refuel when session WAL drops below this many FROST (0.1 WAL). */
+const DEFAULT_WAL_REFUEL_THRESHOLD = 100_000_000n;
+/** Exchange this much SUI MIST for WAL when refueling (0.5 SUI). */
+const DEFAULT_WAL_REFUEL_AMOUNT = 500_000_000n;
+/**
+ * WAL coin type on testnet and mainnet (same package).
+ * Walrus's wal::WAL is published at this address on both networks.
+ */
+const WAL_COIN_TYPE = '0x8270feb7375eee355e64fdb69c50abb6b5f9393a722883c1cf45f8e26048810a::wal::WAL';
 /** Minimum positive-alpha USD to pay a royalty (avoid dust pulls). */
 const ROYALTY_MIN_ALPHA_USD = 0.0001;
 
@@ -289,6 +299,7 @@ export class VaultRuntime {
     // log and proceed; the current tick's own gas comes from whatever
     // SUI the session already holds.
     await this.#maybeRefuelSession(signer, currentEpoch);
+    await this.#maybeRefuelWAL(signer);
 
     // Auto-detect the vault's quote token from its bag holdings so the
     // strategy resolver targets the right USDC variant (Circle, bridge,
@@ -672,6 +683,109 @@ export class VaultRuntime {
     }
   }
 
+  /** Cached exchange package ID — resolved once on first WAL refuel. */
+  #walExchangePkg: string | null = null;
+
+  /**
+   * Pre-tick auto-WAL-refuel. Checks the session's WAL balance; if below
+   * threshold, swaps SUI → WAL via the Walrus `wal_exchange::exchange_all_for_wal`
+   * contract. This keeps the session funded for Walrus audit-blob uploads
+   * without any manual intervention — fully autonomous.
+   */
+  async #maybeRefuelWAL(
+    signer: Awaited<ReturnType<typeof loadSessionKeypair>>,
+  ): Promise<void> {
+    const exchangeIds = this.#config.walExchangeIds;
+    if (!exchangeIds || exchangeIds.length === 0) return;
+
+    const threshold = this.#config.walRefuelThreshold ?? DEFAULT_WAL_REFUEL_THRESHOLD;
+    const swapAmount = this.#config.walRefuelAmount ?? DEFAULT_WAL_REFUEL_AMOUNT;
+    const sessionAddr = signer.toSuiAddress();
+
+    let walBalance = 0n;
+    try {
+      const r = await this.#client.getBalance({
+        owner: sessionAddr,
+        coinType: WAL_COIN_TYPE,
+      });
+      walBalance = BigInt(r.totalBalance);
+    } catch (err) {
+      this.#logger.warn(
+        { err: err instanceof Error ? err.message : String(err) },
+        'auto-wal-refuel: skipped WAL balance check (rpc error)',
+      );
+      return;
+    }
+    if (walBalance >= threshold) return;
+
+    // Resolve the exchange package ID (once).
+    if (!this.#walExchangePkg) {
+      const explicitPkg = this.#config.walExchangePkg;
+      if (explicitPkg) {
+        this.#walExchangePkg = explicitPkg;
+      } else {
+        try {
+          const obj = await this.#client.getObject({
+            id: exchangeIds[0],
+            options: { showType: true },
+          });
+          const objType = obj.data?.type;
+          if (objType) {
+            const pkgId = objType.split('::')[0];
+            this.#walExchangePkg = pkgId;
+          }
+        } catch {
+          // Fall through — we'll try next tick
+        }
+      }
+      if (!this.#walExchangePkg) {
+        this.#logger.warn('auto-wal-refuel: could not resolve exchange package ID; skipping');
+        return;
+      }
+    }
+
+    this.#logger.info(
+      {
+        sessionAddr,
+        walBalance: walBalance.toString(),
+        threshold: threshold.toString(),
+        swapAmount: swapAmount.toString(),
+      },
+      'auto-wal-refuel: WAL below threshold; swapping SUI → WAL',
+    );
+
+    // Try each exchange object until one succeeds (liquidity may vary).
+    for (const exchangeId of exchangeIds) {
+      try {
+        const tx = new Transaction();
+        const [suiCoin] = tx.splitCoins(tx.gas, [tx.pure.u64(swapAmount)]);
+        const walCoin = tx.moveCall({
+          target: `${this.#walExchangePkg}::wal_exchange::exchange_all_for_wal`,
+          arguments: [tx.object(exchangeId), suiCoin],
+        });
+        tx.transferObjects([walCoin], tx.pure.address(sessionAddr));
+
+        const result = await signAndExecuteWithRetry(this.#client, {
+          transaction: tx,
+          signer,
+          options: { showEffects: true },
+        });
+        await this.#client.waitForTransaction({ digest: result.digest });
+        this.#logger.info(
+          { txDigest: result.digest, exchangeId },
+          'auto-wal-refuel: SUI → WAL exchange succeeded',
+        );
+        return;
+      } catch (err) {
+        this.#logger.warn(
+          { err: err instanceof Error ? err.message : String(err), exchangeId },
+          'auto-wal-refuel: exchange attempt failed; trying next exchange object',
+        );
+      }
+    }
+    this.#logger.warn('auto-wal-refuel: all exchange objects failed; Walrus uploads may fail this tick');
+  }
+
   async #executeNoop(
     report: AuditReport,
     currentEpoch: bigint,
@@ -937,7 +1051,7 @@ function symbolFromTypeTag(typeTag: string): string {
 function walrusFailureHint(errorMessage: string): string {
   const m = errorMessage.toLowerCase();
   if (m.includes('insufficient balance') && m.includes('wal')) {
-    return 'session has no WAL — fund it with `walrus get-wal --amount <MIST>` after importing the session key';
+    return 'session has no WAL — auto-wal-refuel should top up next tick, or fund manually with `walrus get-wal`';
   }
   if (m.includes('too many failures') || m.includes('too many invalid confirmations')) {
     return 'transient testnet Walrus storage-node consensus failure — WAL may have been partially spent; next tick will retry';

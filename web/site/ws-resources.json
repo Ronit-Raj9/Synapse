@@ -1,5 +1,68 @@
 {
-  "site_name": "Synapse Vault",
+  "headers": {
+    "/": {
+      "Cache-Control": "public, max-age=300, stale-while-revalidate=3600",
+      "Content-Type": "text/html; charset=utf-8"
+    },
+    "/aggressive-momentum.json": {
+      "Cache-Control": "public, max-age=3600",
+      "Content-Type": "application/json; charset=utf-8"
+    },
+    "/balanced-yield.json": {
+      "Cache-Control": "public, max-age=3600",
+      "Content-Type": "application/json; charset=utf-8"
+    },
+    "/calculator.js": {
+      "Cache-Control": "public, max-age=31536000, immutable",
+      "Content-Type": "application/javascript; charset=utf-8"
+    },
+    "/conservative-rebalancer.json": {
+      "Cache-Control": "public, max-age=3600",
+      "Content-Type": "application/json; charset=utf-8"
+    },
+    "/dashboard-link.js": {
+      "Cache-Control": "public, max-age=300, stale-while-revalidate=3600",
+      "Content-Type": "application/javascript; charset=utf-8"
+    },
+    "/favicon.svg": {
+      "Cache-Control": "public, max-age=31536000, immutable",
+      "Content-Type": "image/svg+xml"
+    },
+    "/index.html": {
+      "Cache-Control": "public, max-age=300, stale-while-revalidate=3600",
+      "Content-Type": "text/html; charset=utf-8"
+    },
+    "/index.json": {
+      "Cache-Control": "public, max-age=3600",
+      "Content-Type": "application/json; charset=utf-8"
+    },
+    "/performance.js": {
+      "Cache-Control": "public, max-age=31536000, immutable",
+      "Content-Type": "application/javascript; charset=utf-8"
+    },
+    "/scroll-reveal.js": {
+      "Cache-Control": "public, max-age=31536000, immutable",
+      "Content-Type": "application/javascript; charset=utf-8"
+    },
+    "/styles.css": {
+      "Cache-Control": "public, max-age=31536000, immutable",
+      "Content-Type": "text/css; charset=utf-8"
+    }
+  },
+  "routes": {
+    "/": "/index.html",
+    "/aggressive-momentum.json": "/aggressive-momentum.json",
+    "/balanced-yield.json": "/balanced-yield.json",
+    "/calculator.js": "/calculator.js",
+    "/conservative-rebalancer.json": "/conservative-rebalancer.json",
+    "/dashboard-link.js": "/dashboard-link.js",
+    "/favicon.svg": "/favicon.svg",
+    "/index.html": "/index.html",
+    "/index.json": "/index.json",
+    "/performance.js": "/performance.js",
+    "/scroll-reveal.js": "/scroll-reveal.js",
+    "/styles.css": "/styles.css"
+  },
   "metadata": {
     "link": "https://synapse-vault.wal.app",
     "image_url": "https://synapse-vault.wal.app/favicon.svg",
@@ -7,63 +70,6 @@
     "project_url": "https://github.com/SuyashAlphaC/synapse-vault",
     "creator": "Synapse Labs"
   },
-  "routes": {
-    "/": "/index.html",
-    "/index.html": "/index.html",
-    "/styles.css": "/styles.css",
-    "/calculator.js": "/calculator.js",
-    "/performance.js": "/performance.js",
-    "/scroll-reveal.js": "/scroll-reveal.js",
-    "/favicon.svg": "/favicon.svg",
-    "/index.json": "/index.json",
-    "/conservative-rebalancer.json": "/conservative-rebalancer.json",
-    "/balanced-yield.json": "/balanced-yield.json",
-    "/aggressive-momentum.json": "/aggressive-momentum.json"
-  },
-  "headers": {
-    "/": {
-      "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "public, max-age=300, stale-while-revalidate=3600"
-    },
-    "/index.html": {
-      "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "public, max-age=300, stale-while-revalidate=3600"
-    },
-    "/styles.css": {
-      "Content-Type": "text/css; charset=utf-8",
-      "Cache-Control": "public, max-age=31536000, immutable"
-    },
-    "/calculator.js": {
-      "Content-Type": "application/javascript; charset=utf-8",
-      "Cache-Control": "public, max-age=31536000, immutable"
-    },
-    "/performance.js": {
-      "Content-Type": "application/javascript; charset=utf-8",
-      "Cache-Control": "public, max-age=31536000, immutable"
-    },
-    "/scroll-reveal.js": {
-      "Content-Type": "application/javascript; charset=utf-8",
-      "Cache-Control": "public, max-age=31536000, immutable"
-    },
-    "/favicon.svg": {
-      "Content-Type": "image/svg+xml",
-      "Cache-Control": "public, max-age=31536000, immutable"
-    },
-    "/index.json": {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "public, max-age=3600"
-    },
-    "/conservative-rebalancer.json": {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "public, max-age=3600"
-    },
-    "/balanced-yield.json": {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "public, max-age=3600"
-    },
-    "/aggressive-momentum.json": {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "public, max-age=3600"
-    }
-  }
+  "site_name": "Synapse Vault",
+  "object_id": "0x55c33a39757a4487ca8cebdaffd5b7b9f9ba9601456a82ef5f031c689ae0001a"
 }
