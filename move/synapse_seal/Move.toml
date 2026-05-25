@@ -1,0 +1,16 @@
+[package]
+name = "synapse_seal"
+edition = "2024.beta"
+license = "Apache-2.0"
+authors = ["Synapse Core Team"]
+version = "0.1.0"
+
+[dependencies]
+# Sui framework + MoveStdlib auto-resolved by `sui move` (CLI 1.50+).
+
+[addresses]
+synapse_seal = "0x0"
+
+[dev-dependencies]
+
+[dev-addresses]
