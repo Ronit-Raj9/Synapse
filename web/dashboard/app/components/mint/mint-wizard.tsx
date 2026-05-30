@@ -183,15 +183,23 @@ export function MintWizard() {
    */
   async function findExistingMemwalAccount(owner: string): Promise<string | null> {
     try {
-      const res = await suiClient.queryEvents({
-        query: { MoveModule: { package: MEMWAL_PACKAGE_ID, module: 'account' } },
-        limit: 200,
-        order: 'descending',
-      });
-      for (const ev of res.data) {
-        if (!ev.type.endsWith('::account::AccountCreated')) continue;
-        const pj = ev.parsedJson as { account_id?: string; owner?: string } | undefined;
-        if (pj?.owner === owner && pj.account_id) return pj.account_id;
+      // The RPC caps queryEvents at ~50 results per page regardless of the
+      // requested limit, so page through with the cursor until we find the
+      // wallet's AccountCreated event or run out.
+      let cursor: { txDigest: string; eventSeq: string } | null = null;
+      for (let page = 0; page < 40; page++) {
+        const res = await suiClient.queryEvents({
+          query: { MoveModule: { package: MEMWAL_PACKAGE_ID, module: 'account' } },
+          ...(cursor ? { cursor } : {}),
+          order: 'descending',
+        });
+        for (const ev of res.data) {
+          if (!ev.type.endsWith('::account::AccountCreated')) continue;
+          const pj = ev.parsedJson as { account_id?: string; owner?: string } | undefined;
+          if (pj?.owner === owner && pj.account_id) return pj.account_id;
+        }
+        if (!res.hasNextPage || !res.nextCursor) return null;
+        cursor = res.nextCursor;
       }
       return null;
     } catch {
