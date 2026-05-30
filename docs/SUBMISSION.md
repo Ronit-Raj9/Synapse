@@ -22,20 +22,37 @@ The product has two layers:
 
 ## Walrus Track — Twelve-for-Twelve
 
-| # | Requirement | Where |
+Mapped 1:1 to the official problem statement. **LIVE** = exercised on
+testnet (tx / round-trip cited). **PROTOCOL-READY** = Move module + SDK in
+place, not yet wired into a live demo flow (flagged honestly).
+
+### Core deliverables
+
+| Ask | Status | Evidence |
 |---|---|---|
-| 1 | Long-term memory via MemWal | [`sdk/packages/memwal-bridge/`](../sdk/packages/memwal-bridge/) — `recall`/`remember` per tick |
-| 2 | Direct Walrus file access | [`sdk/packages/vault/src/runtime/runtime.ts`](../sdk/packages/vault/src/runtime/runtime.ts) — markdown audit reports uploaded every rebalance |
-| 3 | Integrations/tooling for adoption | [`sdk/packages/langraph-adapter/`](../sdk/packages/langraph-adapter/) — any LangGraph agent can become a Vault strategy |
-| 4 | Long-running workflows | Vault runtime ticks across sessions; memory persists; resumes on restart (see headless runtime below) |
-| 5 | Multi-agent coordination | [`move/synapse_core/sources/coordination.move`](../move/synapse_core/sources/coordination.move) — shared namespace, capability gates |
-| 6 | Artifact-driven workflows | [`move/synapse_core/sources/artifacts.move`](../move/synapse_core/sources/artifacts.move) — ArtifactRef linked to Walrus blobs |
-| 7 | Adapters for existing frameworks | LangGraph adapter (see #3) |
-| 8 | Workflow orchestration | Single PTB: spend → swap → memory write → message peer |
-| 9 | Cross-tool/cross-agent memory sharing | MemWal namespaces; conservative and aggressive strategies share context |
-| 10 | Inspection/debug dev tool | Dashboard Audit Timeline + Memory panel — per-vault, live Walrus fetch |
-| 11 | Working systems, not just demos | See "Production hardening" below |
-| 12 | Seal for privacy | Strategy parameters Seal-encrypted; only the Vault delegate key can decrypt |
+| **Long-term memory** (persistent, verifiable) | **LIVE** | MemWal `recall`/`remember` every tick — [`memwal-bridge`](../sdk/packages/memwal-bridge/); DCA counters + EMA persist across ticks/restarts. Browser recall panel: [`memwal-recall-panel.tsx`](../web/dashboard/app/components/dashboard/memwal-recall-panel.tsx) · `b205e63` |
+| **Persistent data/files via Walrus** | **LIVE** | Markdown audit report uploaded to Walrus every tick — [`runtime.ts`](../sdk/packages/vault/src/runtime/runtime.ts); `ArtifactRef` on-chain — [`artifacts.move`](../move/synapse_core/sources/artifacts.move); browse + open raw blob in the Artifacts panel |
+| **Integrations/tooling for devs** | **LIVE** | LangGraph `SynapseStore` (`BaseStore` → MemWal/Walrus) — [`adapters/langgraph`](../sdk/packages/adapters/langgraph/) with 8 unit tests + runnable example + README · `d3077cd` |
+
+### Especially interested in
+
+| Ask | Status | Evidence |
+|---|---|---|
+| **Long-running stateful workflow** | **LIVE** | Trading agent ticks 24/7; headless runtime resumes on restart; state in MemWal |
+| **Multi-agent coordination** | **LIVE** | Two vaults, shared MemWal namespace, reader recalls writer's memory + attests on-chain — `synapse-cross-agent-read` CLI · `26f5e31`. Verified tx `AQQZhQRQZ8vK1Y7zPrxaGT7MS9cRkVAoXLYHvSSEDzRm` (`CrossAgentReadEvent`) |
+| **Artifact-driven workflows** | **LIVE** | Agent generates audit reports → stores on Walrus → **reused** via cross-agent read (a peer recalls the artifact's memory) |
+
+### Tooling axis + named references
+
+| Ask / reference | Status | Evidence |
+|---|---|---|
+| Add memory to existing frameworks | **LIVE** | LangGraph adapter (above) |
+| Cross-tool/cross-agent memory sharing | **LIVE** | Shared MemWal namespace, read + write, attested on-chain (cross-agent read tx above) |
+| Inspect/debug agent memory on Walrus | **LIVE** | Recall panel (semantic query → SEAL-decrypted hits → Walrus blob links) + Artifacts panel + audit timeline |
+| **Seal** (named ref) | **LIVE** | `synapse_seal` policy published `0x14a1cbc6…69bc91a`; encrypt→`seal_approve`→decrypt round-trip verified · `44f18b3` · [`docs/SEAL.md`](./SEAL.md) |
+| **Walrus Sites** (named ref) | **LIVE** | Marketing site published to Walrus Sites — Site object `0x55c33a39…001a` · [`web/site/`](../web/site/) |
+| **Sui Stack Messaging** (named ref) | **PROTOCOL-READY** | `messaging_bridge.move` records send/receive digests + channel refs; not yet wired to a live `@mysten/messaging` flow (honest gap) |
+| Cryptographic revocation cascade | **LIVE** | On-chain revoke + owner-signed MemWal delegate removal — [`danger-zone.tsx`](../web/dashboard/app/components/dashboard/danger-zone.tsx) · `5274518` |
 
 ---
 
@@ -119,15 +136,17 @@ Every item below is merged to `main` and tested.
 ## Test suite
 
 ```
-sdk/packages/vault tests:   59 passing
-  - bootstrap.test.ts        — secret resolution precedence
-  - logger.test.ts           — redaction (field-name, value-shape, Error serialization)
-  - alerts.test.ts           — webhook payload, non-blocking on errors
-  - walrus-loader.test.ts    — allowlist enforcement, env parsing
-  - runtime.test.ts          — TickSkippedError, consecutive failure isolation
-Move tests:                  10 passing
-Dashboard typecheck:         clean (strict mode)
-Forbidden-pattern scan:      clean
+sdk/packages/vault tests:        59 passing
+  - bootstrap / secrets          — secret resolution precedence
+  - logger                       — redaction (field-name, value-shape, Error)
+  - alerts                       — webhook payload, non-blocking on errors
+  - walrus-loader                — allowlist enforcement, env parsing
+  - runtime                      — TickSkippedError, failure isolation
+adapters/langgraph tests:         8 passing
+  - synapse-store                — put/get/recall/tombstone/search/filter
+Move tests:                      synapse_core + synapse_seal — clean
+Dashboard typecheck + build:     clean (strict mode, 11/11 prerender)
+Forbidden-pattern scan:          clean
 ```
 
 ---
@@ -142,6 +161,7 @@ Forbidden-pattern scan:      clean
 
 | Gap | Why it's acceptable |
 |---|---|
+| Sui Stack Messaging not live-wired | `messaging_bridge.move` is in place and records send/receive digests; wiring the off-chain `@mysten/messaging` channel flow (channel create → send → on-chain record) is the next step. Marked PROTOCOL-READY above, not claimed as live. |
 | No third-party security audit | Judges expect audit-awareness, not a completed audit. Threat model + allowlist + CI cover the intent. |
 | Mainnet not published | Testnet-only; mainnet publish costs real SUI and is planned for Phase 6. |
 | DEEP fee path tested with zero-DEEP workaround | DeepBook testnet pool accepts the swap; the `pay_with_deep = true` path is exercised but with a zero-balance edge case. Documented in code. |
