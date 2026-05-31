@@ -21,7 +21,11 @@
  * the strategy degrades to a transparent noop rather than failing the tick.
  */
 
-import Anthropic from '@anthropic-ai/sdk';
+// Type-only import — erased at compile time, so it never pulls @anthropic-ai/sdk
+// into a bundle that merely imports this strategy (e.g. the browser in-tab
+// runtime via the strategies barrel). The SDK is loaded dynamically inside
+// `defaultAdvise`, which only runs server-side when an API key is present.
+import type AnthropicNs from '@anthropic-ai/sdk';
 import type { Strategy, StrategyInput, StrategyDecision, MemoryWrite } from '../types.js';
 import { conservativeRebalancer } from './conservative-rebalancer.js';
 
@@ -173,7 +177,17 @@ const defaultAdvise: AdviseFn = async (input, config) => {
   const apiKey = config.apiKey ?? process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return null;
 
-  const client = new Anthropic({ apiKey });
+  // Import through `importExternal` (defined at module scope) so the specifier
+  // reaches `import()` as a function PARAMETER, not a literal. Bundlers
+  // (Turbopack/webpack) constant-fold a literal or a `const = '…'` and pull
+  // @anthropic-ai/sdk — and its Node-only submodules — into the browser chunk,
+  // which fails. The parameter indirection keeps it fully external: Node
+  // resolves it at runtime; the browser never reaches here (the in-tab runtime
+  // uses the noop fallback strategy).
+  const mod = (await importExternal('@anthropic-ai/sdk')) as {
+    default: new (opts: { apiKey: string }) => AnthropicNs;
+  };
+  const client = new mod.default({ apiKey });
   const prompt = buildPrompt(input, config);
 
   const response = await client.messages.create({
@@ -189,7 +203,7 @@ const defaultAdvise: AdviseFn = async (input, config) => {
     messages: [{ role: 'user', content: prompt }],
   });
 
-  const text = response.content.find((b): b is Anthropic.TextBlock => b.type === 'text')?.text;
+  const text = response.content.find((b): b is AnthropicNs.TextBlock => b.type === 'text')?.text;
   if (!text) return null;
   const parsed = JSON.parse(text) as Partial<AdvisorRecommendation>;
   if (
@@ -233,6 +247,15 @@ function buildPrompt(input: StrategyInput, config: LlmAdvisorConfig): string {
     `Given the above, choose the target ${config.baseSymbol} weight (0-1), your confidence (0-1), ` +
       `and a one or two sentence rationale. Be conservative; small adjustments compound.`,
   ].join('\n');
+}
+
+/**
+ * Dynamic import through a function parameter so bundlers can't statically
+ * resolve the specifier and pull the module (and its Node-only submodules)
+ * into a browser chunk. Used only on the server-side advisor path.
+ */
+function importExternal(specifier: string): Promise<unknown> {
+  return import(/* webpackIgnore: true */ /* turbopackIgnore: true */ specifier);
 }
 
 function clamp01(n: number): number {
