@@ -1315,7 +1315,7 @@ function downloadSessionKeyFile(payload: {
 // ============================================================================
 
 const SELF_HOSTING_DOCS_URL =
-  'https://github.com/suyashagrawal2003/Synapse/blob/main/docs/self-hosting.md';
+  'https://github.com/SuyashAlphaC/Synapse/blob/main/README.md';
 
 /** Web compose file that mirrors the in-repo docker-compose.yml exactly. */
 function renderDockerCompose(agentShort: string): string {
@@ -1382,7 +1382,7 @@ function renderEnvFile(args: {
 # If you want to override, drop 64-char hex into secrets/memwal-delegate.`;
 
   return `# Synapse Vault runtime — generated for this vault.
-# https://github.com/suyashagrawal2003/Synapse/blob/main/docs/self-hosting.md
+# https://github.com/SuyashAlphaC/Synapse/blob/main/README.md
 #
 # Boot:
 #   1. cd into this folder.
@@ -1423,7 +1423,7 @@ SYNAPSE_MAX_FAILURES=5             # auto-shutdown after N consecutive failures
 # -- Marketplace strategy hardening (recommended) ----------------------------
 # Comma-separated lowercase 64-char hex code_hashes the runtime is allowed
 # to load from Walrus. Leave empty to allow whatever the vault opted into
-# on-chain. See docs/self-hosting.md → "Marketplace strategy allowlist".
+# on-chain. See README.md → "Marketplace strategy allowlist".
 # SYNAPSE_ALLOWED_STRATEGY_HASHES=
 # SYNAPSE_ALLOWED_STRATEGY_PUBLISHERS=
 
@@ -1448,7 +1448,7 @@ function downloadText(filename: string, contents: string, mime: string): void {
  * Single-screen production proof. Renders below the mint result with three
  * mutually-exclusive deployment options — same vault, different operator
  * comfort levels. Each branch reuses artifacts that already exist in the
- * repo (Dockerfile + docker-compose.yml + docs/self-hosting.md) so what we
+ * repo (Dockerfile + docker-compose.yml + README.md) so what we
  * hand the user is byte-identical to what `docker compose up` would do
  * against this codebase.
  */
@@ -1555,7 +1555,7 @@ $ docker compose up --build    # then close this tab`}
             rel="noreferrer"
             className="text-accent-blue underline"
           >
-            docs/self-hosting.md
+            README.md
           </a>{' '}
           covers each in &lt;10 lines of config.
         </p>
