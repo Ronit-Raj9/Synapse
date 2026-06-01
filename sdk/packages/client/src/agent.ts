@@ -136,8 +136,8 @@ export function recordTickPerformance(
     alphaBpsNeg: bigint;
   },
 ): TransactionResult {
-  // u64 range + single-leg invariant, mirroring strategy_registry::record_tick
-  // (EBadAlpha): exactly one of pos/neg is non-zero, both within u64.
+  // Client-side sanity: alpha is signed, reported as exactly one non-zero leg
+  // per tick, each within u64. Catches caller mistakes before the round-trip.
   const MAX_U64 = (1n << 64n) - 1n;
   for (const [name, v] of [
     ['alphaBpsPos', args.alphaBpsPos],
