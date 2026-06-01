@@ -72,7 +72,8 @@ import {
   rememberStrategyOutcome,
 } from './memory.js';
 import { uploadReportBlob, parseArtifactSlot, type SealUploadOptions } from './publisher.js';
-import { deepbookSwap, DEEPBOOK_PACKAGE_ID_TESTNET } from './deepbook.js';
+import { deepbookSwap } from './deepbook.js';
+import { deepbookPackageForRuntime } from './config.js';
 import { loadSessionKeypair, loadMemwalDelegateFromKeyFile } from './keypair.js';
 import { createLogger, type VaultLogger } from './logger.js';
 import type { RuntimeConfig } from './config.js';
@@ -545,7 +546,7 @@ export class VaultRuntime {
       plan: decision,
       report,
       reportWalrusBlobId: upload?.blobId ?? '',
-      deepbookPkg: DEEPBOOK_PACKAGE_ID_TESTNET,
+      deepbookPkg: deepbookPackageForRuntime(this.#config),
       swap: deepbookSwap,
       sealEncrypted: Boolean(sealOpts),
       ...(upload ? { blobSha256: upload.sha256, blobSizeBytes: upload.sizeBytes } : {}),
