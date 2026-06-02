@@ -32,6 +32,8 @@ import { conservativeRebalancer } from './conservative-rebalancer.js';
 export const LLM_ADVISOR_ID = 'llm-advisor' as const;
 const STRATEGY_VERSION = '1.0.0';
 const DEFAULT_MODEL = 'claude-opus-4-8';
+const DEFAULT_RECALL_THRESHOLD = 0.015;
+const DEFAULT_MAX_IDLE_EPOCHS = 1;
 
 /** The LLM's structured recommendation for this tick. */
 export interface AdvisorRecommendation {
@@ -63,6 +65,16 @@ export interface LlmAdvisorConfig {
   model?: string;
   /** Anthropic API key. Falls back to `ANTHROPIC_API_KEY`. */
   apiKey?: string;
+  /**
+   * Base-price move (fraction, e.g. 0.015 = 1.5%) since the last LLM call that
+   * forces a fresh call. Below this AND within `llmMaxIdleEpochs`, the call is
+   * skipped and the last target weight is reused (no API spend). Default 0.015.
+   */
+  llmRecallThreshold?: number;
+  /** Max epochs between LLM calls regardless of drift. Default 1. */
+  llmMaxIdleEpochs?: number;
+  /** Heavier model used on a large-drift escalation; falls back to `model`. */
+  escalateModel?: string;
 }
 
 const RECOMMENDATION_SCHEMA = {
@@ -97,9 +109,66 @@ export function llmAdvisor(config: LlmAdvisorConfig, deps: { advise?: AdviseFn }
         return { kind: 'noop', rationale: 'Vault is revoked; no actions permitted.' };
       }
 
+      // --- Cost gate: only spend an LLM call when something material changed.
+      // Reuse the last target weight when both (a) price drift is under threshold
+      // and (b) we called recently. State lives in memory counters.
+      const basePrice =
+        input.holdings.find((h) => h.coinTypeTag === config.baseTypeTag)?.priceUsd ??
+        input.market.prices[config.baseSymbol] ??
+        0;
+      const lastEpoch = input.memory.counters['lastLlmEpoch'];
+      const lastPriceMilli = input.memory.counters['lastLlmPriceMilli'];
+      const lastWeightMilli = input.memory.counters['lastTargetWeightMilli'];
+      const recallThreshold = config.llmRecallThreshold ?? DEFAULT_RECALL_THRESHOLD;
+      const maxIdle = config.llmMaxIdleEpochs ?? DEFAULT_MAX_IDLE_EPOCHS;
+      const hasPrior =
+        typeof lastEpoch === 'number' &&
+        typeof lastPriceMilli === 'number' &&
+        typeof lastWeightMilli === 'number';
+      const epochsSince = hasPrior ? Number(input.currentEpoch) - lastEpoch : Infinity;
+      const drift =
+        hasPrior && lastPriceMilli > 0
+          ? Math.abs(basePrice - lastPriceMilli / 1000) / (lastPriceMilli / 1000)
+          : Infinity;
+      const mustCall = !hasPrior || epochsSince >= maxIdle || drift >= recallThreshold;
+
+      if (!mustCall) {
+        // Reuse the last AI target — NO API spend. Run the deterministic
+        // rebalancer with the cached weight so policy gates still apply.
+        const reusedWeight = clamp01(lastWeightMilli / 1000);
+        const rebalReuse = conservativeRebalancer({
+          baseTypeTag: config.baseTypeTag,
+          baseSymbol: config.baseSymbol,
+          quoteTypeTag: config.quoteTypeTag,
+          quoteSymbol: config.quoteSymbol,
+          targetBaseWeight: reusedWeight,
+          driftThreshold: config.driftThreshold,
+          poolId: config.poolId,
+          slippageTolerance: config.slippageTolerance,
+        });
+        const reuseDecision = await rebalReuse.evaluate(input);
+        const gatedSignals = { llmGated: true, llmTargetBaseWeight: reusedWeight };
+        if (reuseDecision.kind === 'rebalance') {
+          return { ...reuseDecision, signals: { ...reuseDecision.signals, ...gatedSignals } };
+        }
+        return {
+          ...reuseDecision,
+          rationale: `AI (cached, no material change): ${reuseDecision.rationale}`,
+          signals: { ...(reuseDecision.signals ?? {}), ...gatedSignals },
+        };
+      }
+
+      // Escalate to the heavier model on a large move.
+      const effectiveModel =
+        drift >= recallThreshold * 4 && config.escalateModel ? config.escalateModel : config.model;
+      const callConfig: LlmAdvisorConfig = {
+        ...config,
+        ...(effectiveModel ? { model: effectiveModel } : {}),
+      };
+
       let rec: AdvisorRecommendation | null = null;
       try {
-        rec = await advise(input, config);
+        rec = await advise(input, callConfig);
       } catch (err) {
         return {
           kind: 'noop',
@@ -157,14 +226,32 @@ export function llmAdvisor(config: LlmAdvisorConfig, deps: { advise?: AdviseFn }
 
     prepareMemoryWrite: async ({ input, decision }): Promise<MemoryWrite> => {
       const prior = input.memory.counters['llmTicks'] ?? 0;
+      const gated = decision.signals?.llmGated === true;
+      const basePrice =
+        input.holdings.find((h) => h.coinTypeTag === config.baseTypeTag)?.priceUsd ??
+        input.market.prices[config.baseSymbol] ??
+        0;
+      const targetWeight =
+        typeof decision.signals?.llmTargetBaseWeight === 'number'
+          ? decision.signals.llmTargetBaseWeight
+          : (input.memory.counters['lastTargetWeightMilli'] ?? 0) / 1000;
+      // On a gated tick keep the prior call's epoch/price so staleness keeps
+      // counting from the real last call; on a real call stamp now.
+      const counters: Record<string, number> = {
+        llmTicks: prior + 1,
+        lastTargetWeightMilli: Math.round(clamp01(targetWeight) * 1000),
+        lastLlmEpoch: gated
+          ? (input.memory.counters['lastLlmEpoch'] ?? Number(input.currentEpoch))
+          : Number(input.currentEpoch),
+        lastLlmPriceMilli: gated
+          ? (input.memory.counters['lastLlmPriceMilli'] ?? Math.round(basePrice * 1000))
+          : Math.round(basePrice * 1000),
+      };
       const fact =
         decision.kind === 'rebalance'
           ? `epoch ${input.currentEpoch}: AI rebalanced — ${decision.summary}`
           : `epoch ${input.currentEpoch}: AI held — ${decision.rationale.slice(0, 160)}`;
-      return {
-        counters: { llmTicks: prior + 1 },
-        facts: [fact],
-      };
+      return { counters, facts: [fact] };
     },
   };
 }

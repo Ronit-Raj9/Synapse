@@ -121,3 +121,72 @@ describe('llmAdvisor', () => {
     expect(called).toBe(false);
   });
 });
+
+describe('llmAdvisor tick-gating', () => {
+  function buildGated(advise: AdviseFn) {
+    return llmAdvisor(
+      {
+        baseTypeTag: BASE, baseSymbol: 'SUI', quoteTypeTag: QUOTE, quoteSymbol: 'USDC',
+        poolId: POOL, slippageTolerance: 0.005, driftThreshold: 0.05,
+        llmRecallThreshold: 0.015, llmMaxIdleEpochs: 5,
+      },
+      { advise },
+    );
+  }
+
+  it('does NOT call advise when within idle epochs and under drift', async () => {
+    let calls = 0;
+    const s = buildGated(async () => {
+      calls += 1;
+      return { targetBaseWeight: 0.5, confidence: 0.9, rationale: 'r' };
+    });
+    const input = makeInput({
+      currentEpoch: 101n,
+      memory: {
+        strategyId: 'llm-advisor',
+        counters: { lastLlmEpoch: 100, lastLlmPriceMilli: 1000, lastTargetWeightMilli: 500 },
+        facts: [],
+      },
+    });
+    const d = await s.evaluate(input);
+    expect(calls).toBe(0);
+    expect(d.signals?.llmGated).toBe(true);
+  });
+
+  it('calls advise when price drift exceeds the recall threshold', async () => {
+    let calls = 0;
+    const s = buildGated(async () => {
+      calls += 1;
+      return { targetBaseWeight: 0.7, confidence: 0.9, rationale: 'r' };
+    });
+    const input = makeInput({
+      currentEpoch: 101n,
+      market: {
+        prices: { SUI: 1.1, USDC: 1 },
+        pools: [{ poolId: POOL, baseTypeTag: BASE, quoteTypeTag: QUOTE, bestBid: 1.09, bestAsk: 1.11, mid: 1.1, volume24h: 1000 }],
+        asOf: new Date().toISOString(),
+      },
+      holdings: [
+        { coinTypeTag: BASE, symbol: 'SUI', amount: 80_000_000_000n, decimals: 9, priceUsd: 1.1, valueUsd: 88 },
+        { coinTypeTag: QUOTE, symbol: 'USDC', amount: 20_000_000n, decimals: 6, priceUsd: 1, valueUsd: 20 },
+      ],
+      memory: {
+        strategyId: 'llm-advisor',
+        counters: { lastLlmEpoch: 100, lastLlmPriceMilli: 1000, lastTargetWeightMilli: 500 },
+        facts: [],
+      },
+    });
+    await s.evaluate(input);
+    expect(calls).toBe(1);
+  });
+
+  it('calls advise on first run (no prior state)', async () => {
+    let calls = 0;
+    const s = buildGated(async () => {
+      calls += 1;
+      return { targetBaseWeight: 0.5, confidence: 0.9, rationale: 'r' };
+    });
+    await s.evaluate(makeInput());
+    expect(calls).toBe(1);
+  });
+});
