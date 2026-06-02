@@ -5,7 +5,7 @@
 <h1 align="center">Synapse Vault</h1>
 
 <p align="center"><b>Autonomous AI treasury management on Sui — powered by Walrus.</b></p>
-<p align="center"><i>Hire an AI portfolio manager. Pay it in basis points. Revoke it in one click.<br>Every decision is remembered, audited, and provable — on Walrus.</i></p>
+<p align="center"><i>Hire an AI portfolio manager. Pay it in basis points. Revoke it in one click.<br>Every decision is remembered, audited, and bound to its trade on-chain — on Walrus.</i></p>
 
 <p align="center">
   <a href="https://synapse-kappa-sable.vercel.app">Live demo</a> ·
@@ -35,6 +35,8 @@ It's 2026 and AI agents run everywhere — but the moment you let one **touch mo
 
 **There is no infrastructure layer for giving AI agents *controlled* financial autonomy.** Synapse Vault is that layer.
 
+> **One product, one SDK.** **Synapse Vault** is the product you use — mint a vault, hire an agent, watch the leash. **Synapse Core** is the open Move + TypeScript layer underneath it that anyone can build on. When this README says "we win," it means the *assembly* — not that we invented the primitives (Move policy gates, Walrus memory, Seal, kill switches are all Sui-native building blocks; our edge is wiring them into one enforced envelope).
+
 ### The core idea (three sentences)
 
 1. **The smart contract holds the money** — not the AI, not us, not anyone.
@@ -45,7 +47,7 @@ The AI can be the smartest model on earth or a buggy weekend hack. The blockchai
 
 ### Why Walrus
 
-A treasury agent is only trustworthy if you can **see what it did and why, across time**. That requires durable, verifiable, portable memory — not a database one company controls. Synapse uses Walrus as the **verifiable data platform for the agent**:
+A treasury agent is only trustworthy if you can **see what it did and why, across time**. That requires durable, tamper-evident, portable memory — not a database one company controls. Synapse uses Walrus as the **tamper-evident data platform for the agent**:
 
 - **MemWal** — the agent's long-term memory (recall past decisions every tick).
 - **Walrus blobs** — every tick's full rationale stored as a tamper-evident audit artifact.
@@ -158,7 +160,7 @@ Mint wizard (zkLogin or wallet), marketplace with real backtest curves, per-vaul
 - **DAO treasury management.** A DAO mints a vault, funds it, hires a conservative rebalancer or the AI advisor, sets a 5%/epoch spend cap, and keeps the revoke key in its multisig. The agent rebalances 24/7; every action is on-chain + on Walrus for the community to audit.
 - **Fund / SMA automation.** A quant desk runs many vaults (one per client mandate) off the same headless runtime image, each with its own policy envelope. Walrus gives every client a tamper-evident statement of what ran and why.
 - **Strategy marketplace for quants.** A strategist publishes a strategy on-chain, earns a royalty (paid atomically in the rebalance PTB) on every vault that hires it. Reputation (lifetime alpha, vault count) accrues on-chain.
-- **Agent memory infrastructure (dev tooling).** Any LangGraph / agent builder drops in `SynapseStore` to get Walrus-durable, verifiable, revocable memory — without the treasury product at all.
+- **Agent memory infrastructure (dev tooling).** Any LangGraph / agent builder drops in `SynapseStore` to get Walrus-durable, tamper-evident, revocable memory — without the treasury product at all.
 - **Auditor / compliance.** A regulator verifies agent behavior from on-chain events + Walrus rationale blobs, with no access to the operator's systems.
 
 ---
@@ -174,7 +176,7 @@ Mint wizard (zkLogin or wallet), marketplace with real backtest curves, per-vaul
 
 **Sequencing.** (1) Testnet + design-partner DAOs running real funds. (2) Seed an honest marketplace with external strategists. (3) Mainnet cutover (package + DEEP funding + a funded dry-run). (4) Managed hosting ("Synapse runs your agent") for DAOs that don't want to touch infra, alongside the self-host path.
 
-**Why we win.** Competitors put the agent behind a TEE or a trusted operator. Synapse puts the guarantees **on-chain** — the policy envelope is enforced by Move, the memory + audit trail live on Walrus (portable, not ours to censor), and the kill switch is one owner signature. The trust model is verifiable, not promised.
+**Where the edge is.** The individual primitives are commodity — on-chain spend caps, allowlists, revocation, and durable memory exist across the market (Crossmint, Safe, Lit, Turnkey, MemWal). The edge is the **Sui-native assembly**: one enforced envelope where the Move VM is the *only* thing that can move money, the audit trail is bound to each trade on-chain and stored on Walrus (portable, not ours to censor), and the kill switch is one owner signature. We don't replace a TEE with on-chain policy — we're adding one: **enclave attestation (Nautilus via Marlin Oyster) is in progress** so the decision itself becomes provably produced by the published agent code, not just bound after the fact. On-chain enforcement is what we have today; attested execution is what makes "verifiable" literally true (see [Honest status](#10-honest-status)).
 
 ---
 
@@ -237,6 +239,8 @@ Live-verified on testnet: full mint → tick → DeepBook swap → Walrus artifa
 
 | Item | Note |
 |---|---|
+| **What "verifiable" means today** | Each tick's full rationale + inputs + exact trade is hashed and the hash is logged on-chain **in the same PTB as the swap** (`attestation::log_action`, `executor.ts`), then the blob is stored tamper-evident on Walrus. This proves the logged reasoning is **bound to that trade and unaltered** — it does **not** yet prove the model actually produced that reasoning or ran the published code. That stronger claim needs attested execution. |
+| **Attested execution (Nautilus)** | **In progress.** The decision step is moving into an AWS Nitro enclave via Marlin Oyster; the enclave signs `(inputs ‖ decision)` and a Move contract verifies the signature against the registered enclave key before the swap executes. When live, "the trade was provably produced by the published agent code" becomes literally true, and the runtime keys (session + Anthropic) live inside the enclave rather than a host env var. |
 | Mainnet | Testnet only. Mainnet is a deliberate cutover (publish gas + real DEEP funding + a funded dry-run). |
 | Sui Stack Messaging | Built + typecheck-verified; live channel creation needs a funded owner wallet (operator-side). |
 | DEEP fee path | Testnet pools accept a zero-DEEP swap; mainnet needs the treasury to hold DEEP. Documented in `deepbook.ts`. |
