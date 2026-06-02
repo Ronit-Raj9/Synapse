@@ -103,7 +103,8 @@ function main() {
   signingKey = loadSigningKey(keyPath);
   const pk = getPublicKey(signingKey, true);
   console.log(`enclave public key: ${Buffer.from(pk).toString('hex')}`);
-  app.listen(3000, '0.0.0.0', () => console.log('synapse decision enclave on 0.0.0.0:3000'));
+  const port = Number(process.env.PORT ?? 3000);
+  app.listen(port, '0.0.0.0', () => console.log(`synapse decision enclave on 0.0.0.0:${port}`));
 }
 
 main();

@@ -25,6 +25,18 @@ use sui::ecdsa_k1;
 use sui::event;
 use synapse_core::enclave::{Self, Enclave, Cap, EnclaveConfig};
 
+/// DEV / TESTNET ONLY. Register a local (non-TEE) enclave's public key, skipping
+/// Nitro attestation. Deployer-gated via the `Cap`. Use for free local-box demos;
+/// production registers via `enclave::register_enclave` with a real attestation.
+entry fun register_dev_enclave(
+    config: &EnclaveConfig<DECISION_ATTESTATION>,
+    cap: &Cap<DECISION_ATTESTATION>,
+    pk: vector<u8>,
+    ctx: &mut TxContext,
+) {
+    enclave::register_enclave_dev(config, cap, pk, ctx);
+}
+
 const EInvalidAttestation: u64 = 0;
 
 /// Intent scope the enclave signs under. Must match `INTENT_SCOPE` in the Node

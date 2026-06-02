@@ -107,6 +107,37 @@ public fun register_enclave<T>(
     transfer::share_object(enclave);
 }
 
+/// DEV / TESTNET ONLY. Register an enclave from a raw public key WITHOUT a Nitro
+/// attestation — for running a local (non-TEE) enclave during development and
+/// demos. Cap-gated, so only the deployer can do it. The resulting `Enclave`
+/// carries no genuine attestation guarantee: it proves the local box signed the
+/// decision, not that it ran in a real TEE. Production uses `register_enclave`.
+public fun register_enclave_dev<T>(
+    enclave_config: &EnclaveConfig<T>,
+    cap: &Cap<T>,
+    pk: vector<u8>,
+    ctx: &mut TxContext,
+) {
+    assert!(cap.id.to_inner() == enclave_config.capability_id, EInvalidCap);
+    assert!(
+        pk.length() == SECP256K1_PK_LENGTH_COMPRESSED ||
+        pk.length() == SECP256K1_PK_LENGTH_UNCOMPRESSED,
+        EInvalidPublicKeyLength,
+    );
+    let key = if (pk.length() == SECP256K1_PK_LENGTH_UNCOMPRESSED) {
+        compress_secp256k1_pubkey(&pk)
+    } else {
+        pk
+    };
+    let enclave = Enclave<T> {
+        id: object::new(ctx),
+        pk: key,
+        config_version: enclave_config.version,
+        owner: ctx.sender(),
+    };
+    transfer::share_object(enclave);
+}
+
 /// Verify a secp256k1 signature over the BCS-serialized IntentMessage wrapping
 /// `payload`. Returns true iff the registered enclave key signed it.
 public fun verify_signature<T, P: drop>(
