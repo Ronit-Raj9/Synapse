@@ -69,7 +69,20 @@ async function main(): Promise<void> {
 
   // Build a Sui client extended with Seal + Sui Stack Messaging. Messages are
   // stored on Walrus and Seal-encrypted to channel members.
-  const client = new SuiClient({ url })
+  // The messaging SDK emits transaction targets/types under the MVR name
+  // `@local-pkg/sui-stack-messaging`. Without an MVR API URL the client throws
+  // "MVR Api URL is not set" on serialize. Prime the resolver with a local
+  // override mapping that name → the real testnet package id (no network call).
+  const client = new SuiClient({
+    url,
+    mvr: {
+      overrides: {
+        packages: {
+          '@local-pkg/sui-stack-messaging': TESTNET_MESSAGING_PACKAGE_CONFIG.packageId,
+        },
+      },
+    },
+  })
     .$extend(
       SealClient.asClientExtension({
         serverConfigs: TESTNET_SEAL_KEY_SERVERS.map((objectId) => ({ objectId, weight: 1 })),
