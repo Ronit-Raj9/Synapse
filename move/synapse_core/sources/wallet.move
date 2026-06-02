@@ -65,6 +65,10 @@ public fun spend<T>(
     // Four-layer policy gate.
     agent::assert_can_act(identity, ctx);
     agent::assert_package_allowed(identity, target_pkg);
+    // Nautilus: if this vault requires attestation, a valid enclave-signed
+    // decision must have been stamped this epoch (decision_attestation::
+    // attest_decision) — otherwise abort. No-op for non-attested vaults.
+    agent::assert_attested_if_required(identity, ctx);
 
     // Roll epoch counter, charge against per-epoch budget.
     agent::reset_epoch_if_new(identity, ctx);

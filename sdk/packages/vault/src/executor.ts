@@ -116,7 +116,7 @@ export function buildRebalancePTB(args: BuildRebalancePTBArgs): BuildRebalancePT
       target: target(synapsePackageId, 'decisionAttestation', 'attest_decision'),
       arguments: [
         tx.object(a.enclaveObjectId),
-        tx.pure.address(vaultId),
+        tx.object(vaultId), // &mut AgentIdentity — vault_id derived + stamped on-chain
         tx.pure.u64(a.epoch),
         tx.pure.u64(a.targetWeightMilli),
         tx.pure.vector('u8', a.inputsHash),

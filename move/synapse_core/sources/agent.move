@@ -39,6 +39,7 @@ const EStrategyMismatch: u64 = 12;
 const EInsufficientBalance: u64 = 13;
 const EOpBudgetUnset: u64 = 14;
 const EOpBudgetExceeded: u64 = 15;
+const ENotAttested: u64 = 16;
 
 // === Events ===
 
@@ -146,6 +147,25 @@ public struct WalrusConsent has store, drop {
 
 /// Dynamic-field key for the WalrusConsent value.
 public struct WalrusConsentKey has copy, drop, store {}
+
+/// Dynamic-field value: whether this vault requires an enclave-attested decision
+/// (Nautilus) before it may spend, and the last epoch a valid attestation landed.
+/// Stored as a dynamic field (not a struct field) so it works for vaults minted
+/// before this upgrade.
+public struct AttestationGate has store, drop {
+    required: bool,
+    attested_for_epoch: u64,
+}
+
+/// Dynamic-field key for the AttestationGate value.
+public struct AttestationGateKey has copy, drop, store {}
+
+/// Emitted when the owner changes the attestation requirement.
+public struct AttestationRequirementSetEvent has copy, drop {
+    agent_id: ID,
+    required: bool,
+    epoch: u64,
+}
 
 // === The spine struct ===
 
@@ -618,6 +638,80 @@ public fun walrus_consent_set_at_epoch(identity: &AgentIdentity): u64 {
     } else {
         0
     }
+}
+
+// === Nautilus attestation gate ===
+
+/// Owner-only: require (or stop requiring) an enclave-attested decision before
+/// this vault may spend. When `required` is true, every spend aborts unless a
+/// valid enclave-signed decision was stamped this epoch via
+/// `decision_attestation::attest_decision`. Safe to call inside a mint PTB.
+public fun set_requires_attestation(
+    identity: &mut AgentIdentity,
+    required: bool,
+    ctx: &TxContext,
+) {
+    assert!(ctx.sender() == identity.owner, ENotOwner);
+    let agent_id = identity.id.to_inner();
+    let epoch_now = ctx.epoch();
+    let uid = &mut identity.id;
+    let key = AttestationGateKey {};
+    if (df::exists_(uid, key)) {
+        let gate: &mut AttestationGate = df::borrow_mut(uid, key);
+        gate.required = required;
+    } else {
+        df::add(uid, key, AttestationGate { required, attested_for_epoch: 0 });
+    };
+    event::emit(AttestationRequirementSetEvent { agent_id, required, epoch: epoch_now });
+}
+
+/// Whether this vault requires enclave attestation to spend. Defaults to false
+/// for any vault that never set it (i.e., every vault minted before this upgrade).
+public fun requires_attestation(identity: &AgentIdentity): bool {
+    let key = AttestationGateKey {};
+    if (df::exists_(&identity.id, key)) {
+        let gate: &AttestationGate = df::borrow(&identity.id, key);
+        gate.required
+    } else {
+        false
+    }
+}
+
+/// Epoch of the most recent valid attestation stamp (0 if never attested).
+public fun attested_for_epoch(identity: &AgentIdentity): u64 {
+    let key = AttestationGateKey {};
+    if (df::exists_(&identity.id, key)) {
+        let gate: &AttestationGate = df::borrow(&identity.id, key);
+        gate.attested_for_epoch
+    } else {
+        0
+    }
+}
+
+/// Stamp that a valid enclave attestation landed this epoch. Called by
+/// `decision_attestation::attest_decision` after the signature verifies.
+public(package) fun stamp_attested(identity: &mut AgentIdentity, epoch: u64) {
+    let uid = &mut identity.id;
+    let key = AttestationGateKey {};
+    if (df::exists_(uid, key)) {
+        let gate: &mut AttestationGate = df::borrow_mut(uid, key);
+        gate.attested_for_epoch = epoch;
+    } else {
+        df::add(uid, key, AttestationGate { required: false, attested_for_epoch: epoch });
+    };
+}
+
+/// Spend gate: aborts if this vault requires attestation but no valid
+/// attestation was stamped in the current epoch. A no-op for vaults that don't
+/// require it. Called from `wallet::spend`.
+public(package) fun assert_attested_if_required(identity: &AgentIdentity, ctx: &TxContext) {
+    let key = AttestationGateKey {};
+    if (df::exists_(&identity.id, key)) {
+        let gate: &AttestationGate = df::borrow(&identity.id, key);
+        if (gate.required) {
+            assert!(gate.attested_for_epoch == ctx.epoch(), ENotAttested);
+        };
+    };
 }
 
 // === Operational budget — read-only accessors ===

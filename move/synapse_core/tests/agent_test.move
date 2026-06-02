@@ -582,6 +582,52 @@ fun non_owner_set_walrus_consent_aborts() {
 }
 
 #[test]
+#[expected_failure(abort_code = synapse_core::agent::ENotAttested)]
+fun requires_attestation_blocks_unattested_spend() {
+    let mut scenario = ts::begin(HUMAN);
+    let (strategy_id, _cap_id) = publish_fixture_strategy(&mut scenario);
+    let mut strategy: Strategy = ts::take_shared_by_id<Strategy>(&scenario, strategy_id);
+    let mut identity =
+        mint_agent_against(&mut scenario, &mut strategy, AGENT_SESSION, 1000, 10, b"ns");
+
+    // Advance past epoch 0 so the unset stamp (0) can't coincide with the epoch.
+    ts::next_epoch(&mut scenario, HUMAN);
+    agent::set_requires_attestation(&mut identity, true, ts::ctx(&mut scenario));
+    // No attestation stamped this epoch -> the spend gate aborts.
+    agent::assert_attested_if_required(&identity, ts::ctx(&mut scenario));
+
+    test_utils::destroy(identity);
+    ts::return_shared(strategy);
+    ts::end(scenario);
+}
+
+#[test]
+fun attestation_stamp_satisfies_gate() {
+    let mut scenario = ts::begin(HUMAN);
+    let (strategy_id, _cap_id) = publish_fixture_strategy(&mut scenario);
+    let mut strategy: Strategy = ts::take_shared_by_id<Strategy>(&scenario, strategy_id);
+    let mut identity =
+        mint_agent_against(&mut scenario, &mut strategy, AGENT_SESSION, 1000, 10, b"ns");
+
+    // Default: not required -> gate passes with no stamp.
+    assert!(!agent::requires_attestation(&identity), 0);
+    agent::assert_attested_if_required(&identity, ts::ctx(&mut scenario));
+
+    // Require attestation, then stamp the current epoch -> gate passes.
+    ts::next_tx(&mut scenario, HUMAN);
+    agent::set_requires_attestation(&mut identity, true, ts::ctx(&mut scenario));
+    assert!(agent::requires_attestation(&identity), 1);
+    let ep = ts::ctx(&mut scenario).epoch();
+    agent::stamp_attested(&mut identity, ep);
+    assert!(agent::attested_for_epoch(&identity) == ep, 2);
+    agent::assert_attested_if_required(&identity, ts::ctx(&mut scenario));
+
+    test_utils::destroy(identity);
+    ts::return_shared(strategy);
+    ts::end(scenario);
+}
+
+#[test]
 #[expected_failure(abort_code = synapse_core::strategy_registry::EMaxRoyaltyExceeded)]
 fun publishing_strategy_with_royalty_above_cap_aborts() {
     let mut scenario = ts::begin(STRATEGIST);

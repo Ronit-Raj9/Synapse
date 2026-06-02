@@ -168,6 +168,23 @@ export function buildSetWalrusConsentPTB(args: {
   return tx;
 }
 
+/**
+ * Owner-only: require (or stop requiring) Nautilus enclave attestation before
+ * this vault may spend. When enabled, the chain aborts any trade that wasn't
+ * preceded by a valid enclave-signed decision in the same epoch.
+ */
+export function buildSetRequiresAttestationPTB(args: {
+  agentId: string;
+  required: boolean;
+}): Transaction {
+  const tx = new Transaction();
+  tx.moveCall({
+    target: synapseTarget('agent', 'set_requires_attestation'),
+    arguments: [tx.object(args.agentId), tx.pure.bool(args.required)],
+  });
+  return tx;
+}
+
 /** Build the revoke PTB against a known AgentIdentity object ID. */
 export function buildRevokePTB(args: { agentId: string; strategyId: string }): Transaction {
   const tx = new Transaction();

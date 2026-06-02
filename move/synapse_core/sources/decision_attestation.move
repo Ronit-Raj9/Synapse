@@ -24,6 +24,7 @@ use std::bcs;
 use sui::ecdsa_k1;
 use sui::event;
 use synapse_core::enclave::{Self, Enclave, Cap, EnclaveConfig};
+use synapse_core::agent::{Self, AgentIdentity};
 
 /// DEV / TESTNET ONLY. Register a local (non-TEE) enclave's public key, skipping
 /// Nitro attestation. Deployer-gated via the `Cap`. Use for free local-box demos;
@@ -109,18 +110,22 @@ public fun verify_decision(
     enclave.verify_signature(INTENT_DECISION, timestamp_ms, payload, signature)
 }
 
-/// The gate. Aborts the transaction unless the registered enclave signed this
-/// decision. Called at the top of an attested vault's rebalance PTB, before the
-/// swap. Emits `DecisionAttested` for the audit timeline.
+/// The gate. Aborts unless the registered enclave signed a decision for THIS
+/// vault (the signed `vault_id` is derived on-chain from the AgentIdentity, so a
+/// decision signed for another vault can't be replayed here). On success, stamps
+/// the vault as attested for `epoch` — `wallet::spend` checks that stamp, so a
+/// `requires_attestation` vault can only trade after this call lands in the same
+/// PTB. Emits `DecisionAttested` for the audit timeline.
 public fun assert_decision_attested(
     enclave: &Enclave<DecisionEnclave>,
-    vault_id: address,
+    identity: &mut AgentIdentity,
     epoch: u64,
     target_weight_milli: u64,
     inputs_hash: vector<u8>,
     timestamp_ms: u64,
     signature: vector<u8>,
 ) {
+    let vault_id = object::id_address(identity);
     let ok = verify_decision(
         enclave,
         vault_id,
@@ -131,6 +136,7 @@ public fun assert_decision_attested(
         &signature,
     );
     assert!(ok, EInvalidAttestation);
+    agent::stamp_attested(identity, epoch);
     event::emit(DecisionAttested {
         vault_id,
         epoch,
@@ -140,10 +146,10 @@ public fun assert_decision_attested(
     });
 }
 
-/// Entry wrapper so the gate can be invoked directly in a PTB by reference args.
+/// Entry wrapper so the gate can be invoked directly in a PTB.
 entry fun attest_decision(
     enclave: &Enclave<DecisionEnclave>,
-    vault_id: address,
+    identity: &mut AgentIdentity,
     epoch: u64,
     target_weight_milli: u64,
     inputs_hash: vector<u8>,
@@ -152,7 +158,7 @@ entry fun attest_decision(
 ) {
     assert_decision_attested(
         enclave,
-        vault_id,
+        identity,
         epoch,
         target_weight_milli,
         inputs_hash,
