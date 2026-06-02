@@ -29,8 +29,8 @@ use synapse_core::enclave::{Self, Enclave, Cap, EnclaveConfig};
 /// Nitro attestation. Deployer-gated via the `Cap`. Use for free local-box demos;
 /// production registers via `enclave::register_enclave` with a real attestation.
 entry fun register_dev_enclave(
-    config: &EnclaveConfig<DECISION_ATTESTATION>,
-    cap: &Cap<DECISION_ATTESTATION>,
+    config: &EnclaveConfig<DecisionEnclave>,
+    cap: &Cap<DecisionEnclave>,
     pk: vector<u8>,
     ctx: &mut TxContext,
 ) {
@@ -43,8 +43,11 @@ const EInvalidAttestation: u64 = 0;
 /// enclave (`enclave/src/index.js`).
 const INTENT_DECISION: u8 = 0;
 
-/// One-time witness — types the enclave config/registration to this module.
-public struct DECISION_ATTESTATION has drop {}
+/// Marker type that scopes the enclave config/registration to this module. A
+/// plain witness (not a one-time witness): this module is added to an
+/// already-published `synapse_core` via upgrade, where an OTW `init` never fires,
+/// so the config is created by `bootstrap_config` instead.
+public struct DecisionEnclave has drop {}
 
 /// The decision the enclave signs. Field order + types MUST match the BCS layout
 /// the Node enclave serializes (`DecisionPayload` there).
@@ -65,15 +68,24 @@ public struct DecisionAttested has copy, drop {
     timestamp_ms: u64,
 }
 
-/// Set up the enclave config at publish time. PCRs are placeholders here and MUST
-/// be set to the real reproducible-build measurements via `enclave::update_pcrs`
-/// after the enclave image is built (and again on every rebuild). The `Cap` goes
-/// to the deployer.
-fun init(witness: DECISION_ATTESTATION, ctx: &mut TxContext) {
+/// One-time bootstrap. Creates the `Cap` + `EnclaveConfig` and transfers the Cap
+/// to the caller (the deployer). Called once after the `synapse_core` upgrade
+/// that adds this module — an OTW `init` can't be used here because `init` only
+/// fires on a package's first publish, not on upgrade. PCRs are placeholders;
+/// set real ones with `enclave::update_pcrs` (real TEE) or use
+/// `register_dev_enclave` for a local non-TEE box. (A rogue caller can only
+/// create their own config/cap; vault gates reference a specific `Enclave`
+/// object, so it can't affect a vault using the legitimate enclave.)
+entry fun bootstrap_config(ctx: &mut TxContext) {
+    create_config(DecisionEnclave {}, ctx);
+}
+
+fun create_config(witness: DecisionEnclave, ctx: &mut TxContext) {
     let cap = enclave::new_cap(witness, ctx);
     cap.create_enclave_config(
         b"Synapse Decision Enclave".to_string(),
-        // Placeholder PCRs — overwrite with `update_pcrs` after the enclave build.
+        // Placeholder PCRs — overwrite with `update_pcrs` after the enclave build
+        // (real TEE), or use `register_dev_enclave` for a local non-TEE box.
         x"00",
         x"00",
         x"00",
@@ -85,7 +97,7 @@ fun init(witness: DECISION_ATTESTATION, ctx: &mut TxContext) {
 
 /// Verify the enclave signed exactly this decision; returns the boolean.
 public fun verify_decision(
-    enclave: &Enclave<DECISION_ATTESTATION>,
+    enclave: &Enclave<DecisionEnclave>,
     vault_id: address,
     epoch: u64,
     target_weight_milli: u64,
@@ -101,7 +113,7 @@ public fun verify_decision(
 /// decision. Called at the top of an attested vault's rebalance PTB, before the
 /// swap. Emits `DecisionAttested` for the audit timeline.
 public fun assert_decision_attested(
-    enclave: &Enclave<DECISION_ATTESTATION>,
+    enclave: &Enclave<DecisionEnclave>,
     vault_id: address,
     epoch: u64,
     target_weight_milli: u64,
@@ -130,7 +142,7 @@ public fun assert_decision_attested(
 
 /// Entry wrapper so the gate can be invoked directly in a PTB by reference args.
 entry fun attest_decision(
-    enclave: &Enclave<DECISION_ATTESTATION>,
+    enclave: &Enclave<DecisionEnclave>,
     vault_id: address,
     epoch: u64,
     target_weight_milli: u64,
@@ -192,7 +204,7 @@ fun make_intent(
 fun verifies_node_signed_decision() {
     let mut ctx = tx_context::dummy();
     let pk = x"0284bf7562262bbd6940085748f3be6afa52ae317155181ece31b66351ccffa4b0";
-    let enclave = enclave::new_enclave_for_testing<DECISION_ATTESTATION>(pk, &mut ctx);
+    let enclave = enclave::new_enclave_for_testing<DecisionEnclave>(pk, &mut ctx);
     let inputs_hash = x"f43c09c97259c438778fbff22b4a9941370439e1fb96a35682d0e3be68788da8";
     let signature = x"cde98f205ae4cef4da644f0b9a77739ec8ffbde8a4c60da071ba33596f6ee4f3656bd50e37b15efd5f02062b6d40a03b299b4281c08f4ef24d109b0b333f7ce6";
     let ok = verify_decision(
