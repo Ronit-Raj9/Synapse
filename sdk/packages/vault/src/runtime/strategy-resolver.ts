@@ -15,16 +15,7 @@
 
 import type { SuiJsonRpcClient } from '@mysten/sui/jsonRpc';
 import type { Strategy } from '../types.js';
-import {
-  AGGRESSIVE_MOMENTUM_ID,
-  BALANCED_YIELD_ID,
-  CONSERVATIVE_REBALANCER_ID,
-  LLM_ADVISOR_ID,
-  aggressiveMomentum,
-  balancedYield,
-  conservativeRebalancer,
-  llmAdvisor,
-} from '../strategies/index.js';
+import { CONSERVATIVE_REBALANCER_ID, conservativeRebalancer } from '../strategies/index.js';
 import {
   SUI_TYPE_TAG_TESTNET,
   SUI_USDC_POOL_ID_TESTNET,
@@ -37,24 +28,27 @@ import {
   type WalrusStrategyAllowlist,
 } from './walrus-loader.js';
 
-/** Strategy slug returned by `resolveStrategySlug`. */
-export type StrategySlug =
-  | typeof CONSERVATIVE_REBALANCER_ID
-  | typeof BALANCED_YIELD_ID
-  | typeof AGGRESSIVE_MOMENTUM_ID
-  | typeof LLM_ADVISOR_ID;
+/**
+ * Strategy slug returned by `resolveStrategySlug`.
+ *
+ * Only the conservative rebalancer is a BUILT-IN (compiled into the runtime) —
+ * it is the deterministic fail-safe + the executor the attested (Nautilus) path
+ * drives. Every other strategy (balanced-yield, aggressive-momentum, llm-advisor,
+ * and any third-party listing) is **Walrus-published only**: the runtime loads it
+ * dynamically from Walrus, hash-verified, when the vault has consented. Their
+ * `.ts` sources stay in `src/strategies/` as the publish source for
+ * `scripts/republish-strategies.ts`, but they are NOT wired here.
+ */
+export type StrategySlug = typeof CONSERVATIVE_REBALANCER_ID;
 
 /**
- * Canonical on-chain `Strategy` object IDs from the testnet seed. Used as
- * defaults; override at runtime via env / config.
+ * On-chain `Strategy` object IDs the runtime executes via a BUILT-IN impl (the
+ * fast/offline path). Only the conservative rebalancer qualifies; all other
+ * strategy IDs resolve via the Walrus loader (or the default fallback).
  */
 export const KNOWN_STRATEGIES: Record<string, StrategySlug> = {
   '0x46996c0f9e692968f55a63c3cbc33eb8d19145c123b7a867a02da342e617d3ec':
     CONSERVATIVE_REBALANCER_ID,
-  '0x44c0f7c4f6e04024c9bb1c0ce1eb1965018675cd074e7a410a59c2d43887c679':
-    BALANCED_YIELD_ID,
-  '0xa1d73e17bc4c53484a3254c5ed3c0b24e340524d0014703c072f91d60f02d4a1':
-    AGGRESSIVE_MOMENTUM_ID,
 };
 
 /**
@@ -75,12 +69,7 @@ function parseEnvOverride(raw: string | undefined): Record<string, StrategySlug>
   const parsed = JSON.parse(raw) as Record<string, string>;
   const out: Record<string, StrategySlug> = {};
   for (const [k, v] of Object.entries(parsed)) {
-    if (
-      v === CONSERVATIVE_REBALANCER_ID ||
-      v === BALANCED_YIELD_ID ||
-      v === AGGRESSIVE_MOMENTUM_ID ||
-      v === LLM_ADVISOR_ID
-    ) {
+    if (v === CONSERVATIVE_REBALANCER_ID) {
       out[k] = v;
     } else {
       throw new Error(`SYNAPSE_STRATEGY_REGISTRY_JSON: unknown slug "${v}"`);
@@ -101,8 +90,6 @@ export interface BuildStrategyOverrides {
   quoteSymbol?: string;
   /** DeepBookV3 pool the strategy should route through. */
   poolId?: string;
-  /** Per-vault Anthropic key for the llm-advisor; falls back to env when unset. */
-  apiKey?: string;
 }
 
 export function buildStrategy(
@@ -124,39 +111,6 @@ export function buildStrategy(
         targetBaseWeight: 0.5,
         driftThreshold: 0.05,
         slippageTolerance: 0.005,
-      });
-    case BALANCED_YIELD_ID:
-      return balancedYield({
-        ...commonPair,
-        targetBaseWeight: 0.6,
-        thresholdLow: 0.02,
-        thresholdHigh: 0.08,
-        slippageLow: 0.005,
-        slippageHigh: 0.02,
-        volWindow: 12,
-      });
-    case AGGRESSIVE_MOMENTUM_ID:
-      return aggressiveMomentum({
-        ...commonPair,
-        entryThreshold: 0.02,
-        exitThreshold: -0.01,
-        maxConfBps: 75,
-        slippageTolerance: 0.01,
-        maxPositionFraction: 0.5,
-      });
-    case LLM_ADVISOR_ID:
-      // AI-driven: needs ANTHROPIC_API_KEY on the runtime; degrades to a
-      // transparent noop without it. Runs server-side only — the in-browser
-      // runtime excludes @anthropic-ai/sdk from its bundle.
-      return llmAdvisor({
-        baseTypeTag: commonPair.baseTypeTag,
-        baseSymbol: commonPair.baseSymbol,
-        quoteTypeTag: commonPair.quoteTypeTag,
-        quoteSymbol: commonPair.quoteSymbol,
-        poolId: commonPair.poolId,
-        slippageTolerance: 0.005,
-        driftThreshold: 0.05,
-        ...(overrides.apiKey ? { apiKey: overrides.apiKey } : {}),
       });
   }
 }

@@ -351,7 +351,7 @@ export class VaultRuntime {
         h.coinTypeTag !== '0x2::sui::SUI' &&
         !h.coinTypeTag.endsWith('::sui::SUI'),
     );
-    const overrides: { quoteTypeTag?: string; quoteSymbol?: string; poolId?: string; apiKey?: string } = {};
+    const overrides: { quoteTypeTag?: string; quoteSymbol?: string; poolId?: string } = {};
     if (this.#config.quoteTypeTagOverride) {
       overrides.quoteTypeTag = this.#config.quoteTypeTagOverride;
     } else if (detectedQuote) {
@@ -360,11 +360,11 @@ export class VaultRuntime {
     }
     if (this.#config.poolIdOverride) overrides.poolId = this.#config.poolIdOverride;
     // Per-vault Anthropic key (model A): resolve from the configured secrets
-    // provider, else the runtime's own ANTHROPIC_API_KEY. Threaded explicitly
-    // into the llm-advisor build instead of being read implicitly in-strategy.
-    const anthropicKey =
-      (await this.#secrets.get('anthropic_api_key')) ?? process.env.ANTHROPIC_API_KEY ?? null;
-    if (anthropicKey) overrides.apiKey = anthropicKey;
+    // provider into the process env so the Walrus-loaded llm-advisor bundle (and
+    // any LLM strategy) reads it via `process.env.ANTHROPIC_API_KEY`. The
+    // attested path keeps the key inside the enclave instead.
+    const anthropicKey = await this.#secrets.get('anthropic_api_key');
+    if (anthropicKey) process.env.ANTHROPIC_API_KEY = anthropicKey;
 
     // Dispatch to the correct Strategy implementation based on the vault's
     // on-chain `strategy_id`. Tries (1) hardcoded slug map, (2) Walrus
