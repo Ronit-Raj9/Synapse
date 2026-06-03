@@ -134,8 +134,10 @@ fun strategist_royalty_is_paid_on_realized_profit() {
     let (strategy_id, _cap_id) = publish_fixture_strategy(&mut scenario);
 
     let mut strategy: Strategy = ts::take_shared_by_id<Strategy>(&scenario, strategy_id);
+    // spend_per_epoch must cover the royalty: it is now charged against the
+    // per-epoch budget (AUDIT.md 2.1 fix), so the cap bounds the payout.
     let mut identity =
-        mint_agent_against(&mut scenario, &mut strategy, AGENT_SESSION, 1000, 10, b"ns");
+        mint_agent_against(&mut scenario, &mut strategy, AGENT_SESSION, 1_000_000, 10, b"ns");
     fund_with_sui(&mut identity, 1_000_000, &mut scenario);
 
     // Session-authorized: pay 20% of 100_000 profit = 20_000 to strategist.
@@ -641,5 +643,32 @@ fun publishing_strategy_with_royalty_above_cap_aborts() {
         ts::ctx(&mut scenario),
     );
     transfer::public_transfer(cap, STRATEGIST);
+    ts::end(scenario);
+}
+
+#[test]
+#[expected_failure(abort_code = synapse_core::agent::EOverBudget)]
+fun royalty_cannot_drain_beyond_per_epoch_budget() {
+    // AUDIT.md 2.1 drain attack: a compromised session supplies a huge
+    // profit_amount to drain the treasury to the strategist via royalty. The fix
+    // charges the royalty against the per-epoch spend cap, so this now aborts.
+    let mut scenario = ts::begin(HUMAN);
+    let (strategy_id, _cap_id) = publish_fixture_strategy(&mut scenario);
+    let mut strategy: Strategy = ts::take_shared_by_id<Strategy>(&scenario, strategy_id);
+    let mut identity =
+        mint_agent_against(&mut scenario, &mut strategy, AGENT_SESSION, 1000, 10, b"ns");
+    fund_with_sui(&mut identity, 1_000_000, &mut scenario);
+
+    // 20% of 100_000 = 20_000 royalty, but per-epoch cap is 1000 -> EOverBudget.
+    ts::next_tx(&mut scenario, AGENT_SESSION);
+    agent::pay_strategist_royalty<SUI>(
+        &mut identity,
+        &mut strategy,
+        100_000,
+        ts::ctx(&mut scenario),
+    );
+
+    test_utils::destroy(identity);
+    ts::return_shared(strategy);
     ts::end(scenario);
 }

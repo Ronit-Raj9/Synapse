@@ -474,6 +474,16 @@ public fun pay_strategist_royalty<T>(
         (((profit_amount as u128) * (royalty_bps as u128) / 10_000u128) as u64);
     if (royalty == 0) return;
 
+    // SECURITY (AUDIT.md 2.1): charge the royalty against the per-epoch spend
+    // budget — the same leash that bounds trades. `profit_amount` is supplied by
+    // the (session) caller and is otherwise unbounded, so without this a
+    // compromised session key could set it arbitrarily high and drain the whole
+    // treasury to the strategist in one transaction, bypassing the spend cap.
+    // record_spend aborts (EOverBudget) if the royalty exceeds the remaining
+    // per-epoch budget, so a compromised key can leak at most one epoch's cap.
+    reset_epoch_if_new(identity, ctx);
+    record_spend(identity, royalty);
+
     let token_type = type_name::with_defining_ids<T>();
     assert!(
         identity.treasury.contains_with_type<TypeName, balance::Balance<T>>(token_type),
